@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import AuthProvider from '@/components/providers/AuthProvider';
 import Navbar from '@/components/shared/Navbar';
+import Footer from '@/components/shared/Footer';
 import './globals.css';
 
 const inter = Inter({
@@ -36,7 +37,8 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Navbar />
-          <div className="flex-1 flex flex-col">{children}</div>
+          <main className="flex-1 flex flex-col">{children}</main>
+          <Footer />
           <Toaster
             position="top-right"
             richColors
