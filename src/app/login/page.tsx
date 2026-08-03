@@ -41,26 +41,33 @@ function LoginForm() {
     setIsLoading(true);
     try {
       const response = await apiClient.post<
-        ApiResponse<{ accessToken: string; user: User }>
+        ApiResponse<{ accessToken?: string; token?: string; user: User }>
       >('/auth/login', data);
 
       const resData = response.data?.data;
-      if (resData?.accessToken && resData?.user) {
-        setAuth(resData.user, resData.accessToken);
-        toast.success(`Welcome back, ${resData.user.name}!`);
+      // Handle both `accessToken` and `token` field names from backend
+      const token = resData?.accessToken || resData?.token;
+      const user = resData?.user;
+
+      if (token && user) {
+        setAuth(user, token);
+        toast.success(`Welcome back, ${user.name}!`);
 
         if (callbackUrl) {
           router.push(callbackUrl);
-        } else if (resData.user.role === 'ADMIN') {
+        } else if (user.role === 'ADMIN') {
           router.push('/dashboard/admin');
-        } else if (resData.user.role === 'PROVIDER') {
+        } else if (user.role === 'PROVIDER') {
           router.push('/dashboard/provider');
         } else {
           router.push('/dashboard/customer');
         }
+      } else {
+        // Response was 200 but data shape was unexpected
+        toast.error('Login failed: unexpected server response. Please try again.');
       }
     } catch {
-      // Handled by axios interceptor toast
+      // Error already shown by axios interceptor
     } finally {
       setIsLoading(false);
     }
@@ -166,16 +173,32 @@ function LoginForm() {
         {/* Footer Prompt */}
         <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500 font-medium">
           Don&apos;t have an account?{' '}
-          <Link
-            href="/register"
-            className="font-bold text-slate-900 hover:text-emerald-700 underline"
-          >
+          <Link href="/register" className="font-bold text-slate-900 hover:text-emerald-700 underline">
             Register here
           </Link>
         </div>
       </div>
+
+      {/* Demo Credentials Helper */}
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
+        <p className="text-xs font-bold text-slate-700 text-center">Demo Credentials</p>
+        <div className="grid grid-cols-1 gap-1.5 text-[11px] text-slate-600">
+          <div className="flex justify-between bg-white rounded-lg px-3 py-1.5 border border-slate-200">
+            <span className="font-bold text-rose-700">Admin</span>
+            <span className="font-mono">admin@gearup.com / 123456</span>
+          </div>
+          <div className="flex justify-between bg-white rounded-lg px-3 py-1.5 border border-slate-200">
+            <span className="font-bold text-indigo-700">Provider</span>
+            <span className="font-mono">provider@gearup.com / 123456</span>
+          </div>
+          <div className="flex justify-between bg-white rounded-lg px-3 py-1.5 border border-slate-200">
+            <span className="font-bold text-sky-700">Customer</span>
+            <span className="font-mono">customer@gearup.com / 123456</span>
+          </div>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
 
 export default function LoginPage() {

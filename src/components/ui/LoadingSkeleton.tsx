@@ -2,17 +2,17 @@ import React from 'react';
 
 export function GearCardSkeleton() {
   return (
-    <div className="glass-card rounded-2xl overflow-hidden animate-pulse flex flex-col h-full border border-slate-800">
-      <div className="w-full h-48 bg-slate-800/60" />
+    <div className="bg-white rounded-2xl overflow-hidden animate-pulse flex flex-col h-full border border-slate-200 shadow-xs">
+      <div className="w-full h-48 bg-slate-200" />
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <div className="h-4 bg-slate-800/80 rounded w-1/3" />
-          <div className="h-6 bg-slate-800 rounded w-3/4" />
-          <div className="h-4 bg-slate-800/60 rounded w-1/2" />
+          <div className="h-4 bg-slate-200 rounded w-1/3" />
+          <div className="h-6 bg-slate-200 rounded w-3/4" />
+          <div className="h-4 bg-slate-100 rounded w-1/2" />
         </div>
-        <div className="flex items-center justify-between pt-4 border-t border-slate-800/60">
-          <div className="h-6 bg-slate-800 rounded w-20" />
-          <div className="h-9 bg-slate-800 rounded-lg w-24" />
+        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+          <div className="h-6 bg-slate-200 rounded w-20" />
+          <div className="h-9 bg-slate-200 rounded-lg w-24" />
         </div>
       </div>
     </div>
@@ -31,10 +31,10 @@ export function GearGridSkeleton({ count = 6 }: { count?: number }) {
 
 export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
   return (
-    <tr className="animate-pulse border-b border-slate-800/60">
+    <tr className="animate-pulse border-b border-slate-100">
       {Array.from({ length: columns }).map((_, idx) => (
         <td key={idx} className="px-6 py-4">
-          <div className="h-4 bg-slate-800/80 rounded w-full max-w-[120px]" />
+          <div className="h-4 bg-slate-200 rounded w-full max-w-[120px]" />
         </td>
       ))}
     </tr>
@@ -43,13 +43,13 @@ export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
 
 export function TableSkeleton({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
   return (
-    <div className="w-full overflow-x-auto rounded-xl border border-slate-800 glass-card">
+    <div className="w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
       <table className="w-full text-left">
-        <thead className="bg-slate-900/60 border-b border-slate-800">
+        <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             {Array.from({ length: columns }).map((_, idx) => (
               <th key={idx} className="px-6 py-3">
-                <div className="h-4 bg-slate-800 rounded w-20" />
+                <div className="h-4 bg-slate-200 rounded w-20 animate-pulse" />
               </th>
             ))}
           </tr>

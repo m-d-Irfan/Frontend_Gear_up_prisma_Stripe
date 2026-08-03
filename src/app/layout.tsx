@@ -42,13 +42,13 @@ export default function RootLayout({
           <Toaster
             position="top-right"
             richColors
-            theme="dark"
+            theme="light"
             closeButton
             toastOptions={{
               style: {
-                background: '#0f172a',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#f8fafc',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                color: '#0f172a',
               },
             }}
           />
