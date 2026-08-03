@@ -31,9 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="light">
       <body
-        className={`${inter.variable} font-sans bg-[#0b0f19] text-slate-100 antialiased min-h-screen flex flex-col selection:bg-emerald-500/30 selection:text-emerald-400`}
+        className={`${inter.variable} font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-700`}
       >
         <AuthProvider>
           <Navbar />

@@ -2,19 +2,19 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 98%;
-    --primary: 160 84% 39%;
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
-    --accent: 187 92% 43%;
-    --border: 217.2 32.6% 15%;
+    --accent: 160 84% 39%;
+    --border: 214.3 31.8% 91.4%;
   }
 
   body {
-    background-color: #080c14;
-    color: #f8fafc;
+    background-color: #f8fafc;
+    color: #0f172a;
     font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     display: flex;
@@ -23,76 +23,71 @@
   }
 }
 
-/* Ambient Background Mesh */
+/* Ambient Subtle Background */
 .ambient-bg {
+  background-color: #f8fafc;
   background-image: 
-    radial-gradient(at 15% 15%, rgba(16, 185, 129, 0.12) 0px, transparent 55%),
-    radial-gradient(at 85% 20%, rgba(6, 182, 212, 0.10) 0px, transparent 55%),
-    radial-gradient(at 50% 80%, rgba(99, 102, 241, 0.08) 0px, transparent 55%);
+    radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+    radial-gradient(at 90% 20%, rgba(14, 165, 233, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(99, 102, 241, 0.04) 0px, transparent 50%);
 }
 
-/* Custom Glassmorphism Containers */
+/* White & Light Black Cards */
 .glass-card {
-  background: rgba(15, 23, 42, 0.70);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
 .glass-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card-hover:hover {
-  transform: translateY(-4px);
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(16, 185, 129, 0.35);
-  box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.2);
-}
-
-.glass-nav {
-  background: rgba(8, 12, 20, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Vibrant Typography Gradients */
-.gradient-text {
-  background: linear-gradient(135deg, #34d399 0%, #06b6d4 50%, #60a5fa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gradient-heading {
-  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Button & Interactive Gradients */
-.gradient-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.glass-card-hover:hover {
+  transform: translateY(-3px);
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Typography & Headings */
+.gradient-text {
+  color: #0f172a;
+}
+
+.highlight-text {
+  color: #059669;
+}
+
+/* Buttons */
+.gradient-btn {
+  background: #0f172a;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+
 .gradient-btn:hover {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45);
-  transform: translateY(-1px);
+  background: #1e293b;
+  box-shadow: 0 4px 14px 0 rgba(15, 23, 42, 0.2);
 }
 
 .gradient-btn-secondary {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: all 0.25s ease;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  transition: all 0.2s ease;
 }
 
 .gradient-btn-secondary:hover {
-  background: rgba(51, 65, 85, 0.9);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #34d399;
+  background: #e2e8f0;
+  color: #059669;
 }
 
 /* Custom Scrollbar */
@@ -101,12 +96,12 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #080c14;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #94a3b8;
 }

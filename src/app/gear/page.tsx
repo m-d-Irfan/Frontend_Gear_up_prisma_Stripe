@@ -45,45 +45,36 @@ function GearCatalogContent() {
     apiClient
       .get<ApiResponse<Category[]>>('/categories')
       .then((res) => {
-        if (res.data?.data) {
-          setCategories(res.data.data);
-        }
+        setCategories(res.data?.data || []);
       })
       .catch(() => {
-        // Fallback default categories
-        setCategories([
-          { id: 'cat-1', name: 'Camping & Hiking' },
-          { id: 'cat-2', name: 'Cycling & Mountain Bikes' },
-          { id: 'cat-3', name: 'Water Sports & Kayaks' },
-          { id: 'cat-4', name: 'Winter & Ski Equipment' },
-        ]);
+        // Silently handled by interceptor
       });
   }, []);
 
-  // Fetch Gear List
+  // Fetch Gear Directory
   const fetchGear = useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      if (searchTerm) params.set('searchTerm', searchTerm);
-      if (selectedCategory) params.set('categoryId', selectedCategory);
-      if (maxPrice && maxPrice < 500) params.set('maxPrice', maxPrice.toString());
-      if (onlyAvailable) params.set('isAvailable', 'true');
-      params.set('page', page.toString());
-      params.set('limit', '9');
+      if (searchTerm) params.append('searchTerm', searchTerm);
+      if (selectedCategory) params.append('category', selectedCategory);
+      if (maxPrice < 500) params.append('maxPrice', maxPrice.toString());
+      params.append('page', page.toString());
+      params.append('limit', '9');
 
       const response = await apiClient.get<ApiResponse<Gear[]>>(`/gear?${params.toString()}`);
-      const data = response.data?.data || [];
+      const items = response.data?.data || [];
       const meta = response.data?.meta;
 
-      setGearList(data);
-      if (meta) {
-        setTotalPages(Math.ceil(meta.total / meta.limit) || 1);
-        setTotalCount(meta.total);
-      } else {
-        setTotalPages(1);
-        setTotalCount(data.length);
-      }
+      // Filter client-side if only available checkbox is selected
+      const filtered = onlyAvailable
+        ? items.filter((item) => item.isAvailable && item.stock > 0)
+        : items;
+
+      setGearList(filtered);
+      setTotalPages(meta?.totalPage || Math.ceil((meta?.total || items.length) / 9) || 1);
+      setTotalCount(meta?.total || items.length);
     } catch {
       setGearList([]);
     } finally {
@@ -95,17 +86,17 @@ function GearCatalogContent() {
     fetchGear();
   }, [fetchGear]);
 
-  // Sync state to URL params
+  // Sync URL Params
   const updateQueryParams = (key: string, value: string) => {
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    const params = new URLSearchParams(searchParams.toString());
     if (value) {
-      current.set(key, value);
+      params.set(key, value);
     } else {
-      current.delete(key);
+      params.delete(key);
     }
-    current.set('page', '1');
+    params.set('page', '1');
     setPage(1);
-    router.push(`/gear?${current.toString()}`);
+    router.push(`/gear?${params.toString()}`);
   };
 
   const resetFilters = () => {
@@ -120,12 +111,12 @@ function GearCatalogContent() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Catalog Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-100 tracking-tight">
-            Explore Equipment <span className="gradient-text">Catalog</span>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+            Explore Equipment <span className="text-emerald-700">Catalog</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-600 mt-1 font-normal">
             Browse {totalCount > 0 ? `${totalCount} available` : 'all'} sports & outdoor rental items.
           </p>
         </div>
@@ -134,16 +125,16 @@ function GearCatalogContent() {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setIsMobileFilterOpen(true)}
-            className="md:hidden px-4 py-2 rounded-xl glass-card bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-200 flex items-center space-x-2"
+            className="md:hidden px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 flex items-center space-x-2 shadow-xs"
           >
-            <Filter className="w-4 h-4 text-emerald-400" />
+            <Filter className="w-4 h-4 text-emerald-600" />
             <span>Filters</span>
           </button>
 
           {(searchTerm || selectedCategory || maxPrice < 500 || onlyAvailable) && (
             <button
               onClick={resetFilters}
-              className="px-3 py-2 rounded-xl glass-card border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10 transition-colors flex items-center space-x-1.5"
+              className="px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition-colors flex items-center space-x-1.5"
             >
               <X className="w-3.5 h-3.5" />
               <span>Reset Filters</span>
@@ -155,19 +146,19 @@ function GearCatalogContent() {
       {/* Main Grid & Sidebar Layout */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Sidebar Filters (Desktop) */}
-        <aside className="hidden md:block space-y-6 glass-card p-6 rounded-2xl border border-slate-800/80 h-fit sticky top-24">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-              <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
+        <aside className="hidden md:block space-y-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs h-fit sticky top-24">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+              <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
               <span>Filter Catalog</span>
             </h3>
           </div>
 
           {/* Search Term Filter */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Search Keyword</label>
+            <label className="text-xs font-bold text-slate-800">Search Keyword</label>
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
               <input
                 type="text"
                 placeholder="e.g. Mountain Bike..."
@@ -176,25 +167,25 @@ function GearCatalogContent() {
                   setSearchTerm(e.target.value);
                   updateQueryParams('search', e.target.value);
                 }}
-                className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:bg-white"
               />
             </div>
           </div>
 
-          {/* Category Dropdown */}
+          {/* Category Dropdown Filter */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300">Category</label>
+            <label className="text-xs font-bold text-slate-800">Gear Category</label>
             <select
               value={selectedCategory}
               onChange={(e) => {
                 setSelectedCategory(e.target.value);
                 updateQueryParams('category', e.target.value);
               }}
-              className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white"
             >
               <option value="">All Categories</option>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+                <option key={cat.id} value={cat.name}>
                   {cat.name}
                 </option>
               ))}
@@ -203,9 +194,9 @@ function GearCatalogContent() {
 
           {/* Max Price Range Slider */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-              <span>Max Daily Price</span>
-              <span className="text-emerald-400 font-bold">${maxPrice}/day</span>
+            <div className="flex justify-between items-center text-xs">
+              <label className="font-bold text-slate-800">Max Daily Rate</label>
+              <span className="font-extrabold text-emerald-700">${maxPrice}/day</span>
             </div>
             <input
               type="range"
@@ -217,137 +208,87 @@ function GearCatalogContent() {
                 setMaxPrice(Number(e.target.value));
                 updateQueryParams('maxPrice', e.target.value);
               }}
-              className="w-full accent-emerald-500 bg-slate-950"
+              className="w-full accent-slate-900 cursor-pointer"
             />
           </div>
 
-          {/* Stock Availability Toggle */}
-          <div className="pt-2 border-t border-slate-800">
-            <label className="flex items-center space-x-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={onlyAvailable}
-                onChange={(e) => setOnlyAvailable(e.target.checked)}
-                className="rounded accent-emerald-500 w-4 h-4 bg-slate-950 border-slate-800"
-              />
-              <span className="text-xs font-medium text-slate-300">Show Available Only</span>
+          {/* In Stock Only Checkbox */}
+          <div className="pt-2 border-t border-slate-100 flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="inStockOnly"
+              checked={onlyAvailable}
+              onChange={(e) => setOnlyAvailable(e.target.checked)}
+              className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 border-slate-300"
+            />
+            <label htmlFor="inStockOnly" className="text-xs font-semibold text-slate-700 cursor-pointer">
+              Available Stock Only
             </label>
           </div>
         </aside>
 
-        {/* Mobile Sidebar Modal */}
-        {isMobileFilterOpen && (
-          <div className="fixed inset-0 z-50 md:hidden bg-slate-950/80 backdrop-blur-sm p-4 flex flex-col justify-end">
-            <div className="glass-card bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-base font-bold text-slate-100">Filter Gear</h3>
-                <button onClick={() => setIsMobileFilterOpen(false)}>
-                  <X className="w-5 h-5 text-slate-400" />
-                </button>
-              </div>
-
-              {/* Mobile Inputs */}
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Search Keyword..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    updateQueryParams('search', e.target.value);
-                  }}
-                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100"
-                />
-
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value);
-                    updateQueryParams('category', e.target.value);
-                  }}
-                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200"
-                >
-                  <option value="">All Categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  onClick={() => setIsMobileFilterOpen(false)}
-                  className="w-full py-2.5 rounded-xl text-xs font-bold text-white gradient-btn"
-                >
-                  Apply Filters
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Gear Catalog Grid */}
-        <main className="md:col-span-3 space-y-8">
+        {/* Gear Listing Grid Area */}
+        <div className="md:col-span-3 space-y-6">
           {isLoading ? (
             <GearGridSkeleton count={6} />
           ) : gearList.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {gearList.map((gear) => (
-                <GearCard key={gear.id} gear={gear} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {gearList.map((item) => (
+                  <GearCard key={item.id} gear={item} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center space-x-3 pt-8 border-t border-slate-200">
+                  <button
+                    onClick={() => {
+                      const prevPage = Math.max(1, page - 1);
+                      setPage(prevPage);
+                      updateQueryParams('page', prevPage.toString());
+                    }}
+                    disabled={page === 1}
+                    className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  <span className="text-xs font-bold text-slate-800">
+                    Page {page} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => {
+                      const nextPage = Math.min(totalPages, page + 1);
+                      setPage(nextPage);
+                      updateQueryParams('page', nextPage.toString());
+                    }}
+                    disabled={page === totalPages}
+                    className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
-            <div className="glass-card p-12 text-center rounded-2xl border border-slate-800/80 space-y-4">
-              <Compass className="w-12 h-12 text-slate-500 mx-auto animate-bounce" />
-              <h3 className="text-xl font-bold text-slate-200">No Equipment Matches Found</h3>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
-                Try adjusting your search criteria, category selection, or max price range slider.
+            <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-xs">
+              <Compass className="w-12 h-12 text-slate-400 mx-auto" />
+              <h3 className="text-base font-bold text-slate-900">No Equipment Matches Found</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                We couldn&apos;t find any rental equipment matching your active filter criteria.
               </p>
               <button
                 onClick={resetFilters}
-                className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white gradient-btn"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 inline-flex items-center space-x-2"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Reset All Filters</span>
+                <span>Clear Filters</span>
               </button>
             </div>
           )}
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-800 pt-6">
-              <p className="text-xs text-slate-400">
-                Page <strong className="text-slate-200">{page}</strong> of{' '}
-                <strong className="text-slate-200">{totalPages}</strong>
-              </p>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  disabled={page <= 1}
-                  onClick={() => {
-                    const newPage = page - 1;
-                    setPage(newPage);
-                    updateQueryParams('page', newPage.toString());
-                  }}
-                  className="p-2 rounded-xl glass-card border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  disabled={page >= totalPages}
-                  onClick={() => {
-                    const newPage = page + 1;
-                    setPage(newPage);
-                    updateQueryParams('page', newPage.toString());
-                  }}
-                  className="p-2 rounded-xl glass-card border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-        </main>
+        </div>
       </div>
     </div>
   );

@@ -12,31 +12,31 @@ interface BadgeProps {
 
 const variantStyles: Record<string, string> = {
   // Order Statuses
-  PENDING: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  CONFIRMED: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  PICKED_UP: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  RETURNED: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  CANCELLED: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  PENDING: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold',
+  CONFIRMED: 'bg-blue-50 text-blue-700 border-blue-200 font-semibold',
+  PICKED_UP: 'bg-purple-50 text-purple-700 border-purple-200 font-semibold',
+  RETURNED: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold',
+  CANCELLED: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold',
 
   // Payment Statuses
-  PAID: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  UNPAID: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  FAILED: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  PAID: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold',
+  UNPAID: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold',
+  FAILED: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold',
 
   // User Roles
-  CUSTOMER: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  PROVIDER: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-  ADMIN: 'bg-amber-500/10 text-amber-300 border-amber-500/20 font-bold',
+  CUSTOMER: 'bg-sky-50 text-sky-700 border-sky-200 font-semibold',
+  PROVIDER: 'bg-indigo-50 text-indigo-700 border-indigo-200 font-semibold',
+  ADMIN: 'bg-amber-50 text-amber-800 border-amber-300 font-bold',
 
   // User Statuses
-  ACTIVE: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  SUSPENDED: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  ACTIVE: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold',
+  SUSPENDED: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold',
 
   // Gear Availability
-  AVAILABLE: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  UNAVAILABLE: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+  AVAILABLE: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold',
+  UNAVAILABLE: 'bg-slate-100 text-slate-600 border-slate-200 font-semibold',
 
-  DEFAULT: 'bg-slate-800 text-slate-300 border-slate-700',
+  DEFAULT: 'bg-slate-100 text-slate-700 border-slate-200 font-semibold',
 };
 
 export function Badge({ variant, children, className }: BadgeProps) {
@@ -45,7 +45,7 @@ export function Badge({ variant, children, className }: BadgeProps) {
   return (
     <span
       className={clsx(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors',
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs border transition-colors',
         style,
         className
       )}
