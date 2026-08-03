@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import AuthProvider from '@/components/providers/AuthProvider';
+import Navbar from '@/components/shared/Navbar';
 import './globals.css';
 
 const inter = Inter({
@@ -29,11 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" class="dark">
+    <html lang="en" className="dark">
       <body
         className={`${inter.variable} font-sans bg-[#0b0f19] text-slate-100 antialiased min-h-screen flex flex-col selection:bg-emerald-500/30 selection:text-emerald-400`}
       >
         <AuthProvider>
+          <Navbar />
           <div className="flex-1 flex flex-col">{children}</div>
           <Toaster
             position="top-right"
