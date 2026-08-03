@@ -16,6 +16,18 @@
 
 ---
 
+## 🔑 Seed Test Credentials (For Grading & Testing)
+
+You can use the following pre-seeded test accounts to explore the role-specific dashboards and protected features:
+
+| Role | Email Address | Password | Key Capabilities |
+| :--- | :--- | :--- | :--- |
+| **👑 Admin** | `admin@gearup.com` | `Admin123!` | Moderate platform users, oversee analytics, manage & create gear categories. |
+| **🏕️ Provider** | `provider@gearup.com` | `Provider123!` | Create & edit equipment inventory, fulfill incoming orders, update rental status. |
+| **🚴 Customer** | `customer@gearup.com` | `Customer123!` | Rent equipment, complete Stripe checkout payments, leave reviews, track order history. |
+
+---
+
 ## ✨ Features & Architecture
 
 ### 🌐 1. Public Exploration & Discovery
