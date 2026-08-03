@@ -301,7 +301,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {isLoadingUsers ? (
-            <TableSkeleton rows={4} cols={5} />
+            <TableSkeleton rows={4} columns={5} />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-700">
@@ -368,7 +368,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-6 shadow-xs">
           <h3 className="text-lg font-black text-slate-900">Platform Equipment Listings</h3>
           {isLoadingGear ? (
-            <TableSkeleton rows={4} cols={5} />
+            <TableSkeleton rows={4} columns={5} />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-700">
@@ -405,7 +405,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-6 shadow-xs">
           <h3 className="text-lg font-black text-slate-900">Platform Rental Orders History</h3>
           {isLoadingOrders ? (
-            <TableSkeleton rows={4} cols={5} />
+            <TableSkeleton rows={4} columns={5} />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-700">
@@ -445,7 +445,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {isLoadingCategories ? (
-            <TableSkeleton rows={3} cols={3} />
+            <TableSkeleton rows={3} columns={3} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {categories.map((cat) => (
