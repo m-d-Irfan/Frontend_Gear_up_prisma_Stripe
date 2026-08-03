@@ -22,7 +22,6 @@ yarn-error.log*
 .env*.local
 .env
 implementation_plan.md
-API_INTEGRATION.md
 openspec/specs/gearup-frontend.spec.md
 PROJECT_DOCUMENTATION.txt
 
