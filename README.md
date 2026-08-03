@@ -32,7 +32,7 @@ You can use the following pre-seeded test accounts to explore the role-specific 
 
 ### 🌐 1. Public Exploration & Discovery
 - **Responsive Gear Catalog**: Equipment cards displaying optimized images (`next/image`), price/day, location badges, and stock availability badges.
-- **Advanced Real-Time Filtering**: Search keywords, category selector dropdowns, max price range sliders, and stock toggles with live URL query param synchronization (`useSearchParams`).
+- **Advanced Real-Time Filtering**: Search keywords, category selector dropdowns, equipment brand inputs, date availability pickers, max price range sliders, and stock toggles with live URL query param synchronization (`useSearchParams`).
 - **Gear Details & Reviews**: Full specifications, verified provider credentials, average star rating, and customer feedback comments.
 
 ### 🔐 2. Authentication & Middleware Security
@@ -42,7 +42,8 @@ You can use the following pre-seeded test accounts to explore the role-specific 
 
 ### 💳 3. Rental Order & Stripe Payment Flow
 - **Dynamic Rental Calculator**: Real-time date range picker computing duration (`totalDays`) and total cost (`totalPrice = days * pricePerDay`) with inline date validation.
-- **Stripe Integration**: Checkout session initiation (`POST /payments/create-checkout-session`) and verification callback (`POST /payments/verify`) on `/payment/success`.
+- **Stripe Integration**: Single-page embedded Stripe Checkout & Elements session on `/checkout/[orderId]` (`POST /payments/create-checkout-session`), returning client secret and callback verification (`POST /payments/verify`) on `/payment/success`.
+  > *Architecture Note*: Implemented embedded Stripe Elements checkout on `/checkout/[orderId]` to ensure a single-page user flow without leaving the app domain, fully integrated with backend Stripe session endpoints.
 
 ### 📊 4. Role-Based Dashboards
 - **Customer Dashboard**: Rental order history with status badges (`PENDING`, `CONFIRMED`, `PICKED_UP`, `RETURNED`, `CANCELLED`), payment receipts table, and Leave Review modal.

@@ -49,7 +49,6 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           {/* Badge pill */}
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-900 text-xs font-bold mb-8 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             <span>Next-Gen Peer-To-Peer Gear Rentals</span>
           </div>
 

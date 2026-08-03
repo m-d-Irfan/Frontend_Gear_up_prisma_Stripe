@@ -164,11 +164,11 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Burger Menu Button */}
-        <div className="md:hidden flex items-center space-x-2">
+        {/* Burger Menu Button (Visible on all screen sizes) */}
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 hover:bg-slate-200 transition-all focus:outline-none"
+            className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 hover:bg-slate-200 transition-all focus:outline-none cursor-pointer"
             aria-label="Toggle Navigation Menu"
           >
             {isMobileMenuOpen ? (
@@ -180,9 +180,9 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Navigation Drawer Menu (Toggled by Burger Button) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-3 shadow-lg animate-in slide-in-from-top-4 duration-200">
+        <div className="bg-white border-b border-slate-200 px-4 sm:px-8 pt-3 pb-6 space-y-3 shadow-xl animate-in slide-in-from-top-4 duration-200">
           <Link
             href="/gear"
             onClick={() => setIsMobileMenuOpen(false)}
