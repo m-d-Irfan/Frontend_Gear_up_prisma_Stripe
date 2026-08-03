@@ -11,7 +11,7 @@ This document maps all frontend components, pages, and interactive flows to thei
 |----------------------------|------------------|-------------|---------------|-------------|
 | `app/login/page.tsx` | `/auth/login` | `POST` | No | Authenticates user (Customer/Provider/Admin) & receives JWT Access Token. |
 | `app/register/page.tsx` | `/auth/register` | `POST` | No | Registers a new Customer or Provider account with Zod validation. |
-| `src/context/AuthContext.tsx` | `/auth/me` | `GET` | Yes (Bearer) | Fetches the authenticated user profile & verifies token validity. |
+| `src/components/providers/AuthProvider.tsx` | `/auth/me` | `GET` | Yes (Bearer) | Fetches the authenticated user profile & verifies token validity. |
 
 ---
 
