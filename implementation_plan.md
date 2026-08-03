@@ -21,6 +21,10 @@ Comprehensive implementation plan for **GearUp**, a modern sports and outdoor eq
 > - **Base URL**: `https://backend-gear-up-prisma-stripe.vercel.app/api/v1`
 > - **Auth**: Bearer Token stored in cookies & Zustand auth state.
 > - **Payment Gateway**: Stripe Checkout & `/payments/verify` callback.
+> - **Seed Test Credentials**:
+>   - Admin: `admin@gearup.com` (`Admin123!`)
+>   - Provider: `provider@gearup.com` (`Provider123!`)
+>   - Customer: `customer@gearup.com` (`Customer123!`)
 
 ---
 

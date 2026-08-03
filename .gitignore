@@ -21,7 +21,10 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
-# implementation_plan.md
+implementation_plan.md
+API_INTEGRATION.md
+openspec/specs/gearup-frontend.spec.md
+PROJECT_DOCUMENTATION.txt
 
 # vercel
 .vercel

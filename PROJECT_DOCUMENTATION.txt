@@ -52,6 +52,15 @@ Admin       Platform moderators       Admin dashboard, user moderation table
                                       (ACTIVE vs SUSPENDED toggle), global platform 
                                       analytics cards, category manager modal.
 
+3.1 SEED TEST CREDENTIALS (FOR EVALUATION & TESTING)
+--------------------------------------------------------------------------------
+ROLE        EMAIL ADDRESS             PASSWORD         KEY ACCESS AREA
+--------------------------------------------------------------------------------
+Admin       admin@gearup.com          Admin123!        /dashboard/admin
+Provider    provider@gearup.com       Provider123!     /dashboard/provider
+Customer    customer@gearup.com       Customer123!     /dashboard/customer
+--------------------------------------------------------------------------------
+
 
 4. COMPLETE 25-COMMIT BREAKDOWN & GIT COMMANDS GUIDE
 --------------------------------------------------------------------------------
@@ -257,7 +266,7 @@ Users           PATCH    /users/:id                        Admin
 
 6. DIRECTORY STRUCTURE
 --------------------------------------------------------------------------------
-d:\Software\All Bangla Font\Z-er\New folder\assi\Frontend_Gear_up_prisma_Stripe\
+GearUp_Frontend_Project/
 ├── src/
 │   ├── app/
 │   │   ├── checkout/[orderId]/page.tsx

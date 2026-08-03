@@ -69,3 +69,4 @@ This document maps all frontend components, pages, and interactive flows to thei
 | Frontend Route / Component | Backend Endpoint | HTTP Method | Auth Required | Description |
 |----------------------------|------------------|-------------|---------------|-------------|
 | `app/dashboard/admin/page.tsx` | `/users` | `GET` | Admin | Fetches list of all platform users (Customers, Providers, Admins). |
+| `app/dashboard/admin/page.tsx` | `/users/:id` | `PATCH` | Admin | Updates user moderation status (toggles between `ACTIVE` and `SUSPENDED`). |
