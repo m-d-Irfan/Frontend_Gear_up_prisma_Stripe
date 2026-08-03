@@ -1,0 +1,316 @@
+================================================================================
+          GEARUP FRONTEND - FULL PROJECT DOCUMENTATION & COMMIT GUIDE
+================================================================================
+
+Project Name: GearUp Frontend
+Repository: https://github.com/m-d-Irfan/Frontend_Gear_up_prisma_Stripe
+Requirement Specification: https://github.com/Apollo-Level2-Web-Dev/B7A5/blob/main/2-GearUp-Frontend.md
+Backend API Base URL: https://backend-gear-up-prisma-stripe.vercel.app/api/v1
+
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+GearUp is a modern, responsive Next.js 15 (App Router) sports and outdoor equipment 
+rental web application. It allows customers to browse rental gear, filter by category 
+and price, select dynamic rental dates, calculate costs in real-time, and complete 
+secure payments via Stripe. 
+
+Gear Providers can list equipment inventory and fulfill incoming rental orders by 
+updating order statuses. Admins oversee the entire platform through user moderation 
+tables, global analytics, and category management.
+
+
+2. TECH STACK & LIBRARIES
+--------------------------------------------------------------------------------
+- Core Framework: Next.js 15.1.6 (App Router, Server/Client Components, Edge Middleware)
+- Language: TypeScript 5.7.3 (Strict Mode)
+- Styling: Tailwind CSS v4.0, Custom Glassmorphism CSS, Lucide React Icons
+- State Management: Zustand 5.0 (Global Auth State Store with Token Persistence)
+- HTTP Client: Axios 1.7 (With Request Bearer Interceptor & Sonner Toast Error Notifications)
+- Forms & Validation: React Hook Form 7.54 + Zod 3.24 Schema Resolver
+- Payment Gateway: Stripe Checkout & Stripe Elements (@stripe/stripe-js, @stripe/react-stripe-js)
+- Toast Notifications: Sonner 1.7
+
+
+3. ROLES & PERMISSIONS MATRIX
+--------------------------------------------------------------------------------
+ROLE        DESCRIPTION               FRONTEND UI EXPECTATIONS & CAPABILITIES
+--------------------------------------------------------------------------------
+Customer    Users who rent gear       Public catalog browsing, search & filters, 
+                                      interactive rental date pickers, Stripe 
+                                      checkout flow, customer dashboard (rental 
+                                      history & payment receipts), star rating 
+                                      review submission for returned gear.
+
+Provider    Gear rental vendors       Provider dashboard, equipment inventory 
+                                      listing modal (with image URL, stock, daily 
+                                      rate), order fulfillment table with status 
+                                      transition controls (CONFIRMED, PICKED_UP, 
+                                      RETURNED, CANCELLED).
+
+Admin       Platform moderators       Admin dashboard, user moderation table 
+                                      (ACTIVE vs SUSPENDED toggle), global platform 
+                                      analytics cards, category manager modal.
+
+
+4. COMPLETE 25-COMMIT BREAKDOWN & GIT COMMANDS GUIDE
+--------------------------------------------------------------------------------
+
+Commit 1:
+Message: first commit
+Hash: baf8932
+Description: Initialized repository structure.
+
+Commit 2:
+Message: initialized packages and setup openspec, api integrations
+Hash: 0a49fd9
+Description: Installed Next.js 15, Zustand, Axios, Zod, Stripe dependencies, configured dark theme tokens in globals.css, and created API_INTEGRATION.md.
+
+Commit 3:
+Message: ts interface matching backend data models
+Hash: 765bb68
+Description: Added TypeScript models (User, Gear, Category, RentalOrder, Payment, Review, ApiResponse) in src/types/index.ts.
+
+Commit 4:
+Message: feat(api): setup custom axios instance with auth interceptor and unified error handling
+Files: src/lib/axios.ts
+Git Command:
+  git add src/lib/axios.ts
+  git commit -m "feat(api): setup custom axios instance with auth interceptor and unified error handling"
+
+Commit 5:
+Message: feat(auth): implement zustand auth store with persistent token and user state
+Files: src/store/useAuthStore.ts
+Git Command:
+  git add src/store/useAuthStore.ts
+  git commit -m "feat(auth): implement zustand auth store with persistent token and user state"
+
+Commit 6:
+Message: feat(middleware): create nextjs middleware for role-based route protection
+Files: src/middleware.ts
+Git Command:
+  git add src/middleware.ts
+  git commit -m "feat(middleware): create nextjs middleware for role-based route protection"
+
+Commit 7:
+Message: feat(ui): build base design tokens, root layout, and toast notification provider
+Files: src/app/layout.tsx, src/components/providers/AuthProvider.tsx
+Git Command:
+  git add src/app/layout.tsx src/components/providers/AuthProvider.tsx
+  git commit -m "feat(ui): build base design tokens, root layout, and toast notification provider"
+
+Commit 8:
+Message: feat(ui): create reusable loading skeleton and UI badge components
+Files: src/components/ui/LoadingSkeleton.tsx, src/components/ui/Badge.tsx, src/components/ui/Modal.tsx
+Git Command:
+  git add src/components/ui/
+  git commit -m "feat(ui): create reusable loading skeleton and UI badge components"
+
+Commit 9:
+Message: feat(nav): add responsive header navbar with dynamic auth state and role badges
+Files: src/components/shared/Navbar.tsx, src/app/layout.tsx
+Git Command:
+  git add src/components/shared/Navbar.tsx src/app/layout.tsx
+  git commit -m "feat(nav): add responsive header navbar with dynamic auth state and role badges"
+
+Commit 10:
+Message: feat(footer): add platform footer with quick navigation links and branding
+Files: src/components/shared/Footer.tsx, src/app/layout.tsx
+Git Command:
+  git add src/components/shared/Footer.tsx src/app/layout.tsx
+  git commit -m "feat(footer): add platform footer with quick navigation links and branding"
+
+Commit 11:
+Message: feat(gear-card): build responsive equipment card component with availability indicators
+Files: src/components/gear/GearCard.tsx
+Git Command:
+  git add src/components/gear/GearCard.tsx
+  git commit -m "feat(gear-card): build responsive equipment card component with availability indicators"
+
+Commit 12:
+Message: feat(auth): implement client login page with zod validation and error feedback
+Files: src/app/login/page.tsx
+Git Command:
+  git add src/app/login/page.tsx
+  git commit -m "feat(auth): implement client login page with zod validation and error feedback"
+
+Commit 13:
+Message: feat(auth): implement user registration page with customer and provider role selector
+Files: src/app/register/page.tsx
+Git Command:
+  git add src/app/register/page.tsx
+  git commit -m "feat(auth): implement user registration page with customer and provider role selector"
+
+Commit 14:
+Message: feat(landing): create home page with hero section, category showcase, and featured gear
+Files: src/app/page.tsx
+Git Command:
+  git add src/app/page.tsx
+  git commit -m "feat(landing): create home page with hero section, category showcase, and featured gear"
+
+Commit 15:
+Message: feat(catalog): implement gear listing page with search, category, price range, and date filters
+Files: src/app/gear/page.tsx
+Git Command:
+  git add src/app/gear/page.tsx
+  git commit -m "feat(catalog): implement gear listing page with search, category, price range, and date filters"
+
+Commit 16:
+Message: feat(gear-details): implement single gear detail page with gallery, specs, and reviews
+Files: src/app/gear/[id]/page.tsx
+Git Command:
+  git add "src/app/gear/[id]/page.tsx"
+  git commit -m "feat(gear-details): implement single gear detail page with gallery, specs, and reviews"
+
+Commit 17:
+Message: feat(rental-calc): integrate dynamic rental date calculator widget and order initiation
+Files: src/components/gear/RentalCalculator.tsx, src/app/gear/[id]/page.tsx
+Git Command:
+  git add src/components/gear/RentalCalculator.tsx "src/app/gear/[id]/page.tsx"
+  git commit -m "feat(rental-calc): integrate dynamic rental date calculator widget and order initiation"
+
+Commit 18:
+Message: feat(checkout): implement rental checkout summary and stripe elements checkout flow
+Files: src/app/checkout/[orderId]/page.tsx
+Git Command:
+  git add "src/app/checkout/[orderId]/page.tsx"
+  git commit -m "feat(checkout): implement rental checkout summary and stripe elements checkout flow"
+
+Commit 19:
+Message: feat(payment): build stripe payment verification success callback and cancellation pages
+Files: src/app/payment/success/page.tsx, src/app/payment/cancel/page.tsx
+Git Command:
+  git add src/app/payment/
+  git commit -m "feat(payment): build stripe payment verification success callback and cancellation pages"
+
+Commit 20:
+Message: feat(dashboard-customer): create customer dashboard for rental history and payment receipts
+Files: src/app/dashboard/customer/page.tsx
+Git Command:
+  git add "src/app/dashboard/customer/page.tsx"
+  git commit -m "feat(dashboard-customer): create customer dashboard for rental history and payment receipts"
+
+Commit 21:
+Message: feat(reviews): add customer review modal for completed rental feedback
+Files: src/components/dashboard/WriteReviewModal.tsx
+Git Command:
+  git add src/components/dashboard/WriteReviewModal.tsx
+  git commit -m "feat(reviews): add customer review modal for completed rental feedback"
+
+Commit 22:
+Message: feat(dashboard-provider): build provider dashboard with gear creation modal and status update flow
+Files: src/components/dashboard/AddGearModal.tsx, src/app/dashboard/provider/page.tsx
+Git Command:
+  git add src/components/dashboard/AddGearModal.tsx "src/app/dashboard/provider/page.tsx"
+  git commit -m "feat(dashboard-provider): build provider dashboard with gear creation modal and status update flow"
+
+Commit 23:
+Message: feat(dashboard-admin): implement admin dashboard for user management, analytics, and category creation
+Files: src/components/dashboard/AddCategoryModal.tsx, src/app/dashboard/admin/page.tsx
+Git Command:
+  git add src/components/dashboard/AddCategoryModal.tsx "src/app/dashboard/admin/page.tsx"
+  git commit -m "feat(dashboard-admin): implement admin dashboard for user management, analytics, and category creation"
+
+Commit 24:
+Message: feat(error-handling): add root loading skeleton, error fallback boundaries, and 404 page
+Files: src/app/loading.tsx, src/app/error.tsx, src/app/not-found.tsx
+Git Command:
+  git add src/app/loading.tsx src/app/error.tsx src/app/not-found.tsx
+  git commit -m "feat(error-handling): add root loading skeleton, error fallback boundaries, and 404 page"
+
+Commit 25:
+Message: docs & polish: update api documentation, project documentation, and build verification
+Files: README.md, API_INTEGRATION.md
+Git Command:
+  git add README.md API_INTEGRATION.md
+  git commit -m "docs & polish: update api documentation, project documentation, and build verification"
+
+
+5. API ENDPOINTS MAPPING MATRIX
+--------------------------------------------------------------------------------
+MODULE          METHOD   ENDPOINT                          ROLE REQUIRED
+--------------------------------------------------------------------------------
+Auth            POST     /auth/login                       Public
+Auth            POST     /auth/register                    Public
+Auth            GET      /auth/me                          Bearer Token
+
+Categories      GET      /categories                       Public
+Categories      POST     /categories                       Admin
+
+Gear            GET      /gear                             Public
+Gear            GET      /gear/:id                         Public
+Gear            POST     /gear                             Provider / Admin
+
+Orders          POST     /orders                           Customer
+Orders          GET      /orders/my-orders                 Customer / Provider
+Orders          PATCH    /orders/:id/status                Provider / Admin
+
+Payments        POST     /payments/create-checkout-session Customer
+Payments        POST     /payments/verify                  Customer
+Payments        GET      /payments/history                 Customer / Admin
+
+Reviews         POST     /reviews                          Customer
+
+Users           GET      /users                            Admin
+Users           PATCH    /users/:id                        Admin
+
+
+6. DIRECTORY STRUCTURE
+--------------------------------------------------------------------------------
+d:\Software\All Bangla Font\Z-er\New folder\assi\Frontend_Gear_up_prisma_Stripe\
+├── src/
+│   ├── app/
+│   │   ├── checkout/[orderId]/page.tsx
+│   │   ├── dashboard/
+│   │   │   ├── admin/page.tsx
+│   │   │   ├── customer/page.tsx
+│   │   │   └── provider/page.tsx
+│   │   ├── gear/
+│   │   │   ├── [id]/page.tsx
+│   │   │   └── page.tsx
+│   │   ├── login/page.tsx
+│   │   ├── payment/
+│   │   │   ├── cancel/page.tsx
+│   │   │   └── success/page.tsx
+│   │   ├── register/page.tsx
+│   │   ├── error.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── loading.tsx
+│   │   ├── not-found.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── dashboard/
+│   │   │   ├── AddCategoryModal.tsx
+│   │   │   ├── AddGearModal.tsx
+│   │   │   └── WriteReviewModal.tsx
+│   │   ├── gear/
+│   │   │   ├── GearCard.tsx
+│   │   │   └── RentalCalculator.tsx
+│   │   ├── providers/
+│   │   │   └── AuthProvider.tsx
+│   │   ├── shared/
+│   │   │   ├── Footer.tsx
+│   │   │   └── Navbar.tsx
+│   │   └── ui/
+│   │       ├── Badge.tsx
+│   │       ├── LoadingSkeleton.tsx
+│   │       └── Modal.tsx
+│   ├── lib/
+│   │   └── axios.ts
+│   ├── store/
+│   │   └── useAuthStore.ts
+│   ├── types/
+│   │   └── index.ts
+│   └── middleware.ts
+├── API_INTEGRATION.md
+├── implementation_plan.md
+├── PROJECT_DOCUMENTATION.txt
+├── README.md
+├── next.config.ts
+├── package.json
+└── tsconfig.json
+
+================================================================================
+                  DOCUMENTATION GENERATED SUCCESSFULLY
+================================================================================
