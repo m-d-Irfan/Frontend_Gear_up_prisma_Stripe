@@ -79,7 +79,7 @@ function GearCatalogContent() {
       }
 
       setGearList(items);
-      setTotalPages(meta?.totalPage || Math.ceil((meta?.total || items.length) / 9) || 1);
+      setTotalPages(Math.ceil((meta?.total || items.length) / 9) || 1);
       setTotalCount(meta?.total || items.length);
     } catch {
       setGearList([]);
