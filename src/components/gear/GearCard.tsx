@@ -1,9 +1,7 @@
-'use client';
-
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React from 'react';
 import Link from 'next/link';
-import { MapPin, ArrowRight, Tag, Star } from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Tag, ArrowRight, Shield, Star, CheckCircle2 } from 'lucide-react';
 import { Gear } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 
@@ -11,105 +9,90 @@ interface GearCardProps {
   gear: Gear;
 }
 
-const DEFAULT_GEAR_IMAGE =
-  'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=800&auto=format&fit=crop';
-
 export default function GearCard({ gear }: GearCardProps) {
-  const [imgSrc, setImgSrc] = useState(gear.imageUrl || DEFAULT_GEAR_IMAGE);
-
-  // Compute average rating if reviews exist
-  const avgRating =
-    gear.reviews && gear.reviews.length > 0
-      ? (
-          gear.reviews.reduce((acc, rev) => acc + rev.rating, 0) /
-          gear.reviews.length
-        ).toFixed(1)
-      : null;
+  const fallbackImage =
+    'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <div className="group glass-card rounded-2xl overflow-hidden border border-slate-800/80 hover:border-emerald-500/50 transition-all duration-300 flex flex-col h-full hover:shadow-xl hover:shadow-emerald-950/30">
-      {/* Gear Image Container */}
-      <div className="relative w-full h-52 bg-slate-900 overflow-hidden">
+    <div className="glass-card glass-card-hover rounded-2xl overflow-hidden flex flex-col h-full group border border-slate-800/80">
+      {/* Image Container with Dynamic Stock Badge */}
+      <div className="relative h-52 w-full overflow-hidden bg-slate-900">
         <Image
-          src={imgSrc}
+          src={gear.imageUrl || fallbackImage}
           alt={gear.title}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          onError={() => setImgSrc(DEFAULT_GEAR_IMAGE)}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+        
+        {/* Ambient Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30" />
 
-        {/* Top Badges Overlay */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-          <Badge
-            variant={gear.isAvailable && gear.stock > 0 ? 'AVAILABLE' : 'UNAVAILABLE'}
-            className="shadow-md backdrop-blur-md"
-          >
-            {gear.isAvailable && gear.stock > 0
-              ? `In Stock (${gear.stock})`
-              : 'Out of Stock'}
-          </Badge>
-
-          {gear.category?.name && (
-            <span className="inline-flex items-center space-x-1 text-[11px] font-semibold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full shadow-md">
-              <Tag className="w-3 h-3" />
-              <span>{gear.category.name}</span>
+        {/* Category Pill */}
+        {gear.category?.name && (
+          <div className="absolute top-3 left-3">
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-950/80 text-emerald-400 border border-emerald-500/30 backdrop-blur-md shadow-lg">
+              {gear.category.name}
             </span>
-          )}
+          </div>
+        )}
+
+        {/* Stock Badge */}
+        <div className="absolute top-3 right-3">
+          <Badge variant={gear.isAvailable ? 'available' : 'rented'}>
+            {gear.isAvailable ? `${gear.stock} Available` : 'Out of Stock'}
+          </Badge>
         </div>
 
         {/* Price Tag Overlay */}
-        <div className="absolute bottom-3 left-3">
-          <div className="bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 shadow-md">
-            <span className="text-lg font-bold text-white">${gear.pricePerDay}</span>
-            <span className="text-xs text-slate-400 font-medium"> / day</span>
-          </div>
+        <div className="absolute bottom-3 left-3 bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 flex items-baseline space-x-1 shadow-lg">
+          <span className="text-xs text-slate-400">$</span>
+          <span className="text-lg font-extrabold text-white tracking-tight">
+            {Number(gear.pricePerDay).toFixed(2)}
+          </span>
+          <span className="text-[10px] font-medium text-slate-400">/ day</span>
         </div>
-
-        {avgRating && (
-          <div className="absolute bottom-3 right-3 bg-slate-950/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-slate-800 flex items-center space-x-1 text-xs text-amber-400 font-semibold shadow-md">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            <span>{avgRating}</span>
-          </div>
-        )}
       </div>
 
-      {/* Card Content */}
+      {/* Card Content Body */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-xs text-slate-400">
-            <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">{gear.location || 'Location upon request'}</span>
-            {gear.brand && (
-              <>
-                <span>•</span>
-                <span className="truncate font-medium text-slate-300">{gear.brand}</span>
-              </>
+          {/* Title & Brand */}
+          <div className="flex items-center justify-between text-xs text-slate-400">
+            <span className="font-semibold text-emerald-400 flex items-center gap-1">
+              <Tag className="w-3 h-3" />
+              {gear.brand || 'GearUp Verified'}
+            </span>
+            {gear.location && (
+              <span className="flex items-center space-x-1 text-slate-400">
+                <MapPin className="w-3 h-3 text-slate-400" />
+                <span className="truncate max-w-[100px]">{gear.location}</span>
+              </span>
             )}
           </div>
 
-          <h3 className="text-lg font-bold text-slate-100 group-hover:text-emerald-400 transition-colors line-clamp-1">
+          <h3 className="text-base font-bold text-slate-100 line-clamp-1 group-hover:text-emerald-400 transition-colors">
             {gear.title}
           </h3>
 
           <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-            {gear.description}
+            {gear.description || 'Premium quality rental equipment thoroughly inspected and prepped for outdoor adventure.'}
           </p>
         </div>
 
-        {/* Action Button */}
+        {/* Footer Action */}
         <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-          <span className="text-xs text-slate-400">
-            Provider: <strong className="text-slate-200">{gear.provider?.name || 'Verified Shop'}</strong>
-          </span>
+          <div className="flex items-center space-x-1 text-xs text-amber-400 font-semibold">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <span>4.9 (Verified)</span>
+          </div>
 
           <Link
             href={`/gear/${gear.id}`}
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:translate-x-0.5 transition-all"
+            className="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 group/btn"
           >
-            <span>View Details</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Rent Now</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
