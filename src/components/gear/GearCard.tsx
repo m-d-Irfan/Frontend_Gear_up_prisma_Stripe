@@ -14,6 +14,9 @@ export default function GearCard({ gear }: GearCardProps) {
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&auto=format&fit=crop';
   const displayImage = gear.image || gear.imageUrl || fallbackImage;
 
+  const stock = gear.stock ?? 0;
+  const isAvailable = Boolean(gear.isAvailable) && stock > 0;
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden flex flex-col h-full group border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
       {/* Image Container with Dynamic Stock Badge */}
@@ -46,8 +49,8 @@ export default function GearCard({ gear }: GearCardProps) {
 
         {/* Stock Badge */}
         <div className="absolute top-3 right-3">
-          <Badge variant={gear.isAvailable && gear.stock > 0 ? 'AVAILABLE' : 'UNAVAILABLE'}>
-            {gear.isAvailable && gear.stock > 0 ? `${gear.stock} Available` : 'Out of Stock'}
+          <Badge variant={isAvailable ? 'AVAILABLE' : 'UNAVAILABLE'}>
+            {isAvailable ? `${stock} Available` : 'Out of Stock'}
           </Badge>
         </div>
 
