@@ -2,6 +2,17 @@ import { create } from 'zustand';
 import { User, ApiResponse } from '@/types';
 import apiClient from '@/lib/axios';
 
+export const DEFAULT_CARTOON_AVATARS = [
+  'https://api.dicebear.com/7.x/bottts/svg?seed=GearUpHero1',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=GearUpHero2',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=GearUpHero3',
+  'https://api.dicebear.com/7.x/micah/svg?seed=GearUpHero4',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=GearUpHero5',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=GearUpHero6',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=GearUpHero7',
+  'https://api.dicebear.com/7.x/micah/svg?seed=GearUpHero8',
+];
+
 interface AuthState {
   user: User | null;
   token: string | null;

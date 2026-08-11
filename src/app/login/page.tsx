@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Dumbbell, ShieldCheck, UserCheck, Store } from 'lucide-react';
 import apiClient from '@/lib/axios';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore, DEFAULT_CARTOON_AVATARS } from '@/store/useAuthStore';
 import { ApiResponse, User } from '@/types';
 import { toast } from 'sonner';
 
@@ -80,11 +80,12 @@ function LoginForm() {
 
   const handleSocialLogin = (provider: string) => {
     // Perform social login session setup
-    const mockUser = {
+    const mockUser: User = {
       id: provider === 'Google' ? 'usr-google-demo' : 'usr-fb-demo',
       name: `${provider} Verified User`,
       email: `${provider.toLowerCase()}user@gearup.com`,
-      role: 'CUSTOMER' as const,
+      role: 'CUSTOMER',
+      status: 'ACTIVE',
       avatarUrl: DEFAULT_CARTOON_AVATARS[0],
     };
     setAuth(mockUser, 'mock_social_token_jwt_verified');

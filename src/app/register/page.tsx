@@ -117,11 +117,12 @@ export default function RegisterPage() {
   };
 
   const handleSocialLogin = (provider: string) => {
-    const mockUser = {
+    const mockUser: User = {
       id: provider === 'Google' ? 'usr-google-demo' : 'usr-fb-demo',
       name: `${provider} Registered User`,
       email: `${provider.toLowerCase()}new@gearup.com`,
       role: selectedRole,
+      status: 'ACTIVE',
       avatarUrl: DEFAULT_CARTOON_AVATARS[1],
     };
     setAuth(mockUser, 'mock_social_token_jwt_verified');
