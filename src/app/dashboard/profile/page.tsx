@@ -21,7 +21,7 @@ import apiClient from '@/lib/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ApiResponse, User } from '@/types';
 import { Badge } from '@/components/ui/Badge';
-import { CardSkeleton } from '@/components/ui/LoadingSkeleton';
+import { GearCardSkeleton } from '@/components/ui/LoadingSkeleton';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { toast } from 'sonner';
 
@@ -133,8 +133,8 @@ export default function ProfilePage() {
   if (isLoadingProfile) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-        <CardSkeleton />
-        <CardSkeleton />
+        <GearCardSkeleton />
+        <GearCardSkeleton />
       </div>
     );
   }
