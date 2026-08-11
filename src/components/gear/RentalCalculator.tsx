@@ -99,6 +99,8 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
     }
   };
 
+  const stockCount = gear.stock ?? 0;
+
   const isFormValid =
     isAuthenticated &&
     user?.role === 'CUSTOMER' &&
@@ -107,11 +109,11 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
     totalDays > 0 &&
     !dateError &&
     gear.isAvailable &&
-    gear.stock > 0;
+    stockCount > 0;
 
   const getButtonText = () => {
     if (isSubmitting) return 'Creating Rental Order...';
-    if (!gear.isAvailable || gear.stock <= 0) return 'Currently Out of Stock';
+    if (!gear.isAvailable || stockCount <= 0) return 'Currently Out of Stock';
     if (!isAuthenticated) return 'Log In to Place Order';
     if (user?.role !== 'CUSTOMER') return 'Customer Account Required';
     if (!startDate || !endDate) return 'Select Dates Above to Rent';

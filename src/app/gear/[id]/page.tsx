@@ -137,11 +137,11 @@ export default function GearDetailsPage({
 
             <div className="absolute top-4 left-4 flex items-center space-x-2">
               <Badge
-                variant={gear.isAvailable && gear.stock > 0 ? 'AVAILABLE' : 'UNAVAILABLE'}
+                variant={gear.isAvailable && (gear.stock ?? 0) > 0 ? 'AVAILABLE' : 'UNAVAILABLE'}
                 className="shadow-sm px-3 py-1 text-xs"
               >
-                {gear.isAvailable && gear.stock > 0
-                  ? `Available (${gear.stock} in stock)`
+                {gear.isAvailable && (gear.stock ?? 0) > 0
+                  ? `Available (${gear.stock ?? 0} in stock)`
                   : 'Currently Unavailable'}
               </Badge>
             </div>
