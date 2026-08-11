@@ -61,7 +61,19 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { user, isAuthenticated, setAuth } = useAuthStore();
+
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      const destination =
+        user.role === 'ADMIN'
+          ? '/dashboard/admin'
+          : user.role === 'PROVIDER'
+          ? '/dashboard/provider'
+          : '/dashboard/customer';
+      router.push(destination);
+    }
+  }, [isAuthenticated, user, router]);
 
   const {
     register,
@@ -133,6 +145,13 @@ export default function RegisterPage() {
           client_id: clientId,
           scope:
             'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+          error_callback: (err: any) => {
+            if (err?.type === 'origin_mismatch') {
+              toast.error(
+                'Google OAuth Error: Please add https://frontend-gear-up-prisma-stripe.vercel.app to Authorized Origins in Google Cloud Console.'
+              );
+            }
+          },
           callback: async (tokenResponse: any) => {
             if (tokenResponse?.access_token) {
               try {

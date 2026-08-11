@@ -50,14 +50,13 @@ apiClient.interceptors.response.use(
         error.message ||
         'An unexpected error occurred. Please try again.';
 
-      // Show real error for ALL cases (including 401 for login failures)
-      // but suppress 401 on /auth/me (background session check)
-      const isAuthMeCall = error.config?.url?.includes('/auth/me');
-      if (!isAuthMeCall) {
+      const isAuthCall = error.config?.url?.includes('/auth/');
+      const isJwtError = errorMessage.toLowerCase().includes('jwt') || status === 401;
+
+      // Suppress 401/JWT background error toasts to prevent intrusive "jwt malformed" popups
+      if (!isJwtError && !isAuthCall) {
         toast.error(errorMessage);
-      } else if (status === 401) {
-        // Silent — just means user is not logged in
-      } else {
+      } else if (status === 400 || status === 403 || status === 404 || status === 500) {
         toast.error(errorMessage);
       }
     }

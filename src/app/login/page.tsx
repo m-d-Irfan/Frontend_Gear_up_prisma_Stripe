@@ -27,7 +27,20 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl');
 
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { user, isAuthenticated, setAuth } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const destination =
+        callbackUrl ||
+        (user.role === 'ADMIN'
+          ? '/dashboard/admin'
+          : user.role === 'PROVIDER'
+          ? '/dashboard/provider'
+          : '/dashboard/customer');
+      router.push(destination);
+    }
+  }, [isAuthenticated, user, callbackUrl, router]);
 
   const {
     register,
@@ -95,6 +108,13 @@ function LoginForm() {
           client_id: clientId,
           scope:
             'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+          error_callback: (err: any) => {
+            if (err?.type === 'origin_mismatch') {
+              toast.error(
+                'Google OAuth Error: Please add https://frontend-gear-up-prisma-stripe.vercel.app to Authorized Origins in Google Cloud Console.'
+              );
+            }
+          },
           callback: async (tokenResponse: any) => {
             if (tokenResponse?.access_token) {
               try {
