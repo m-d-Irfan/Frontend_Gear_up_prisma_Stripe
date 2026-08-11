@@ -434,7 +434,7 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">${item.pricePerDay}</td>
                         <td className="px-4 py-3.5 text-slate-700 dark:text-slate-300 font-bold">{item.stock}</td>
                         <td className="px-4 py-3.5">
-                          <Badge variant={item.isAvailable && item.stock > 0 ? 'AVAILABLE' : 'UNAVAILABLE'} />
+                          <Badge variant={item.isAvailable && (item.stock ?? 0) > 0 ? 'AVAILABLE' : 'UNAVAILABLE'} />
                         </td>
                       </tr>
                     ))}
