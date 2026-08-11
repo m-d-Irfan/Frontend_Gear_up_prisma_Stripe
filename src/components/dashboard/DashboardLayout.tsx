@@ -38,6 +38,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
 
   React.useEffect(() => {
