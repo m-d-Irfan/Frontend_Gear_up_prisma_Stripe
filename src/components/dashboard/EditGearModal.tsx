@@ -4,34 +4,35 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Plus, Package } from 'lucide-react';
+import { Loader2, Edit3, Save } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import Modal from '@/components/ui/Modal';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { toast } from 'sonner';
 
-const createGearSchema = z.object({
+const updateGearSchema = z.object({
   title: z.string().min(2, 'Equipment title must be at least 2 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   pricePerDay: z.number({ invalid_type_error: 'Daily rate must be a valid number' }).positive('Daily rate must be greater than 0'),
   location: z.string().min(2, 'Location is required'),
   brand: z.string().optional(),
-  stock: z.number().int().min(1, 'Stock must be at least 1'),
-  isAvailable: z.boolean().default(true),
+  stock: z.number().int().min(0, 'Stock cannot be negative'),
+  isAvailable: z.boolean(),
   image: z.string().optional(),
   categoryId: z.string().min(1, 'Please select a category'),
 });
 
-type CreateGearFormValues = z.infer<typeof createGearSchema>;
+type UpdateGearFormValues = z.infer<typeof updateGearSchema>;
 
-interface AddGearModalProps {
+interface EditGearModalProps {
   isOpen: boolean;
+  gear: Gear | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModalProps) {
+export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: EditGearModalProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,28 +44,20 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
     watch,
     reset,
     formState: { errors },
-  } = useForm<CreateGearFormValues>({
-    resolver: zodResolver(createGearSchema),
-    defaultValues: {
-      stock: 1,
-      isAvailable: true,
-      pricePerDay: 25,
-    },
+  } = useForm<UpdateGearFormValues>({
+    resolver: zodResolver(updateGearSchema),
   });
 
   const imageValue = watch('image');
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && gear) {
       setIsLoadingCategories(true);
       apiClient
         .get<ApiResponse<Category[]>>('/categories')
         .then((res) => {
           if (res.data?.data) {
             setCategories(res.data.data);
-            if (res.data.data.length > 0) {
-              setValue('categoryId', res.data.data[0].id);
-            }
           }
         })
         .catch(() => {
@@ -73,26 +66,38 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
         .finally(() => {
           setIsLoadingCategories(false);
         });
-    }
-  }, [isOpen, setValue]);
 
-  const onSubmit = async (data: CreateGearFormValues) => {
+      reset({
+        title: gear.title,
+        description: gear.description,
+        pricePerDay: gear.pricePerDay,
+        location: gear.location,
+        brand: gear.brand || '',
+        stock: gear.stock,
+        isAvailable: gear.isAvailable,
+        image: gear.image || gear.imageUrl || '',
+        categoryId: gear.categoryId || (gear.category?.id || ''),
+      });
+    }
+  }, [isOpen, gear, reset]);
+
+  const onSubmit = async (data: UpdateGearFormValues) => {
+    if (!gear) return;
     setIsSubmitting(true);
     try {
-      await apiClient.post<ApiResponse<Gear>>('/gear', data);
-      toast.success('Equipment listing created successfully!');
-      reset();
+      await apiClient.patch<ApiResponse<Gear>>(`/gear/${gear.id}`, data);
+      toast.success('Equipment updated successfully!');
       onSuccess();
       onClose();
     } catch {
-      // Handled by axios interceptor
+      // Error handled by axios interceptor
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New Outdoor Equipment">
+    <Modal isOpen={isOpen} onClose={onClose} title={`Edit Listing: ${gear?.title || 'Equipment'}`}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Image File Upload Component */}
         <ImageUpload
@@ -105,15 +110,14 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
 
         {/* Title */}
         <div className="space-y-1">
-          <label htmlFor="gear-title" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+          <label htmlFor="edit-gear-title" className="text-xs font-bold text-slate-800 dark:text-slate-200">
             Equipment Title *
           </label>
           <input
             {...register('title')}
-            id="gear-title"
+            id="edit-gear-title"
             type="text"
-            placeholder="e.g. Mountain Bike Pro 29er"
-            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
+            className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
           />
           {errors.title && <p className="text-xs text-rose-600 font-semibold">{errors.title.message}</p>}
         </div>
@@ -121,7 +125,7 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
         {/* Category & Brand Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label htmlFor="gear-category" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <label htmlFor="edit-gear-category" className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Category *
             </label>
             {isLoadingCategories ? (
@@ -132,7 +136,7 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
             ) : (
               <select
                 {...register('categoryId')}
-                id="gear-category"
+                id="edit-gear-category"
                 className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 cursor-pointer"
               >
                 {categories.map((cat) => (
@@ -146,15 +150,14 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="gear-brand" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <label htmlFor="edit-gear-brand" className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Brand / Manufacturer
             </label>
             <input
               {...register('brand')}
-              id="gear-brand"
+              id="edit-gear-brand"
               type="text"
-              placeholder="e.g. Trek, Salomon"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
             />
           </div>
         </div>
@@ -162,60 +165,69 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
         {/* Price, Stock & Location */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1">
-            <label htmlFor="gear-price" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <label htmlFor="edit-gear-price" className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Daily Rate ($/day) *
             </label>
             <input
               {...register('pricePerDay', { valueAsNumber: true })}
-              id="gear-price"
+              id="edit-gear-price"
               type="number"
               step="0.01"
-              placeholder="45.00"
               className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
             />
             {errors.pricePerDay && <p className="text-xs text-rose-600 font-semibold">{errors.pricePerDay.message}</p>}
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="gear-stock" className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              Quantity Stock *
+            <label htmlFor="edit-gear-stock" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              Stock Quantity *
             </label>
             <input
               {...register('stock', { valueAsNumber: true })}
-              id="gear-stock"
+              id="edit-gear-stock"
               type="number"
-              min="1"
-              placeholder="1"
+              min="0"
               className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
             />
             {errors.stock && <p className="text-xs text-rose-600 font-semibold">{errors.stock.message}</p>}
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="gear-location" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <label htmlFor="edit-gear-location" className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Location City *
             </label>
             <input
               {...register('location')}
-              id="gear-location"
+              id="edit-gear-location"
               type="text"
-              placeholder="e.g. Denver, CO"
               className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
             />
             {errors.location && <p className="text-xs text-rose-600 font-semibold">{errors.location.message}</p>}
           </div>
         </div>
 
+        {/* Availability Toggle */}
+        <div className="flex items-center space-x-2 pt-1">
+          <input
+            {...register('isAvailable')}
+            id="edit-gear-available"
+            type="checkbox"
+            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700 cursor-pointer"
+          />
+          <label htmlFor="edit-gear-available" className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
+            Equipment Available for Rental
+          </label>
+        </div>
+
         {/* Description */}
         <div className="space-y-1">
-          <label htmlFor="gear-description" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+          <label htmlFor="edit-gear-description" className="text-xs font-bold text-slate-800 dark:text-slate-200">
             Full Description *
           </label>
           <textarea
             {...register('description')}
-            id="gear-description"
+            id="edit-gear-description"
             rows={3}
-            placeholder="Detailed description of features, sizing, and rental condition..."
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 resize-none"
           />
           {errors.description && <p className="text-xs text-rose-600 font-semibold">{errors.description.message}</p>}
@@ -238,12 +250,12 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Publishing Gear...</span>
+                <span>Saving Changes...</span>
               </>
             ) : (
               <>
-                <Plus className="w-4 h-4" />
-                <span>Publish Equipment</span>
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
               </>
             )}
           </button>
