@@ -123,7 +123,7 @@ function LoginForm() {
                 });
                 const profile = await res.json();
 
-                const realGoogleUser: User = {
+                let finalUser: User = {
                   id: `google-${profile.sub}`,
                   name: profile.name || 'Google User',
                   email: profile.email,
@@ -131,12 +131,37 @@ function LoginForm() {
                   status: 'ACTIVE',
                   avatarUrl: profile.picture || DEFAULT_CARTOON_AVATARS[0],
                 };
-
-                const validJwtToken = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(
-                  JSON.stringify({ id: realGoogleUser.id, email: realGoogleUser.email, role: 'CUSTOMER' })
+                let finalToken = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(
+                  JSON.stringify({ id: finalUser.id, email: finalUser.email, role: 'CUSTOMER' })
                 )}.${btoa('verified_google_auth')}`;
 
-                setAuth(realGoogleUser, validJwtToken);
+                try {
+                  // Attempt backend sync
+                  const googlePass = `GoogleAuth_${profile.sub}`;
+                  try {
+                    await apiClient.post('/auth/register', {
+                      name: finalUser.name,
+                      email: finalUser.email,
+                      password: googlePass,
+                      role: 'CUSTOMER',
+                    });
+                  } catch {
+                    // User might already exist in backend DB
+                  }
+
+                  const loginRes = await apiClient.post<ApiResponse<{ accessToken?: string; token?: string; user: User }>>(
+                    '/auth/login',
+                    { email: finalUser.email, password: googlePass }
+                  );
+                  if (loginRes.data?.data?.user) {
+                    finalUser = loginRes.data.data.user;
+                    finalToken = loginRes.data.data.accessToken || loginRes.data.data.token || finalToken;
+                  }
+                } catch {
+                  // Fallback to local session
+                }
+
+                setAuth(finalUser, finalToken);
                 toast.success(`Signed in as ${profile.name} (${profile.email})`);
                 const dest = callbackUrl || '/dashboard/customer';
                 window.location.href = dest;
