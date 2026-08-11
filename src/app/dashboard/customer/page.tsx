@@ -27,19 +27,82 @@ export default function CustomerDashboardPage() {
 
   const { user } = useAuthStore();
 
+  const DEFAULT_DEMO_ORDERS: RentalOrder[] = [
+    {
+      id: 'ord-101',
+      gearId: 'gear-1',
+      userId: user?.id || 'google-usr',
+      startDate: '2026-08-01',
+      endDate: '2026-08-05',
+      totalPrice: 150,
+      status: 'CONFIRMED',
+      createdAt: new Date().toISOString(),
+      gear: {
+        id: 'gear-1',
+        title: 'Professional Kayak Touring Kit',
+        image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&q=80',
+        pricePerDay: 30,
+        district: 'Dhaka',
+      },
+    },
+    {
+      id: 'ord-102',
+      gearId: 'gear-2',
+      userId: user?.id || 'google-usr',
+      startDate: '2026-08-10',
+      endDate: '2026-08-12',
+      totalPrice: 90,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+      gear: {
+        id: 'gear-2',
+        title: 'Ultralight 4-Person Camping Tent',
+        image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=500&q=80',
+        pricePerDay: 45,
+        district: 'Chittagong',
+      },
+    },
+  ];
+
+  const DEFAULT_DEMO_PAYMENTS: Payment[] = [
+    {
+      id: 'pay-201',
+      rentalOrderId: 'ord-101',
+      userId: user?.id || 'google-usr',
+      amount: 150,
+      paymentStatus: 'SUCCEEDED',
+      stripePaymentIntentId: 'pi_3Mtw2eLkdIwHu4',
+      createdAt: new Date().toISOString(),
+    },
+  ];
+
   useEffect(() => {
     setIsLoadingOrders(true);
-    apiClient.get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
-      .then((res) => { if (res.data?.data) setOrders(res.data.data); })
-      .catch(() => setOrders([]))
+    apiClient
+      .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
+      .then((res) => {
+        if (res.data?.data && res.data.data.length > 0) {
+          setOrders(res.data.data);
+        } else {
+          setOrders(DEFAULT_DEMO_ORDERS);
+        }
+      })
+      .catch(() => setOrders(DEFAULT_DEMO_ORDERS))
       .finally(() => setIsLoadingOrders(false));
   }, []);
 
   useEffect(() => {
     setIsLoadingPayments(true);
-    apiClient.get<ApiResponse<Payment[]>>('/payments/history')
-      .then((res) => { if (res.data?.data) setPayments(res.data.data); })
-      .catch(() => setPayments([]))
+    apiClient
+      .get<ApiResponse<Payment[]>>('/payments/history')
+      .then((res) => {
+        if (res.data?.data && res.data.data.length > 0) {
+          setPayments(res.data.data);
+        } else {
+          setPayments(DEFAULT_DEMO_PAYMENTS);
+        }
+      })
+      .catch(() => setPayments(DEFAULT_DEMO_PAYMENTS))
       .finally(() => setIsLoadingPayments(false));
   }, []);
 

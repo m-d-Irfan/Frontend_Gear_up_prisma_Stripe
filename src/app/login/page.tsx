@@ -38,9 +38,9 @@ function LoginForm() {
           : user.role === 'PROVIDER'
           ? '/dashboard/provider'
           : '/dashboard/customer');
-      router.push(destination);
+      window.location.href = destination;
     }
-  }, [isAuthenticated, user, callbackUrl, router]);
+  }, [isAuthenticated, user, callbackUrl]);
 
   const {
     register,
@@ -134,7 +134,8 @@ function LoginForm() {
 
                 setAuth(realGoogleUser, tokenResponse.access_token);
                 toast.success(`Signed in as ${profile.name} (${profile.email})`);
-                router.push('/dashboard/customer');
+                const dest = callbackUrl || '/dashboard/customer';
+                window.location.href = dest;
               } catch {
                 toast.error('Could not retrieve Google profile data.');
               }
