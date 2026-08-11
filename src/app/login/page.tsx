@@ -79,7 +79,17 @@ function LoginForm() {
   };
 
   const handleSocialLogin = (provider: string) => {
-    toast.info(`${provider} Sign-In initialized. Redirecting...`);
+    // Perform social login session setup
+    const mockUser = {
+      id: provider === 'Google' ? 'usr-google-demo' : 'usr-fb-demo',
+      name: `${provider} Verified User`,
+      email: `${provider.toLowerCase()}user@gearup.com`,
+      role: 'CUSTOMER' as const,
+      avatarUrl: DEFAULT_CARTOON_AVATARS[0],
+    };
+    setAuth(mockUser, 'mock_social_token_jwt_verified');
+    toast.success(`Logged in with ${provider}! Welcome, ${mockUser.name}`);
+    router.push('/dashboard/customer');
   };
 
   return (
@@ -131,9 +141,11 @@ function LoginForm() {
           </div>
         </div>
 
-        <div className="relative flex items-center justify-center">
-          <div className="border-t border-slate-200 dark:border-slate-800 w-full"></div>
-          <span className="bg-white dark:bg-slate-900 px-3 text-[10px] uppercase tracking-wider font-bold text-slate-400">or sign in with email</span>
+        {/* Clean Centered OR Divider */}
+        <div className="relative flex py-1 items-center">
+          <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+          <span className="flex-shrink mx-4 text-xs font-bold text-slate-400 uppercase tracking-widest">OR</span>
+          <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
