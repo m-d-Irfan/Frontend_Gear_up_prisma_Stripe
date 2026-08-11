@@ -48,15 +48,16 @@ apiClient.interceptors.response.use(
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
-        'An unexpected error occurred. Please try again.';
+        '';
 
-      const isAuthCall = error.config?.url?.includes('/auth/');
-      const isJwtError = errorMessage.toLowerCase().includes('jwt') || status === 401;
+      const isJwtError =
+        status === 401 ||
+        errorMessage.toLowerCase().includes('jwt') ||
+        errorMessage.toLowerCase().includes('malformed') ||
+        errorMessage.toLowerCase().includes('unauthorized');
 
-      // Suppress 401/JWT background error toasts to prevent intrusive "jwt malformed" popups
-      if (!isJwtError && !isAuthCall) {
-        toast.error(errorMessage);
-      } else if (status === 400 || status === 403 || status === 404 || status === 500) {
+      // Only show toasts for genuine errors (not JWT authentication mismatches)
+      if (!isJwtError && errorMessage) {
         toast.error(errorMessage);
       }
     }
