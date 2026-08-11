@@ -39,20 +39,29 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, isLoading, logout } = useAuthStore();
 
   React.useEffect(() => {
-    if (!isAuthenticated || !user) {
+    if (!isLoading && (!isAuthenticated || !user)) {
       toast.error('Authentication required to access dashboard');
       router.replace('/login');
     }
-  }, [isAuthenticated, user, router]);
+  }, [isLoading, isAuthenticated, user, router]);
 
   const handleLogout = () => {
     logout();
     toast.success('Logged out successfully');
     router.push('/');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-3">
+        <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Loading profile details...</p>
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !user) {
     return (
