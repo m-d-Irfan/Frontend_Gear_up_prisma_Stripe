@@ -113,7 +113,7 @@ function GearCatalogContent() {
 
       // Available Stock Filter
       if (onlyAvailable) {
-        items = items.filter((item) => item.isAvailable && item.stock > 0);
+        items = items.filter((item) => item.isAvailable && (item.stock ?? 0) > 0);
       }
 
       setGearList(items);
