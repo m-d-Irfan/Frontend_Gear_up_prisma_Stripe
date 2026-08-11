@@ -60,6 +60,8 @@ apiClient.interceptors.response.use(
       const isTokenOrAuthError =
         status === 401 ||
         status === 403 ||
+        status === 404 ||
+        errorMessage.toLowerCase().includes('not found') ||
         errorMessage.toLowerCase().includes('jwt') ||
         errorMessage.toLowerCase().includes('token') ||
         errorMessage.toLowerCase().includes('malformed') ||

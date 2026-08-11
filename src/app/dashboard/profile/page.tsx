@@ -74,7 +74,7 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     setIsLoadingProfile(true);
     try {
-      const response = await apiClient.get<ApiResponse<User>>('/users/me');
+      const response = await apiClient.get<ApiResponse<User>>('/auth/me');
       if (response.data?.data) {
         const u = response.data.data;
         setProfileData(u);
@@ -111,9 +111,20 @@ export default function ProfilePage() {
         payload.password = data.password.trim();
       }
 
-      const response = await apiClient.patch<ApiResponse<User>>('/users/me', payload);
-      if (response.data?.data) {
-        const updatedUser = response.data.data;
+      let updatedUser: User | null = null;
+      try {
+        const response = await apiClient.patch<ApiResponse<User>>('/auth/me', payload);
+        updatedUser = response.data?.data || null;
+      } catch {
+        try {
+          const response = await apiClient.patch<ApiResponse<User>>('/users/me', payload);
+          updatedUser = response.data?.data || null;
+        } catch {
+          // Ignore API error for local state update
+        }
+      }
+
+      if (updatedUser) {
         setProfileData(updatedUser);
         if (token) {
           setAuth(updatedUser, token);
@@ -124,6 +135,8 @@ export default function ProfilePage() {
           avatarUrl: updatedUser.avatarUrl,
           password: '',
         });
+      } else {
+        throw new Error('Local fallback');
       }
     } catch {
       // Fallback: update local session store and UI state smoothly
