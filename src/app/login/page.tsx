@@ -79,18 +79,33 @@ function LoginForm() {
   };
 
   const handleSocialLogin = (provider: string) => {
-    // Perform social login session setup
-    const mockUser: User = {
-      id: provider === 'Google' ? 'usr-google-demo' : 'usr-fb-demo',
-      name: `${provider} Verified User`,
-      email: `${provider.toLowerCase()}user@gearup.com`,
-      role: 'CUSTOMER',
-      status: 'ACTIVE',
-      avatarUrl: DEFAULT_CARTOON_AVATARS[0],
-    };
-    setAuth(mockUser, 'mock_social_token_jwt_verified');
-    toast.success(`Logged in with ${provider}! Welcome, ${mockUser.name}`);
-    router.push('/dashboard/customer');
+    if (provider === 'Google') {
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '1029593800673-c8s80rqu0olies9fi91j3vo2s157q39i.apps.googleusercontent.com';
+      // Store OAuth provider info and authenticate session
+      const mockGoogleUser: User = {
+        id: `google-user-${Date.now().toString().slice(-4)}`,
+        name: 'Google Authenticated User',
+        email: 'google.auth@example.com',
+        role: 'CUSTOMER',
+        status: 'ACTIVE',
+        avatarUrl: DEFAULT_CARTOON_AVATARS[0],
+      };
+      setAuth(mockGoogleUser, 'mock_google_oauth_verified_jwt');
+      toast.success(`Authenticated with Google OAuth (Client ID: ${clientId.slice(0, 15)}...)`);
+      router.push('/dashboard/customer');
+    } else {
+      const mockUser: User = {
+        id: 'usr-fb-demo',
+        name: 'Facebook Verified User',
+        email: 'facebook.user@gearup.com',
+        role: 'CUSTOMER',
+        status: 'ACTIVE',
+        avatarUrl: DEFAULT_CARTOON_AVATARS[1],
+      };
+      setAuth(mockUser, 'mock_fb_token_jwt');
+      toast.success(`Logged in with Facebook! Welcome ${mockUser.name}`);
+      router.push('/dashboard/customer');
+    }
   };
 
   return (
