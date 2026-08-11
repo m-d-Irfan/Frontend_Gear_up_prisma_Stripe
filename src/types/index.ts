@@ -7,6 +7,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string;
   role: UserRole;
   status: UserStatus;
   createdAt?: string;
@@ -24,6 +25,7 @@ export interface Category {
 export interface Gear {
   id: string;
   title: string;
+  slug?: string;
   description: string;
   pricePerDay: number;
   location: string;
@@ -34,6 +36,8 @@ export interface Gear {
   providerId: string;
   category?: Category;
   provider?: User;
+  image?: string;
+  images?: string[];
   imageUrl?: string;
   reviews?: Review[];
   createdAt?: string;
