@@ -14,7 +14,7 @@ export const apiClient = axios.create({
   timeout: 15000,
 });
 
-// Request Interceptor: Attach JWT Access Token
+// Request Interceptor: Attach Real Backend JWT Access Token Only
 apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
@@ -25,7 +25,14 @@ apiClient.interceptors.request.use(
           .find((row) => row.startsWith('accessToken='))
           ?.split('=')[1];
 
-      if (token && config.headers) {
+      // Only attach token if it is a real JWT (not a client mock/social token)
+      if (
+        token &&
+        config.headers &&
+        !token.includes('verified_google_auth') &&
+        !token.includes('mock_') &&
+        !token.includes('oauth')
+      ) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
@@ -36,7 +43,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response Interceptor: Unified Error Handling & Toasts
+// Response Interceptor: Unified Error Handling & Toast Filtering
 apiClient.interceptors.response.use(
   (response) => {
     return response;
@@ -50,14 +57,17 @@ apiClient.interceptors.response.use(
         error.message ||
         '';
 
-      const isJwtError =
+      const isTokenOrAuthError =
         status === 401 ||
+        status === 403 ||
         errorMessage.toLowerCase().includes('jwt') ||
+        errorMessage.toLowerCase().includes('token') ||
         errorMessage.toLowerCase().includes('malformed') ||
-        errorMessage.toLowerCase().includes('unauthorized');
+        errorMessage.toLowerCase().includes('unauthorized') ||
+        errorMessage.toLowerCase().includes('invalid');
 
-      // Only show toasts for genuine errors (not JWT authentication mismatches)
-      if (!isJwtError && errorMessage) {
+      // Only show toasts for genuine application errors, suppressing JWT/Auth token mismatch warnings
+      if (!isTokenOrAuthError && errorMessage) {
         toast.error(errorMessage);
       }
     }
