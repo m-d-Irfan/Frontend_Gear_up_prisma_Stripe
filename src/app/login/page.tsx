@@ -80,19 +80,61 @@ function LoginForm() {
 
   const handleSocialLogin = (provider: string) => {
     if (provider === 'Google') {
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '1029593800673-c8s80rqu0olies9fi91j3vo2s157q39i.apps.googleusercontent.com';
-      // Store OAuth provider info and authenticate session
-      const mockGoogleUser: User = {
-        id: `google-user-${Date.now().toString().slice(-4)}`,
-        name: 'Google Authenticated User',
-        email: 'google.auth@example.com',
-        role: 'CUSTOMER',
-        status: 'ACTIVE',
-        avatarUrl: DEFAULT_CARTOON_AVATARS[0],
+      const clientId =
+        process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+        '1029593800673-c8s80rqu0olies9fi91j3vo2s157q39i.apps.googleusercontent.com';
+
+      const triggerPopup = () => {
+        const google = (window as any).google;
+        if (!google?.accounts?.oauth2) {
+          toast.error('Google Identity SDK loading. Please try again.');
+          return;
+        }
+
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope:
+            'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+          callback: async (tokenResponse: any) => {
+            if (tokenResponse?.access_token) {
+              try {
+                const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                const profile = await res.json();
+
+                const realGoogleUser: User = {
+                  id: `google-${profile.sub}`,
+                  name: profile.name || 'Google User',
+                  email: profile.email,
+                  role: 'CUSTOMER',
+                  status: 'ACTIVE',
+                  avatarUrl: profile.picture || DEFAULT_CARTOON_AVATARS[0],
+                };
+
+                setAuth(realGoogleUser, tokenResponse.access_token);
+                toast.success(`Signed in as ${profile.name} (${profile.email})`);
+                router.push('/dashboard/customer');
+              } catch {
+                toast.error('Could not retrieve Google profile data.');
+              }
+            }
+          },
+        });
+
+        client.requestAccessToken();
       };
-      setAuth(mockGoogleUser, 'mock_google_oauth_verified_jwt');
-      toast.success(`Authenticated with Google OAuth (Client ID: ${clientId.slice(0, 15)}...)`);
-      router.push('/dashboard/customer');
+
+      if (typeof window !== 'undefined' && !(window as any).google) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = triggerPopup;
+        document.head.appendChild(script);
+      } else {
+        triggerPopup();
+      }
     } else {
       const mockUser: User = {
         id: 'usr-fb-demo',
