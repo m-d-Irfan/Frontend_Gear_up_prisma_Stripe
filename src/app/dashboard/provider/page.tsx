@@ -43,23 +43,6 @@ export default function ProviderDashboardPage() {
   const [isDeletingGear, setIsDeletingGear] = useState<boolean>(false);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
 
-  const handleDeleteGear = async () => {
-    if (!deletingGear) return;
-    setIsDeletingGear(true);
-    try {
-      await apiClient.delete(`/gear/${deletingGear.id}`);
-      toast.success(`"${deletingGear.title}" deleted successfully!`);
-      setProviderGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
-      setDeletingGear(null);
-    } catch {
-      toast.success(`"${deletingGear.title}" deleted.`);
-      setProviderGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
-      setDeletingGear(null);
-    } finally {
-      setIsDeletingGear(false);
-    }
-  };
-
   // Filters & Pagination
   const [gearSearchTerm, setGearSearchTerm] = useState<string>('');
   const [gearPage, setGearPage] = useState<number>(1);
