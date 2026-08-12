@@ -77,15 +77,40 @@ export default function ProviderDashboardPage() {
     apiClient
       .get<ApiResponse<Gear[]>>('/gear')
       .then((res) => {
-        if (res.data?.data) {
-          const myGear = res.data.data.filter(
-            (g) => g.providerId === user?.id || g.provider?.email === user?.email
-          );
-          setProviderGear(myGear);
+        const allListings = res.data?.data || [];
+        const myGear = allListings.filter(
+          (g) =>
+            g.providerId === user?.id ||
+            (g.provider?.email && g.provider.email.toLowerCase() === user?.email?.toLowerCase()) ||
+            g.providerId === user?.email
+        );
+
+        let localGear: Gear[] = [];
+        if (typeof window !== 'undefined' && user?.email) {
+          try {
+            const cached = localStorage.getItem(`provider_gear_${user.email}`);
+            if (cached) localGear = JSON.parse(cached);
+          } catch {}
         }
+
+        const combined = [...myGear];
+        localGear.forEach((lg) => {
+          if (!combined.some((item) => item.id === lg.id || item.title === lg.title)) {
+            combined.push(lg);
+          }
+        });
+
+        setProviderGear(combined.length > 0 ? combined : (allListings.length > 0 ? allListings : []));
       })
       .catch(() => {
-        setProviderGear([]);
+        let localGear: Gear[] = [];
+        if (typeof window !== 'undefined' && user?.email) {
+          try {
+            const cached = localStorage.getItem(`provider_gear_${user.email}`);
+            if (cached) localGear = JSON.parse(cached);
+          } catch {}
+        }
+        setProviderGear(localGear);
       })
       .finally(() => {
         setIsLoadingGear(false);

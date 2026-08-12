@@ -25,14 +25,15 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  user: typeof window !== 'undefined' && localStorage.getItem('authUser') ? JSON.parse(localStorage.getItem('authUser')!) : null,
   token: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
-  isAuthenticated: false,
+  isAuthenticated: typeof window !== 'undefined' && Boolean(localStorage.getItem('accessToken')),
   isLoading: true,
 
   setAuth: (user: User, token: string) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', token);
+      localStorage.setItem('authUser', JSON.stringify(user));
       document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax;`;
     }
     set({
@@ -44,12 +45,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setUser: (user: User | null) => {
+    if (typeof window !== 'undefined') {
+      if (user) localStorage.setItem('authUser', JSON.stringify(user));
+      else localStorage.removeItem('authUser');
+    }
     set({ user });
   },
 
   logout: () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('authUser');
       document.cookie = 'accessToken=; path=/; max-age=0; SameSite=Lax;';
     }
     set({
@@ -77,6 +83,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       const user = response.data?.data || null;
 
       if (user) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('authUser', JSON.stringify(user));
+        }
         set({
           user,
           token,

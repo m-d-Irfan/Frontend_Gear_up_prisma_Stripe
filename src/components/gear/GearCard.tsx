@@ -16,7 +16,13 @@ export default function GearCard({ gear, onEdit, onDelete }: GearCardProps) {
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&auto=format&fit=crop';
   const displayImage = gear.image || gear.imageUrl || fallbackImage;
 
-  const stock = gear.stock ?? 0;
+  let stock = gear.stock ?? 0;
+  if (typeof window !== 'undefined') {
+    const cachedStock = localStorage.getItem(`gear_stock_${gear.id}`);
+    if (cachedStock !== null) {
+      stock = Math.max(0, Number(cachedStock));
+    }
+  }
   const isAvailable = Boolean(gear.isAvailable) && stock > 0;
 
   return (

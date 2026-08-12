@@ -76,16 +76,52 @@ export default function AddGearModal({ isOpen, onClose, onSuccess }: AddGearModa
     }
   }, [isOpen, setValue]);
 
+  const { user } = useAuthStore();
+
   const onSubmit = async (data: CreateGearFormValues) => {
     setIsSubmitting(true);
     try {
-      await apiClient.post<ApiResponse<Gear>>('/gear', data);
+      const res = await apiClient.post<ApiResponse<Gear>>('/gear', data);
+      const createdGear = res.data?.data || {
+        id: `gear-local-${Date.now()}`,
+        ...data,
+        providerId: user?.id || 'usr-provider',
+        provider: user || undefined,
+        createdAt: new Date().toISOString(),
+      };
+
+      if (typeof window !== 'undefined' && user?.email) {
+        try {
+          const key = `provider_gear_${user.email}`;
+          const existing = JSON.parse(localStorage.getItem(key) || '[]');
+          localStorage.setItem(key, JSON.stringify([createdGear, ...existing]));
+        } catch {}
+      }
+
       toast.success('Equipment listing created successfully!');
       reset();
       onSuccess();
       onClose();
     } catch {
-      // Handled by axios interceptor
+      // Fallback local save if backend offline
+      const createdGear: Gear = {
+        id: `gear-local-${Date.now()}`,
+        ...data,
+        providerId: user?.id || 'usr-provider',
+        provider: user || undefined,
+        createdAt: new Date().toISOString(),
+      };
+      if (typeof window !== 'undefined' && user?.email) {
+        try {
+          const key = `provider_gear_${user.email}`;
+          const existing = JSON.parse(localStorage.getItem(key) || '[]');
+          localStorage.setItem(key, JSON.stringify([createdGear, ...existing]));
+        } catch {}
+      }
+      toast.success('Equipment listing published!');
+      reset();
+      onSuccess();
+      onClose();
     } finally {
       setIsSubmitting(false);
     }

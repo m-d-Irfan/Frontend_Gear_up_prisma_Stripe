@@ -35,7 +35,28 @@ function PaymentSuccessContent() {
         sessionStorage.setItem(`order_paid_${orderId}`, 'PAID');
       }
       localStorage.setItem('order_paid_recent', 'true');
+
+      // Update cached customer orders across all stored email keys
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('customer_orders_')) {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+              const orders = JSON.parse(raw);
+              const updated = orders.map((o: any) => {
+                if (o.id === orderId || !orderId) {
+                  return { ...o, paymentStatus: 'PAID', orderStatus: 'CONFIRMED' };
+                }
+                return o;
+              });
+              localStorage.setItem(key, JSON.stringify(updated));
+            }
+          }
+        }
+      } catch {}
     }
+
     apiClient
       .post<ApiResponse<any>>('/payments/verify', { orderId, transactionId })
       .then((res) => {

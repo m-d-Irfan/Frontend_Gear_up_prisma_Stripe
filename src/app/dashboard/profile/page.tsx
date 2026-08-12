@@ -549,11 +549,11 @@ export default function ProfilePage() {
         </div>
       ) : deletionStatus?.eligible ? (
         <div className="space-y-4">
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-2xl flex items-start space-x-3 text-emerald-800 dark:text-emerald-300 text-xs">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-start space-x-3 text-emerald-900 dark:text-emerald-200 text-xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">Status Verification Cleared!</p>
-              <p className="mt-0.5">{deletionStatus.message}</p>
+              <p className="font-bold text-emerald-950 dark:text-emerald-100">Status Verification Cleared!</p>
+              <p className="mt-0.5 font-medium">{deletionStatus.message}</p>
             </div>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-300">

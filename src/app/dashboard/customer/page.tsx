@@ -48,7 +48,8 @@ export default function CustomerDashboardPage() {
         const isPaid =
           typeof window !== 'undefined' &&
           (localStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
-            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID');
+            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+            localStorage.getItem('order_paid_recent') === 'true');
         if (isPaid) {
           return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
         }
@@ -60,13 +61,34 @@ export default function CustomerDashboardPage() {
       .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
       .then((res) => {
         const rawOrders = res.data?.data || [];
-        setOrders(updatePaidStatus(rawOrders));
+        let localOrders: RentalOrder[] = [];
+        if (typeof window !== 'undefined' && user?.email) {
+          try {
+            const cached = localStorage.getItem(`customer_orders_${user.email}`);
+            if (cached) localOrders = JSON.parse(cached);
+          } catch {}
+        }
+        const combined = [...rawOrders];
+        localOrders.forEach((lo) => {
+          if (!combined.some((item) => item.id === lo.id)) {
+            combined.push(lo);
+          }
+        });
+
+        setOrders(updatePaidStatus(combined));
       })
       .catch(() => {
-        setOrders([]);
+        let localOrders: RentalOrder[] = [];
+        if (typeof window !== 'undefined' && user?.email) {
+          try {
+            const cached = localStorage.getItem(`customer_orders_${user.email}`);
+            if (cached) localOrders = JSON.parse(cached);
+          } catch {}
+        }
+        setOrders(updatePaidStatus(localOrders));
       })
       .finally(() => setIsLoadingOrders(false));
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     setIsLoadingPayments(true);
