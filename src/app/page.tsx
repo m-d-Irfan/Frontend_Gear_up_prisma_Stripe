@@ -11,7 +11,8 @@ import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import GearCard from '@/components/gear/GearCard';
 
-export const revalidate = 60; // Revalidate every minute
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getCategories(): Promise<Category[]> {
   try {

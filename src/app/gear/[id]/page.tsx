@@ -102,13 +102,21 @@ export default function GearDetailsPage({
       await apiClient.delete(`/gear/${gear.id}`);
 
       // Delete from local storage cache as well
-      if (typeof window !== 'undefined' && user?.email) {
+      if (typeof window !== 'undefined') {
         try {
-          const key = `provider_gear_${user.email}`;
-          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
-          const updated = existing.filter((g) => g.id !== gear.id);
-          localStorage.setItem(key, JSON.stringify(updated));
+          localStorage.setItem(`gear_deleted_${gear.id}`, 'true');
+          const deletedList: string[] = JSON.parse(localStorage.getItem('deleted_gear_ids') || '[]');
+          if (!deletedList.includes(gear.id)) {
+            localStorage.setItem('deleted_gear_ids', JSON.stringify([...deletedList, gear.id]));
+          }
+          if (user?.email) {
+            const key = `provider_gear_${user.email}`;
+            const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+            const updated = existing.filter((g) => g.id !== gear.id);
+            localStorage.setItem(key, JSON.stringify(updated));
+          }
           localStorage.removeItem(`gear_stock_${gear.id}`);
+          localStorage.removeItem(`gear_item_${gear.id}`);
         } catch {}
       }
 
@@ -116,13 +124,21 @@ export default function GearDetailsPage({
       router.push('/gear');
     } catch {
       // Local fallback delete
-      if (typeof window !== 'undefined' && user?.email) {
+      if (typeof window !== 'undefined') {
         try {
-          const key = `provider_gear_${user.email}`;
-          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
-          const updated = existing.filter((g) => g.id !== gear.id);
-          localStorage.setItem(key, JSON.stringify(updated));
+          localStorage.setItem(`gear_deleted_${gear.id}`, 'true');
+          const deletedList: string[] = JSON.parse(localStorage.getItem('deleted_gear_ids') || '[]');
+          if (!deletedList.includes(gear.id)) {
+            localStorage.setItem('deleted_gear_ids', JSON.stringify([...deletedList, gear.id]));
+          }
+          if (user?.email) {
+            const key = `provider_gear_${user.email}`;
+            const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+            const updated = existing.filter((g) => g.id !== gear.id);
+            localStorage.setItem(key, JSON.stringify(updated));
+          }
           localStorage.removeItem(`gear_stock_${gear.id}`);
+          localStorage.removeItem(`gear_item_${gear.id}`);
         } catch {}
       }
       toast.success(`"${gear.title}" deleted.`);

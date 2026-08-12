@@ -169,6 +169,37 @@ export default function ProviderDashboardPage() {
     }
   };
 
+  const handleDeleteGear = async () => {
+    if (!deletingGear) return;
+    setIsDeletingGear(true);
+    try {
+      await apiClient.delete(`/gear/${deletingGear.id}`);
+    } catch {}
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`gear_deleted_${deletingGear.id}`, 'true');
+        const deletedList: string[] = JSON.parse(localStorage.getItem('deleted_gear_ids') || '[]');
+        if (!deletedList.includes(deletingGear.id)) {
+          localStorage.setItem('deleted_gear_ids', JSON.stringify([...deletedList, deletingGear.id]));
+        }
+        if (user?.email) {
+          const key = `provider_gear_${user.email}`;
+          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const updated = existing.filter((g) => g.id !== deletingGear.id);
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+        localStorage.removeItem(`gear_stock_${deletingGear.id}`);
+        localStorage.removeItem(`gear_item_${deletingGear.id}`);
+      } catch {}
+    }
+
+    setProviderGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
+    toast.success(`"${deletingGear.title}" deleted successfully.`);
+    setDeletingGear(null);
+    setIsDeletingGear(false);
+  };
+
   const totalEarned = incomingOrders
     .filter((o) => o.paymentStatus === 'PAID')
     .reduce((acc, curr) => acc + (curr.totalPrice || 0), 0);

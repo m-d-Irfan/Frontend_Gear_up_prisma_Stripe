@@ -36,8 +36,24 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&auto=format&fit=crop';
   const displayImage = displayGear.image || displayGear.imageUrl || fallbackImage;
 
+  const [isDeleted, setIsDeleted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const deletedFlag = localStorage.getItem(`gear_deleted_${gear.id}`);
+        const deletedList: string[] = JSON.parse(localStorage.getItem('deleted_gear_ids') || '[]');
+        if (deletedFlag === 'true' || deletedList.includes(gear.id)) {
+          setIsDeleted(true);
+        }
+      } catch {}
+    }
+  }, [gear.id]);
+
   const stock = displayGear.stock ?? 0;
   const isAvailable = Boolean(displayGear.isAvailable) && stock > 0;
+
+  if (isDeleted) return null;
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden flex flex-col h-full group border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">

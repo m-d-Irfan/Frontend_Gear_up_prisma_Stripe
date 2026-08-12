@@ -186,6 +186,19 @@ export default function AdminDashboardPage() {
   const handleDeleteGear = async () => {
     if (!deletingGear) return;
     setIsDeletingGear(true);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`gear_deleted_${deletingGear.id}`, 'true');
+        const deletedList: string[] = JSON.parse(localStorage.getItem('deleted_gear_ids') || '[]');
+        if (!deletedList.includes(deletingGear.id)) {
+          localStorage.setItem('deleted_gear_ids', JSON.stringify([...deletedList, deletingGear.id]));
+        }
+        localStorage.removeItem(`gear_stock_${deletingGear.id}`);
+        localStorage.removeItem(`gear_item_${deletingGear.id}`);
+      } catch {}
+    }
+
     try {
       await apiClient.delete(`/gear/${deletingGear.id}`);
       toast.success(`Equipment "${deletingGear.title}" deleted successfully!`);
