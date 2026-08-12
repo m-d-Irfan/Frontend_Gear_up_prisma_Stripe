@@ -119,17 +119,27 @@ export default function AdminDashboardPage() {
     apiClient
       .get<ApiResponse<User[]>>('/users')
       .then((res) => {
+        const isDemoAdmin = user?.email === 'admin@gearup.com';
         if (res.data?.data && res.data.data.length > 0) {
           setUsers(res.data.data);
           setStats((prev) => ({ ...prev, totalUsers: res.data.data.length }));
-        } else {
+        } else if (isDemoAdmin) {
           setUsers(DEFAULT_DEMO_USERS);
           setStats((prev) => ({ ...prev, totalUsers: DEFAULT_DEMO_USERS.length }));
+        } else {
+          setUsers([]);
+          setStats((prev) => ({ ...prev, totalUsers: 0 }));
         }
       })
       .catch(() => {
-        setUsers(DEFAULT_DEMO_USERS);
-        setStats((prev) => ({ ...prev, totalUsers: DEFAULT_DEMO_USERS.length }));
+        const isDemoAdmin = user?.email === 'admin@gearup.com';
+        if (isDemoAdmin) {
+          setUsers(DEFAULT_DEMO_USERS);
+          setStats((prev) => ({ ...prev, totalUsers: DEFAULT_DEMO_USERS.length }));
+        } else {
+          setUsers([]);
+          setStats((prev) => ({ ...prev, totalUsers: 0 }));
+        }
       })
       .finally(() => {
         setIsLoadingUsers(false);

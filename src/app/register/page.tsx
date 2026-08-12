@@ -195,7 +195,7 @@ export default function RegisterPage() {
                 }
 
                 const dest = selectedRole === 'PROVIDER' ? '/dashboard/provider' : '/dashboard/customer';
-                window.location.href = dest;
+                router.push(dest);
               } catch {
                 toast.error('Could not retrieve Google profile data.');
               }

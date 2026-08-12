@@ -140,29 +140,42 @@ export default function CustomerDashboardPage() {
     apiClient
       .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
       .then((res) => {
-        const rawOrders = res.data?.data && res.data.data.length > 0 ? res.data.data : DEFAULT_DEMO_ORDERS;
+        const isDemoUser = user?.email === 'customer@gearup.com';
+        const rawOrders =
+          res.data?.data && res.data.data.length > 0
+            ? res.data.data
+            : isDemoUser
+            ? DEFAULT_DEMO_ORDERS
+            : [];
         setOrders(updatePaidStatus(rawOrders));
       })
       .catch(() => {
-        setOrders(updatePaidStatus(DEFAULT_DEMO_ORDERS));
+        const isDemoUser = user?.email === 'customer@gearup.com';
+        setOrders(updatePaidStatus(isDemoUser ? DEFAULT_DEMO_ORDERS : []));
       })
       .finally(() => setIsLoadingOrders(false));
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     setIsLoadingPayments(true);
     apiClient
       .get<ApiResponse<Payment[]>>('/payments/history')
       .then((res) => {
+        const isDemoUser = user?.email === 'customer@gearup.com';
         if (res.data?.data && res.data.data.length > 0) {
           setPayments(res.data.data);
-        } else {
+        } else if (isDemoUser) {
           setPayments(DEFAULT_DEMO_PAYMENTS);
+        } else {
+          setPayments([]);
         }
       })
-      .catch(() => setPayments(DEFAULT_DEMO_PAYMENTS))
+      .catch(() => {
+        const isDemoUser = user?.email === 'customer@gearup.com';
+        setPayments(isDemoUser ? DEFAULT_DEMO_PAYMENTS : []);
+      })
       .finally(() => setIsLoadingPayments(false));
-  }, []);
+  }, [user]);
 
   const totalSpent = orders
     .filter((o) => o.paymentStatus === 'PAID')

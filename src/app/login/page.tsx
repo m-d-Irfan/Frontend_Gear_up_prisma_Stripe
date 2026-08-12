@@ -91,7 +91,7 @@ function LoginForm() {
         };
         setAuth(demoAdmin, 'mock_demo_admin_jwt');
         toast.success('Welcome back, System Admin!');
-        window.location.href = '/dashboard/admin';
+        router.push('/dashboard/admin');
         return;
       } else if (data.email === 'provider@gearup.com') {
         const demoProvider: User = {
@@ -104,7 +104,7 @@ function LoginForm() {
         };
         setAuth(demoProvider, 'mock_demo_provider_jwt');
         toast.success('Welcome back, GearUp Equipment Store!');
-        window.location.href = '/dashboard/provider';
+        router.push('/dashboard/provider');
         return;
       } else if (data.email === 'customer@gearup.com') {
         const demoCustomer: User = {
@@ -117,7 +117,7 @@ function LoginForm() {
         };
         setAuth(demoCustomer, 'mock_demo_customer_jwt');
         toast.success('Welcome back, John Customer!');
-        window.location.href = '/dashboard/customer';
+        router.push('/dashboard/customer');
         return;
       }
     } finally {
@@ -198,7 +198,7 @@ function LoginForm() {
                 }
 
                 const dest = callbackUrl || '/dashboard/customer';
-                window.location.href = dest;
+                router.push(dest);
               } catch {
                 toast.error('Could not retrieve Google profile data.');
               }

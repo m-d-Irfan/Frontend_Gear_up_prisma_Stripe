@@ -56,7 +56,8 @@ export default function ProviderDashboardPage() {
           const myGear = res.data.data.filter(
             (g) => g.providerId === user?.id || g.provider?.email === user?.email
           );
-          setProviderGear(myGear.length > 0 ? myGear : res.data.data);
+          const isDemoProvider = user?.email === 'provider@gearup.com';
+          setProviderGear(myGear.length > 0 ? myGear : isDemoProvider ? res.data.data : []);
         }
       })
       .catch(() => {
