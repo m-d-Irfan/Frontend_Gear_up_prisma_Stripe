@@ -92,7 +92,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
   // Admin Menu Items (7 items)
   const adminNavItems: SidebarNavItem[] = [
-    { title: 'Dashboard Overview', href: '/dashboard/admin', icon: <LayoutDashboard className="w-4 h-4" />, activeTabKey: 'users' },
+    { title: 'Dashboard Overview', href: '/dashboard/admin', icon: <LayoutDashboard className="w-4 h-4" />, activeTabKey: 'overview' },
     { title: 'User Moderation', href: '/dashboard/admin', icon: <Users className="w-4 h-4" />, activeTabKey: 'users' },
     { title: 'Platform Equipment', href: '/dashboard/admin', icon: <Package className="w-4 h-4" />, activeTabKey: 'gear' },
     { title: 'Platform Orders', href: '/dashboard/admin', icon: <ShoppingBag className="w-4 h-4" />, activeTabKey: 'orders' },
