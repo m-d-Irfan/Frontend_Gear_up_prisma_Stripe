@@ -275,10 +275,16 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-6">
       <div className="border-b border-slate-100 pb-4 flex items-baseline justify-between">
         <div>
-          <span className="text-3xl font-black text-slate-900 tracking-tight">
-            ${Number(gear.pricePerDay).toFixed(2)}
-          </span>
-          <span className="text-xs text-slate-500 font-medium ml-1">/ day</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">From</span>
+          <div className="flex items-baseline space-x-1">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              ৳{Number(gear.pricePerDay)}
+            </span>
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">first night</span>
+          </div>
+          <p className="text-xs text-slate-500 font-semibold mt-0.5">
+            ৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} / additional night
+          </p>
         </div>
         <div className="text-right">
           <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">

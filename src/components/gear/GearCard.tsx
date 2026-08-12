@@ -102,15 +102,17 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
           </div>
         )}
 
-        {/* Price Tag Overlay (First Day & Additional Days in BDT) */}
-        <div className="absolute bottom-3 left-3 bg-slate-900 dark:bg-emerald-600 text-white px-3 py-1.5 rounded-xl flex items-baseline space-x-1 shadow-md">
-          <span className="text-xs text-slate-300">৳</span>
-          <span className="text-lg font-extrabold tracking-tight text-white">
-            {Number(gear.pricePerDay)}
-          </span>
-          <span className="text-[10px] text-slate-300">
-            / 1st day (৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} add'l)
-          </span>
+        {/* Price Tag Overlay (First Night & Additional Night in BDT) */}
+        <div className="absolute bottom-3 left-3 bg-slate-900/95 backdrop-blur-md dark:bg-slate-950/95 text-white p-2.5 rounded-2xl shadow-xl border border-white/10 space-y-0.5">
+          <div className="flex items-baseline space-x-1">
+            <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">From</span>
+            <span className="text-sm font-black text-emerald-400">৳{Number(gear.pricePerDay)}</span>
+            <span className="text-[10px] text-slate-300">first night</span>
+          </div>
+          <div className="text-[10px] font-semibold text-slate-300 flex items-center space-x-1">
+            <span className="text-white font-bold">৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)}</span>
+            <span>/ additional night</span>
+          </div>
         </div>
       </div>
 

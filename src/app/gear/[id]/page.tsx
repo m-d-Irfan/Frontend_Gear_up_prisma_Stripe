@@ -292,16 +292,16 @@ export default function GearDetailsPage({
                 {gear.title}
               </h1>
 
-              {/* Dual Pricing Badges (First Day & Additional Days in BDT) */}
+              {/* Dual Pricing Badges (First Night & Additional Night in BDT) */}
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                <div className="px-3.5 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-0.5">
-                  <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block">First Day Pricing</span>
-                  <span className="text-base font-black text-emerald-700 dark:text-emerald-400">৳{gear.pricePerDay}</span>
+                <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-0.5">
+                  <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block">First Night</span>
+                  <span className="text-lg font-black text-emerald-700 dark:text-emerald-400">৳{gear.pricePerDay}</span>
                 </div>
 
-                <div className="px-3.5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-0.5">
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Additional Days Pricing</span>
-                  <span className="text-base font-black text-slate-900 dark:text-white">৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} / day</span>
+                <div className="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-0.5">
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Additional Night</span>
+                  <span className="text-lg font-black text-slate-900 dark:text-white">৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} / night</span>
                 </div>
               </div>
             </div>
