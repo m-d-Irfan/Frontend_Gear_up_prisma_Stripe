@@ -188,9 +188,17 @@ export default function CheckoutPage({ params }: { params: Promise<{ orderId: st
 
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-slate-400">
-                <span>Daily Rate</span>
-                <span className="text-slate-200">${order.gear?.pricePerDay || 50} / day</span>
+                <span>First Day Rate</span>
+                <span className="text-slate-200">৳{order.gear?.pricePerDay || 500}</span>
               </div>
+              {order.totalDays > 1 && (
+                <div className="flex justify-between text-slate-400">
+                  <span>Additional Days Rate ({order.totalDays - 1} day{order.totalDays > 2 ? 's' : ''})</span>
+                  <span className="text-slate-200">
+                    ৳{Math.max(0, order.totalDays - 1) * (order.gear?.additionalDayPrice ?? Math.round((order.gear?.pricePerDay || 500) * 0.6))}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-slate-400">
                 <span>Duration</span>
                 <span className="text-slate-200">{order.totalDays} Days</span>
@@ -201,7 +209,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ orderId: st
               </div>
               <div className="pt-3 border-t border-slate-700 flex justify-between items-baseline text-sm font-bold">
                 <span className="text-white">Total Due Now</span>
-                <span className="text-xl text-emerald-400">${order.totalPrice}</span>
+                <span className="text-xl text-emerald-400">৳{order.totalPrice}</span>
               </div>
             </div>
 
@@ -218,12 +226,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ orderId: st
               {isProcessingPayment ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Connecting to Stripe...</span>
+                  <span>Connecting to Gateway...</span>
                 </>
               ) : (
                 <>
                   <CreditCard className="w-4 h-4" />
-                  <span>Pay ${order.totalPrice} via Stripe</span>
+                  <span>Pay ৳{order.totalPrice} BDT</span>
                 </>
               )}
             </button>

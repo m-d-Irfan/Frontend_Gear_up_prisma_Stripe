@@ -58,6 +58,12 @@ export default function GearDetailsPage({
       .get<ApiResponse<Gear>>(`/gear/${gearIdentifier}`)
       .then((res) => {
         const fetchedGear = res.data?.data || null;
+        if (fetchedGear && typeof window !== 'undefined') {
+          const cachedStock = localStorage.getItem(`gear_stock_${fetchedGear.id}`);
+          if (cachedStock !== null) {
+            fetchedGear.stock = parseInt(cachedStock, 10);
+          }
+        }
         setGear(fetchedGear);
 
         if (fetchedGear?.categoryId) {
@@ -266,6 +272,19 @@ export default function GearDetailsPage({
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 {gear.title}
               </h1>
+
+              {/* Dual Pricing Badges (First Day & Additional Days in BDT) */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <div className="px-3.5 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-0.5">
+                  <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block">First Day Pricing</span>
+                  <span className="text-base font-black text-emerald-700 dark:text-emerald-400">৳{gear.pricePerDay}</span>
+                </div>
+
+                <div className="px-3.5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-0.5">
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Additional Days Pricing</span>
+                  <span className="text-base font-black text-slate-900 dark:text-white">৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} / day</span>
+                </div>
+              </div>
             </div>
 
             {/* Description */}

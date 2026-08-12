@@ -177,7 +177,7 @@ export default function CustomerDashboardPage() {
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Invested</p>
-              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">${totalSpent.toFixed(2)}</p>
+              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">৳{totalSpent.toFixed(0)}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-300">
               <CreditCard className="w-5 h-5" />
@@ -270,7 +270,7 @@ export default function CustomerDashboardPage() {
                           <p className="text-slate-700 dark:text-slate-300">{ord.startDate} → {ord.endDate}</p>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">({ord.totalDays} day{ord.totalDays > 1 ? 's' : ''})</p>
                         </td>
-                        <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">${ord.totalPrice}</td>
+                        <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">৳{ord.totalPrice}</td>
                         <td className="px-6 py-4"><Badge variant={ord.orderStatus} /></td>
                         <td className="px-6 py-4"><Badge variant={ord.paymentStatus} /></td>
                         <td className="px-6 py-4 text-right space-x-2">

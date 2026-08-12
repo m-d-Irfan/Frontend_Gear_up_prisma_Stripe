@@ -17,6 +17,7 @@ import {
   X,
   Plus,
   Compass,
+  MapPin,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Badge } from '@/components/ui/Badge';
@@ -90,10 +91,11 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
     { title: 'Edit Profile & Avatar', href: '/dashboard/profile', icon: <User className="w-4 h-4" /> },
   ];
 
-  // Admin Menu Items (7 items)
+  // Admin Menu Items (8 items)
   const adminNavItems: SidebarNavItem[] = [
     { title: 'Dashboard Overview', href: '/dashboard/admin', icon: <LayoutDashboard className="w-4 h-4" />, activeTabKey: 'overview' },
     { title: 'User Moderation', href: '/dashboard/admin', icon: <Users className="w-4 h-4" />, activeTabKey: 'users' },
+    { title: 'Location Management', href: '/dashboard/admin', icon: <MapPin className="w-4 h-4" />, activeTabKey: 'locations' },
     { title: 'Platform Equipment', href: '/dashboard/admin', icon: <Package className="w-4 h-4" />, activeTabKey: 'gear' },
     { title: 'Platform Orders', href: '/dashboard/admin', icon: <ShoppingBag className="w-4 h-4" />, activeTabKey: 'orders' },
     { title: 'Category Index', href: '/dashboard/admin', icon: <Tag className="w-4 h-4" />, activeTabKey: 'categories' },

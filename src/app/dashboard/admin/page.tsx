@@ -17,7 +17,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import apiClient from '@/lib/axios';
-import { ApiResponse, User, Category, Gear, RentalOrder, UserRole } from '@/types';
+import { ApiResponse, User, Category, Gear, RentalOrder, UserRole, LocationItem } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { TableSkeleton } from '@/components/ui/LoadingSkeleton';
 import AddCategoryModal from '@/components/dashboard/AddCategoryModal';
@@ -29,9 +29,9 @@ import { toast } from 'sonner';
 
 import EditCategoryModal from '@/components/dashboard/EditCategoryModal';
 import EditGearModal from '@/components/dashboard/EditGearModal';
-import { Edit3 } from 'lucide-react';
+import { Edit3, MapPin } from 'lucide-react';
 
-type AdminTab = 'overview' | 'users' | 'gear' | 'orders' | 'categories' | 'analytics';
+type AdminTab = 'overview' | 'users' | 'gear' | 'orders' | 'categories' | 'locations' | 'analytics';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
@@ -58,6 +58,107 @@ export default function AdminDashboardPage() {
   const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState<boolean>(false);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [isDeletingCategory, setIsDeletingCategory] = useState<boolean>(false);
+
+  // Location Management States
+  const [locations, setLocations] = useState<LocationItem[]>([
+    { id: 'loc-1', name: 'Dhaka', district: 'Dhaka' },
+    { id: 'loc-2', name: 'Chittagong', district: 'Chittagong' },
+    { id: 'loc-3', name: 'Sylhet', district: 'Sylhet' },
+    { id: 'loc-4', name: 'Cox\'s Bazar', district: 'Cox\'s Bazar' },
+    { id: 'loc-5', name: 'Rajshahi', district: 'Rajshahi' },
+    { id: 'loc-6', name: 'Khulna', district: 'Khulna' },
+    { id: 'loc-7', name: 'Gazipur', district: 'Gazipur' },
+    { id: 'loc-8', name: 'Comilla', district: 'Comilla' },
+  ]);
+  const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState<boolean>(false);
+  const [editingLocation, setEditingLocation] = useState<LocationItem | null>(null);
+  const [deletingLocation, setDeletingLocation] = useState<LocationItem | null>(null);
+  const [locationName, setLocationName] = useState<string>('');
+  const [locationDistrict, setLocationDistrict] = useState<string>('');
+  const [isSavingLocation, setIsSavingLocation] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('platform_locations');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.length > 0) setLocations(parsed);
+        }
+      } catch {}
+    }
+  }, []);
+
+  const saveLocationsToStorage = (list: LocationItem[]) => {
+    setLocations(list);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('platform_locations', JSON.stringify(list));
+      } catch {}
+    }
+  };
+
+  const handleAddLocation = async () => {
+    if (!locationName.trim()) {
+      toast.error('Location city name is required.');
+      return;
+    }
+    setIsSavingLocation(true);
+    const newLoc: LocationItem = {
+      id: `loc-${Date.now()}`,
+      name: locationName.trim(),
+      district: locationDistrict.trim() || locationName.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      await apiClient.post('/locations', newLoc);
+    } catch {}
+
+    const updated = [newLoc, ...locations];
+    saveLocationsToStorage(updated);
+    toast.success(`Location "${newLoc.name}" added for equipment providers!`);
+    setLocationName('');
+    setLocationDistrict('');
+    setIsAddLocationModalOpen(false);
+    setIsSavingLocation(false);
+  };
+
+  const handleUpdateLocation = async () => {
+    if (!editingLocation || !locationName.trim()) return;
+    setIsSavingLocation(true);
+    const updatedLoc: LocationItem = {
+      ...editingLocation,
+      name: locationName.trim(),
+      district: locationDistrict.trim() || locationName.trim(),
+    };
+
+    try {
+      await apiClient.patch(`/locations/${editingLocation.id}`, updatedLoc);
+    } catch {}
+
+    const updated = locations.map((l) => (l.id === editingLocation.id ? updatedLoc : l));
+    saveLocationsToStorage(updated);
+    toast.success(`Location "${updatedLoc.name}" updated!`);
+    setEditingLocation(null);
+    setLocationName('');
+    setLocationDistrict('');
+    setIsSavingLocation(false);
+  };
+
+  const handleDeleteLocation = async () => {
+    if (!deletingLocation) return;
+    setIsSavingLocation(true);
+    try {
+      await apiClient.delete(`/locations/${deletingLocation.id}`);
+    } catch {}
+
+    const updated = locations.filter((l) => l.id !== deletingLocation.id);
+    saveLocationsToStorage(updated);
+    toast.success(`Location "${deletingLocation.name}" deleted.`);
+    setDeletingLocation(null);
+    setIsSavingLocation(false);
+  };
 
   // Gear Editing & Deleting
   const [editingGear, setEditingGear] = useState<Gear | null>(null);
@@ -946,7 +1047,75 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 6: PLATFORM ANALYTICS */}
+        {/* TAB 6: LOCATION MANAGEMENT (Admin Managed Locations for Providers) */}
+        {activeTab === 'locations' && (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-6 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                  <MapPin className="w-5 h-5 text-emerald-500" />
+                  <span>Platform Location Management</span>
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Manage platform locations available to providers when creating equipment listings.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setLocationName('');
+                  setLocationDistrict('');
+                  setIsAddLocationModalOpen(true);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 cursor-pointer shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Location</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {locations.map((loc) => (
+                <div
+                  key={loc.id}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-xs"
+                >
+                  <div className="space-y-0.5">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>{loc.name}</span>
+                    </h4>
+                    <p className="text-xs text-slate-500">{loc.district ? `${loc.district} District` : 'Primary City'}</p>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingLocation(loc);
+                        setLocationName(loc.name);
+                        setLocationDistrict(loc.district || loc.name);
+                      }}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      title="Edit Location"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeletingLocation(loc)}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      title="Delete Location"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 7: PLATFORM ANALYTICS */}
         {activeTab === 'analytics' && (
           <AnalyticsCharts
             orders={allOrders}
@@ -958,6 +1127,135 @@ export default function AdminDashboardPage() {
           />
         )}
       </div>
+
+      {/* Add Location Modal */}
+      {isAddLocationModalOpen && (
+        <Modal
+          isOpen={isAddLocationModalOpen}
+          onClose={() => setIsAddLocationModalOpen(false)}
+          title="Add New Platform Location"
+        >
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Location Name (City / Area) *</label>
+              <input
+                type="text"
+                placeholder="e.g. Gazipur, Narayanganj"
+                value={locationName}
+                onChange={(e) => setLocationName(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">District Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Dhaka Division"
+                value={locationDistrict}
+                onChange={(e) => setLocationDistrict(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsAddLocationModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddLocation}
+                disabled={isSavingLocation}
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 cursor-pointer"
+              >
+                {isSavingLocation ? 'Saving...' : 'Add Location'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Edit Location Modal */}
+      {editingLocation && (
+        <Modal
+          isOpen={Boolean(editingLocation)}
+          onClose={() => setEditingLocation(null)}
+          title="Edit Location"
+        >
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Location Name *</label>
+              <input
+                type="text"
+                value={locationName}
+                onChange={(e) => setLocationName(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">District Name</label>
+              <input
+                type="text"
+                value={locationDistrict}
+                onChange={(e) => setLocationDistrict(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setEditingLocation(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateLocation}
+                disabled={isSavingLocation}
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 cursor-pointer"
+              >
+                {isSavingLocation ? 'Saving...' : 'Save Location'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete Location Modal */}
+      {deletingLocation && (
+        <Modal
+          isOpen={Boolean(deletingLocation)}
+          onClose={() => setDeletingLocation(null)}
+          title="Delete Location"
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Are you sure you want to delete location{' '}
+              <strong className="text-slate-900 dark:text-white">{deletingLocation.name}</strong>? Providers will no longer see this location when listing new gear.
+            </p>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setDeletingLocation(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteLocation}
+                disabled={isSavingLocation}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                {isSavingLocation ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Add Category Modal */}
       <AddCategoryModal

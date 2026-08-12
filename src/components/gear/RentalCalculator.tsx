@@ -54,20 +54,25 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
       return;
     }
 
-    if (end <= start) {
-      setDateError('End date must be after start date.');
+    if (end < start) {
+      setDateError('End date must be on or after start date.');
       setTotalDays(0);
       setTotalPrice(0);
       return;
     }
 
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffTime = end.getTime() - start.getTime();
+    const rawDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = rawDays === 0 ? 1 : rawDays;
+
+    const firstDayRate = Number(gear.pricePerDay) || 0;
+    const additionalRate = Number(gear.additionalDayPrice) ?? Math.round(firstDayRate * 0.6);
+    const calculatedPrice = diffDays > 0 ? firstDayRate + Math.max(0, diffDays - 1) * additionalRate : 0;
 
     setDateError(null);
     setTotalDays(diffDays);
-    setTotalPrice(diffDays * gear.pricePerDay);
-  }, [startDate, endDate, gear.pricePerDay]);
+    setTotalPrice(calculatedPrice);
+  }, [startDate, endDate, gear.pricePerDay, gear.additionalDayPrice]);
 
   // Provider View Custom Layout
   if (user?.role === 'PROVIDER') {
@@ -80,9 +85,11 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
         <div className="border-b border-slate-100 dark:border-slate-800 pb-4 flex items-baseline justify-between">
           <div>
             <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              ${Number(gear.pricePerDay).toFixed(2)}
+              ৳{Number(gear.pricePerDay)}
             </span>
-            <span className="text-xs text-slate-500 font-medium ml-1">/ day</span>
+            <span className="text-xs text-slate-500 font-medium ml-1">
+              / 1st day (৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} add'l)
+            </span>
           </div>
           <span
             className={`inline-flex items-center space-x-1 text-[11px] font-bold px-3 py-1 rounded-full border ${
@@ -231,7 +238,18 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
     }
   };
 
-  const stockCount = gear.stock ?? 0;
+  const [stockCount, setStockCount] = useState<number>(gear.stock ?? 0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem(`gear_stock_${gear.id}`);
+      if (cached !== null) {
+        setStockCount(parseInt(cached, 10));
+      } else {
+        setStockCount(gear.stock ?? 0);
+      }
+    }
+  }, [gear.id, gear.stock]);
 
   const isFormValid =
     isAuthenticated &&
@@ -311,16 +329,24 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
       {totalDays > 0 && !dateError && (
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>Daily Rental Rate</span>
-            <span className="text-slate-900 font-bold">${Number(gear.pricePerDay).toFixed(2)}</span>
+            <span>First Day Pricing Rate</span>
+            <span className="text-slate-900 font-bold">৳{gear.pricePerDay}</span>
           </div>
+          {totalDays > 1 && (
+            <div className="flex items-center justify-between text-xs text-slate-600">
+              <span>Additional Days Rate ({totalDays - 1} day{totalDays > 2 ? 's' : ''} × ৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)})</span>
+              <span className="text-slate-900 font-bold">
+                ৳{(totalDays - 1) * (gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6))}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>Selected Duration</span>
+            <span>Total Duration</span>
             <span className="text-slate-900 font-bold">{totalDays} day{totalDays > 1 ? 's' : ''}</span>
           </div>
           <div className="flex items-center justify-between pt-3 border-t border-slate-200 text-base font-black text-slate-900">
-            <span>Total Cost</span>
-            <span className="text-emerald-700 text-xl font-black">${totalPrice.toFixed(2)}</span>
+            <span>Total Rental Cost</span>
+            <span className="text-emerald-700 text-xl font-black">৳{totalPrice}</span>
           </div>
         </div>
       )}

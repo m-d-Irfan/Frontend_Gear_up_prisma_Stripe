@@ -25,12 +25,20 @@ export interface Category {
   };
 }
 
+export interface LocationItem {
+  id: string;
+  name: string;
+  district?: string;
+  createdAt?: string;
+}
+
 export interface Gear {
   id: string;
   title: string;
   slug?: string;
   description?: string;
-  pricePerDay: number;
+  pricePerDay: number; // First Day Price
+  additionalDayPrice?: number; // Additional Days Price
   location?: string;
   district?: string;
   brand?: string;

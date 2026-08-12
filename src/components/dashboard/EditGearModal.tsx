@@ -6,16 +6,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Edit3, Save } from 'lucide-react';
 import apiClient from '@/lib/axios';
-import { ApiResponse, Category, Gear } from '@/types';
+import { ApiResponse, Category, Gear, LocationItem } from '@/types';
 import Modal from '@/components/ui/Modal';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/useAuthStore';
+
+const DEFAULT_ADMIN_LOCATIONS = [
+  'Dhaka',
+  'Chittagong',
+  'Sylhet',
+  'Cox\'s Bazar',
+  'Rajshahi',
+  'Khulna',
+  'Barisal',
+  'Rangpur',
+  'Gazipur',
+  'Comilla',
+];
 
 const updateGearSchema = z.object({
   title: z.string().min(2, 'Equipment title must be at least 2 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  pricePerDay: z.number({ invalid_type_error: 'Daily rate must be a valid number' }).positive('Daily rate must be greater than 0'),
-  location: z.string().min(2, 'Location is required'),
+  pricePerDay: z.number({ invalid_type_error: 'First day price must be a valid number' }).positive('First day rate must be greater than 0'),
+  additionalDayPrice: z.number({ invalid_type_error: 'Additional day price must be a valid number' }).min(0, 'Additional day rate cannot be negative'),
+  location: z.string().min(1, 'Please select a location'),
   brand: z.string().optional(),
   stock: z.number().int().min(0, 'Stock cannot be negative'),
   isAvailable: z.boolean(),
@@ -34,6 +49,7 @@ interface EditGearModalProps {
 
 export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: EditGearModalProps) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [locations, setLocations] = useState<string[]>(DEFAULT_ADMIN_LOCATIONS);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,11 +83,26 @@ export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: Edit
           setIsLoadingCategories(false);
         });
 
+      // Fetch Admin Locations
+      let cachedNames: string[] = [];
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('platform_locations');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            cachedNames = parsed.map((l: any) => l.name || l);
+          }
+        } catch {}
+      }
+      const finalLocations = cachedNames.length > 0 ? cachedNames : DEFAULT_ADMIN_LOCATIONS;
+      setLocations(finalLocations);
+
       reset({
         title: gear.title,
         description: gear.description,
         pricePerDay: gear.pricePerDay,
-        location: gear.location,
+        additionalDayPrice: gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6),
+        location: gear.location && finalLocations.includes(gear.location) ? gear.location : finalLocations[0],
         brand: gear.brand || '',
         stock: gear.stock,
         isAvailable: gear.isAvailable,
@@ -187,22 +218,39 @@ export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: Edit
           </div>
         </div>
 
-        {/* Price, Stock & Location */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Pricing Fields Grid (First Day & Additional Days in BDT) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label htmlFor="edit-gear-price" className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              Daily Rate ($/day) *
+            <label htmlFor="edit-gear-first-price" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              First Day Pricing (৳ / 1st Day) *
             </label>
             <input
               {...register('pricePerDay', { valueAsNumber: true })}
-              id="edit-gear-price"
+              id="edit-gear-first-price"
               type="number"
-              step="0.01"
+              step="1"
               className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
             />
             {errors.pricePerDay && <p className="text-xs text-rose-600 font-semibold">{errors.pricePerDay.message}</p>}
           </div>
 
+          <div className="space-y-1">
+            <label htmlFor="edit-gear-additional-price" className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              Additional Days Pricing (৳ / Day) *
+            </label>
+            <input
+              {...register('additionalDayPrice', { valueAsNumber: true })}
+              id="edit-gear-additional-price"
+              type="number"
+              step="1"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
+            />
+            {errors.additionalDayPrice && <p className="text-xs text-rose-600 font-semibold">{errors.additionalDayPrice.message}</p>}
+          </div>
+        </div>
+
+        {/* Stock Quantity & Location Select */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
             <label htmlFor="edit-gear-stock" className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Stock Quantity *
@@ -219,14 +267,19 @@ export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: Edit
 
           <div className="space-y-1">
             <label htmlFor="edit-gear-location" className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              Location City *
+              Location City (Admin Managed) *
             </label>
-            <input
+            <select
               {...register('location')}
               id="edit-gear-location"
-              type="text"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500"
-            />
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 cursor-pointer"
+            >
+              {locations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
             {errors.location && <p className="text-xs text-rose-600 font-semibold">{errors.location.message}</p>}
           </div>
         </div>

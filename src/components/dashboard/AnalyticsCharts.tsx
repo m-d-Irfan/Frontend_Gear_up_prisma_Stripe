@@ -150,10 +150,10 @@ export default function AnalyticsCharts({
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center space-x-2">
                   <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Provider Earnings Trend ($)</span>
+                  <span>Provider Earnings Trend (৳)</span>
                 </h3>
                 <p className="text-lg font-black text-slate-900 dark:text-white mt-1">
-                  ${(totalRevenue ?? monthlyData.reduce((a, b) => a + b.revenue, 0)).toFixed(2)}
+                  ৳{(totalRevenue ?? monthlyData.reduce((a, b) => a + b.revenue, 0)).toFixed(0)}
                 </p>
               </div>
               <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
@@ -178,7 +178,7 @@ export default function AnalyticsCharts({
                         } transition-all duration-300 rounded-t-lg relative`}
                       >
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-md whitespace-nowrap z-20">
-                          ${item.revenue.toFixed(0)} ({item.ordersCount} order{item.ordersCount === 1 ? '' : 's'})
+                          ৳{item.revenue.toFixed(0)} ({item.ordersCount} order{item.ordersCount === 1 ? '' : 's'})
                         </div>
                       </div>
                     </div>

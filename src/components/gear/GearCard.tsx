@@ -100,13 +100,15 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
           </div>
         )}
 
-        {/* Price Tag Overlay */}
+        {/* Price Tag Overlay (First Day & Additional Days in BDT) */}
         <div className="absolute bottom-3 left-3 bg-slate-900 dark:bg-emerald-600 text-white px-3 py-1.5 rounded-xl flex items-baseline space-x-1 shadow-md">
-          <span className="text-xs text-slate-300">$</span>
+          <span className="text-xs text-slate-300">৳</span>
           <span className="text-lg font-extrabold tracking-tight text-white">
-            {Number(gear.pricePerDay).toFixed(2)}
+            {Number(gear.pricePerDay)}
           </span>
-          <span className="text-[10px] text-slate-300">/ day</span>
+          <span className="text-[10px] text-slate-300">
+            / 1st day (৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} add'l)
+          </span>
         </div>
       </div>
 
