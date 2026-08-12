@@ -93,9 +93,21 @@ export default function ProviderDashboardPage() {
           } catch {}
         }
 
-        const combined = [...myGear];
+        const combined = myGear.map((g) => {
+          if (typeof window !== 'undefined') {
+            try {
+              const itemOverride = localStorage.getItem(`gear_item_${g.id}`);
+              if (itemOverride) return { ...g, ...JSON.parse(itemOverride) };
+            } catch {}
+          }
+          return g;
+        });
+
         localGear.forEach((lg) => {
-          if (!combined.some((item) => item.id === lg.id || item.title === lg.title)) {
+          const existingIdx = combined.findIndex((item) => item.id === lg.id || item.title === lg.title);
+          if (existingIdx !== -1) {
+            combined[existingIdx] = { ...combined[existingIdx], ...lg };
+          } else {
             combined.push(lg);
           }
         });

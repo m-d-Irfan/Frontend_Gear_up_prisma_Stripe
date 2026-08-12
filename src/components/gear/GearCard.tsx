@@ -18,18 +18,26 @@ interface GearCardProps {
 export default function GearCard({ gear, onEdit, onDelete, isProvider: isProviderProp }: GearCardProps) {
   const { user } = useAuthStore();
   const isProvider = isProviderProp ?? (user?.role === 'PROVIDER' || Boolean(onEdit));
+  let displayGear = { ...gear };
+  if (typeof window !== 'undefined') {
+    try {
+      const cachedItem = localStorage.getItem(`gear_item_${gear.id}`);
+      if (cachedItem) {
+        displayGear = { ...displayGear, ...JSON.parse(cachedItem) };
+      }
+      const cachedStock = localStorage.getItem(`gear_stock_${gear.id}`);
+      if (cachedStock !== null) {
+        displayGear.stock = Math.max(0, Number(cachedStock));
+      }
+    } catch {}
+  }
+
   const fallbackImage =
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&auto=format&fit=crop';
-  const displayImage = gear.image || gear.imageUrl || fallbackImage;
+  const displayImage = displayGear.image || displayGear.imageUrl || fallbackImage;
 
-  let stock = gear.stock ?? 0;
-  if (typeof window !== 'undefined') {
-    const cachedStock = localStorage.getItem(`gear_stock_${gear.id}`);
-    if (cachedStock !== null) {
-      stock = Math.max(0, Number(cachedStock));
-    }
-  }
-  const isAvailable = Boolean(gear.isAvailable) && stock > 0;
+  const stock = displayGear.stock ?? 0;
+  const isAvailable = Boolean(displayGear.isAvailable) && stock > 0;
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden flex flex-col h-full group border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
@@ -106,11 +114,11 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
         <div className="absolute bottom-3 left-3 bg-slate-900/95 backdrop-blur-md dark:bg-slate-950/95 text-white p-2.5 rounded-2xl shadow-xl border border-white/10 space-y-0.5">
           <div className="flex items-baseline space-x-1">
             <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">From</span>
-            <span className="text-sm font-black text-emerald-400">৳{Number(gear.pricePerDay)}</span>
+            <span className="text-sm font-black text-emerald-400">৳{Number(displayGear.pricePerDay)}</span>
             <span className="text-[10px] text-slate-300">first night</span>
           </div>
           <div className="text-[10px] font-semibold text-slate-300 flex items-center space-x-1">
-            <span className="text-white font-bold">৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)}</span>
+            <span className="text-white font-bold">৳{displayGear.additionalDayPrice ?? Math.round(displayGear.pricePerDay * 0.6)}</span>
             <span>/ additional night</span>
           </div>
         </div>
@@ -123,22 +131,22 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span className="font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
               <Tag className="w-3.5 h-3.5" />
-              {gear.brand || 'GearUp Verified'}
+              {displayGear.brand || 'GearUp Verified'}
             </span>
-            {gear.location && (
+            {displayGear.location && (
               <span className="flex items-center space-x-1 text-slate-500 dark:text-slate-400">
                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                <span className="truncate max-w-[100px]">{gear.location}</span>
+                <span className="truncate max-w-[100px]">{displayGear.location}</span>
               </span>
             )}
           </div>
 
           <h3 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-            {gear.title}
+            {displayGear.title}
           </h3>
 
           <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
-            {gear.description || 'Premium quality rental equipment thoroughly inspected and prepped for outdoor adventure.'}
+            {displayGear.description || 'Premium quality rental equipment thoroughly inspected and prepped for outdoor adventure.'}
           </p>
         </div>
 

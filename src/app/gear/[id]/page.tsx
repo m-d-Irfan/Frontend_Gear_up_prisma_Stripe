@@ -57,12 +57,19 @@ export default function GearDetailsPage({
     apiClient
       .get<ApiResponse<Gear>>(`/gear/${gearIdentifier}`)
       .then((res) => {
-        const fetchedGear = res.data?.data || null;
-        if (fetchedGear && typeof window !== 'undefined') {
-          const cachedStock = localStorage.getItem(`gear_stock_${fetchedGear.id}`);
-          if (cachedStock !== null) {
-            fetchedGear.stock = parseInt(cachedStock, 10);
-          }
+        let fetchedGear = res.data?.data || null;
+        if (typeof window !== 'undefined' && gearIdentifier) {
+          try {
+            const cachedItem = localStorage.getItem(`gear_item_${gearIdentifier}`);
+            if (cachedItem) {
+              const parsed = JSON.parse(cachedItem);
+              fetchedGear = fetchedGear ? { ...fetchedGear, ...parsed } : parsed;
+            }
+            const cachedStock = localStorage.getItem(`gear_stock_${gearIdentifier}`);
+            if (cachedStock !== null && fetchedGear) {
+              fetchedGear.stock = parseInt(cachedStock, 10);
+            }
+          } catch {}
         }
         setGear(fetchedGear);
 

@@ -117,34 +117,43 @@ export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: Edit
   const onSubmit = async (data: UpdateGearFormValues) => {
     if (!gear) return;
     setIsSubmitting(true);
-    try {
-      await apiClient.patch<ApiResponse<Gear>>(`/gear/${gear.id}`, data);
-      
-      if (typeof window !== 'undefined' && user?.email) {
+
+    const updatedGearItem: Gear = {
+      ...gear,
+      ...data,
+      image: data.image || gear.image || gear.imageUrl,
+    };
+
+    const saveLocally = () => {
+      if (typeof window !== 'undefined') {
         try {
-          const key = `provider_gear_${user.email}`;
-          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
-          const updated = existing.map((g) => (g.id === gear.id ? { ...g, ...data } : g));
-          localStorage.setItem(key, JSON.stringify(updated));
+          // 1. Save specific item override
+          localStorage.setItem(`gear_item_${gear.id}`, JSON.stringify(updatedGearItem));
           localStorage.setItem(`gear_stock_${gear.id}`, String(data.stock));
+
+          // 2. Save in Provider's list
+          if (user?.email) {
+            const key = `provider_gear_${user.email}`;
+            const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+            const hasItem = existing.some((g) => g.id === gear.id);
+            const updatedList = hasItem
+              ? existing.map((g) => (g.id === gear.id ? updatedGearItem : g))
+              : [updatedGearItem, ...existing];
+            localStorage.setItem(key, JSON.stringify(updatedList));
+          }
         } catch {}
       }
+    };
 
-      toast.success('Equipment updated successfully!');
+    try {
+      await apiClient.patch<ApiResponse<Gear>>(`/gear/${gear.id}`, data);
+      saveLocally();
+      toast.success('Equipment listing updated successfully!');
       onSuccess();
       onClose();
     } catch {
-      // Local fallback save
-      if (typeof window !== 'undefined' && user?.email) {
-        try {
-          const key = `provider_gear_${user.email}`;
-          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
-          const updated = existing.map((g) => (g.id === gear.id ? { ...g, ...data } : g));
-          localStorage.setItem(key, JSON.stringify(updated));
-          localStorage.setItem(`gear_stock_${gear.id}`, String(data.stock));
-        } catch {}
-      }
-      toast.success('Equipment details updated successfully!');
+      saveLocally();
+      toast.success('Equipment listing details updated!');
       onSuccess();
       onClose();
     } finally {
