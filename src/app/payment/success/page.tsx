@@ -29,6 +29,9 @@ function PaymentSuccessContent() {
     }
 
     setIsVerifying(true);
+    if (typeof window !== 'undefined' && orderId) {
+      sessionStorage.setItem(`order_paid_${orderId}`, 'PAID');
+    }
     apiClient
       .post<ApiResponse<any>>('/payments/verify', { orderId, transactionId })
       .then((res) => {

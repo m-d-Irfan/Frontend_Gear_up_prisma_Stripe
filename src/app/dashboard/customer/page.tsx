@@ -87,13 +87,24 @@ export default function CustomerDashboardPage() {
     apiClient
       .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
       .then((res) => {
-        if (res.data?.data && res.data.data.length > 0) {
-          setOrders(res.data.data);
-        } else {
-          setOrders(DEFAULT_DEMO_ORDERS);
-        }
+        const rawOrders = res.data?.data && res.data.data.length > 0 ? res.data.data : DEFAULT_DEMO_ORDERS;
+        const updatedOrders = rawOrders.map((ord) => {
+          if (typeof window !== 'undefined' && sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID') {
+            return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
+          }
+          return ord;
+        });
+        setOrders(updatedOrders);
       })
-      .catch(() => setOrders(DEFAULT_DEMO_ORDERS))
+      .catch(() => {
+        const updatedOrders = DEFAULT_DEMO_ORDERS.map((ord) => {
+          if (typeof window !== 'undefined' && sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID') {
+            return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
+          }
+          return ord;
+        });
+        setOrders(updatedOrders);
+      })
       .finally(() => setIsLoadingOrders(false));
   }, []);
 
