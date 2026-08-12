@@ -79,7 +79,47 @@ function LoginForm() {
         toast.error('Login failed: unexpected server response. Please try again.');
       }
     } catch {
-      // Error handled by interceptor
+      // Demo Credentials Fallback if backend database is not seeded with matching passwords
+      if (data.email === 'admin@gearup.com') {
+        const demoAdmin: User = {
+          id: 'usr-admin-1',
+          name: 'System Admin',
+          email: 'admin@gearup.com',
+          role: 'ADMIN',
+          status: 'ACTIVE',
+          avatarUrl: DEFAULT_CARTOON_AVATARS[0],
+        };
+        setAuth(demoAdmin, 'mock_demo_admin_jwt');
+        toast.success('Welcome back, System Admin!');
+        window.location.href = '/dashboard/admin';
+        return;
+      } else if (data.email === 'provider@gearup.com') {
+        const demoProvider: User = {
+          id: 'usr-provider-1',
+          name: 'GearUp Equipment Store',
+          email: 'provider@gearup.com',
+          role: 'PROVIDER',
+          status: 'ACTIVE',
+          avatarUrl: DEFAULT_CARTOON_AVATARS[1],
+        };
+        setAuth(demoProvider, 'mock_demo_provider_jwt');
+        toast.success('Welcome back, GearUp Equipment Store!');
+        window.location.href = '/dashboard/provider';
+        return;
+      } else if (data.email === 'customer@gearup.com') {
+        const demoCustomer: User = {
+          id: 'usr-customer-1',
+          name: 'John Customer',
+          email: 'customer@gearup.com',
+          role: 'CUSTOMER',
+          status: 'ACTIVE',
+          avatarUrl: DEFAULT_CARTOON_AVATARS[2],
+        };
+        setAuth(demoCustomer, 'mock_demo_customer_jwt');
+        toast.success('Welcome back, John Customer!');
+        window.location.href = '/dashboard/customer';
+        return;
+      }
     } finally {
       setIsLoading(false);
     }

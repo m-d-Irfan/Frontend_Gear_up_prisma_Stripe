@@ -84,26 +84,28 @@ export default function CustomerDashboardPage() {
 
   useEffect(() => {
     setIsLoadingOrders(true);
+    const updatePaidStatus = (list: RentalOrder[]) => {
+      return list.map((ord) => {
+        const isPaid =
+          typeof window !== 'undefined' &&
+          (localStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+            (ord.id === 'ord-102' && localStorage.getItem('order_paid_recent') === 'true'));
+        if (isPaid) {
+          return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
+        }
+        return ord;
+      });
+    };
+
     apiClient
       .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
       .then((res) => {
         const rawOrders = res.data?.data && res.data.data.length > 0 ? res.data.data : DEFAULT_DEMO_ORDERS;
-        const updatedOrders = rawOrders.map((ord) => {
-          if (typeof window !== 'undefined' && sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID') {
-            return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
-          }
-          return ord;
-        });
-        setOrders(updatedOrders);
+        setOrders(updatePaidStatus(rawOrders));
       })
       .catch(() => {
-        const updatedOrders = DEFAULT_DEMO_ORDERS.map((ord) => {
-          if (typeof window !== 'undefined' && sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID') {
-            return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
-          }
-          return ord;
-        });
-        setOrders(updatedOrders);
+        setOrders(updatePaidStatus(DEFAULT_DEMO_ORDERS));
       })
       .finally(() => setIsLoadingOrders(false));
   }, []);

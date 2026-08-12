@@ -29,8 +29,12 @@ function PaymentSuccessContent() {
     }
 
     setIsVerifying(true);
-    if (typeof window !== 'undefined' && orderId) {
-      sessionStorage.setItem(`order_paid_${orderId}`, 'PAID');
+    if (typeof window !== 'undefined') {
+      if (orderId) {
+        localStorage.setItem(`order_paid_${orderId}`, 'PAID');
+        sessionStorage.setItem(`order_paid_${orderId}`, 'PAID');
+      }
+      localStorage.setItem('order_paid_recent', 'true');
     }
     apiClient
       .post<ApiResponse<any>>('/payments/verify', { orderId, transactionId })
