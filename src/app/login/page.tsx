@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Dumbbell, ShieldCheck, UserCheck, Store } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { useAuthStore, DEFAULT_CARTOON_AVATARS } from '@/store/useAuthStore';
-import { ApiResponse, User } from '@/types';
+import { ApiResponse, User, UserRole } from '@/types';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
