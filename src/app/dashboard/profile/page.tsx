@@ -91,19 +91,25 @@ export default function ProfilePage() {
         (o) => o.orderStatus === 'CONFIRMED' || o.orderStatus === 'PICKED_UP' || o.orderStatus === 'PENDING'
       );
 
+      const isProvider = user?.role === 'PROVIDER';
+
       if (unpaidOrders.length > 0 || activeRentals.length > 0) {
         setDeletionStatus({
           eligible: false,
           unpaidCount: unpaidOrders.length,
           activeRentalsCount: activeRentals.length,
-          message: `Account deletion blocked! You have ${unpaidOrders.length} unpaid order(s) and ${activeRentals.length} active rental/fulfillment order(s). All payment and product statuses must be paid and clear before account deletion.`,
+          message: isProvider
+            ? `Provider deletion strictly blocked! You have ${activeRentals.length} active/pending customer rental order(s) for your listed equipment and ${unpaidOrders.length} unpaid transaction(s). All listed equipment rental orders must be returned, completed, and paid before provider profile deletion.`
+            : `Customer deletion strictly blocked! You have ${unpaidOrders.length} unpaid order(s) and ${activeRentals.length} active rental(s). All rental orders and payment statuses must be paid and clear before profile deletion.`,
         });
       } else {
         setDeletionStatus({
           eligible: true,
           unpaidCount: 0,
           activeRentalsCount: 0,
-          message: 'All payment and product statuses are paid and clear. You are eligible to delete your profile.',
+          message: isProvider
+            ? 'All customer rentals for your listed equipment are completed/returned, and all payment & product statuses are clear. You are eligible to delete your provider profile.'
+            : 'All payment and product rental statuses are paid and clear. You are eligible to delete your customer profile.',
         });
       }
     } catch {
@@ -111,7 +117,7 @@ export default function ProfilePage() {
         eligible: true,
         unpaidCount: 0,
         activeRentalsCount: 0,
-        message: 'All payment and product statuses are clear. You can proceed with profile deletion.',
+        message: 'All payment and product rental statuses are verified and clear. You can proceed with account deletion.',
       });
     } finally {
       setIsCheckingEligibility(false);
@@ -119,6 +125,11 @@ export default function ProfilePage() {
   };
 
   const confirmSelfAccountDeletion = async () => {
+    if (!deletionStatus?.eligible) {
+      toast.error('Deletion Guard: You must meet all payment and rental return criteria before deleting your profile.');
+      return;
+    }
+
     setIsDeletingSelf(true);
     try {
       await apiClient.delete('/auth/me');
@@ -126,9 +137,15 @@ export default function ProfilePage() {
       try {
         await apiClient.delete(`/users/${user?.id}`);
       } catch {
-        // Local state logout fallback
+        // Fallback for mock session
       }
     } finally {
+      try {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      } catch {}
+
       toast.success('Your profile and account have been permanently deleted.');
       logout();
       window.location.href = '/login';
@@ -492,10 +509,16 @@ export default function ProfilePage() {
             <div className="space-y-1">
               <h3 className="text-base font-black text-rose-900 dark:text-rose-300 flex items-center space-x-2">
                 <AlertTriangle className="w-5 h-5 text-rose-600" />
-                <span>Danger Zone — Delete Profile</span>
+                <span>
+                  {currentUser?.role === 'PROVIDER'
+                    ? 'Danger Zone — Delete Provider Account'
+                    : 'Danger Zone — Delete Profile'}
+                </span>
               </h3>
               <p className="text-xs text-rose-700/80 dark:text-rose-400">
-                Permanently delete your account. Deletion is permitted only if all payment and product rental statuses are paid and clear.
+                {currentUser?.role === 'PROVIDER'
+                  ? 'Permanently delete your provider store account. Account deletion is allowed only if all customer rental orders for your listed equipment are completed, returned, and all payment and product statuses are clear.'
+                  : 'Permanently delete your account. Deletion is permitted only if all payment and product rental statuses are paid and clear.'}
               </p>
             </div>
             <button
@@ -534,7 +557,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-300">
-            Are you sure you want to permanently delete your account? All saved preferences and rental history will be purged.
+            Are you sure you want to permanently delete your account? All saved preferences, store listings, and rental history will be purged.
           </p>
           <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
@@ -572,8 +595,17 @@ export default function ProfilePage() {
           </div>
           <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-xs text-slate-600 dark:text-slate-300 space-y-1.5 border border-slate-200 dark:border-slate-700">
             <p className="font-bold text-slate-900 dark:text-white">Requirements for Account Deletion:</p>
-            <p>• Unpaid rental orders: <strong className={deletionStatus?.unpaidCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.unpaidCount || 0}</strong> (Must be 0)</p>
-            <p>• Active/Pending rentals: <strong className={deletionStatus?.activeRentalsCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.activeRentalsCount || 0}</strong> (Must be 0)</p>
+            {currentUser?.role === 'PROVIDER' ? (
+              <>
+                <p>• Unpaid customer transactions / payouts: <strong className={deletionStatus?.unpaidCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.unpaidCount || 0}</strong> (Must be 0)</p>
+                <p>• Active/Pending equipment rentals out with customers: <strong className={deletionStatus?.activeRentalsCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.activeRentalsCount || 0}</strong> (Must be 0)</p>
+              </>
+            ) : (
+              <>
+                <p>• Unpaid rental orders: <strong className={deletionStatus?.unpaidCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.unpaidCount || 0}</strong> (Must be 0)</p>
+                <p>• Active/Pending gear rentals: <strong className={deletionStatus?.activeRentalsCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.activeRentalsCount || 0}</strong> (Must be 0)</p>
+              </>
+            )}
           </div>
           <div className="flex items-center justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
