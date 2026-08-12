@@ -444,12 +444,12 @@ export default function ProviderDashboardPage() {
         )}
 
         {/* Tab 3: Analytics */}
-        {(activeTab === 'analytics' || activeTab === 'overview') && (
+        {activeTab === 'analytics' && (
           <AnalyticsCharts
             orders={incomingOrders}
             totalRevenue={totalEarned}
             totalOrders={incomingOrders.length}
-            totalUsers={providerGear.length}
+            totalGear={providerGear.length}
             role="PROVIDER"
           />
         )}

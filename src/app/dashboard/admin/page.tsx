@@ -407,51 +407,195 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* TAB 1: DASHBOARD OVERVIEW */}
+        {/* TAB 1: DASHBOARD OVERVIEW (Executive System Health & Operations Hub) */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
-            {/* Real Dynamic Analytics Charts */}
-            <AnalyticsCharts
-              totalRevenue={stats.totalRevenue}
-              totalOrders={stats.totalOrders}
-              totalUsers={users.length}
-            />
+            {/* Quick Operations Shortcuts */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <button
+                type="button"
+                onClick={() => setIsCategoryModalOpen(true)}
+                className="p-5 rounded-2xl bg-slate-900 text-white dark:bg-slate-800 dark:border dark:border-slate-700 hover:bg-slate-800 dark:hover:bg-slate-700 transition-all text-left flex items-center justify-between group shadow-sm cursor-pointer"
+              >
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Catalog Management</p>
+                  <p className="text-sm font-black">Add New Category</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Plus className="w-5 h-5 text-emerald-400" />
+                </div>
+              </button>
 
-            {/* Quick User Overview & Moderation Summary */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('users')}
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 transition-all text-left flex items-center justify-between group shadow-xs cursor-pointer"
+              >
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Moderation</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white">User Access Control</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-sky-600 dark:text-sky-400 group-hover:scale-110 transition-transform">
+                  <Users className="w-5 h-5" />
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('gear')}
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 transition-all text-left flex items-center justify-between group shadow-xs cursor-pointer"
+              >
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Inventory</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white">Platform Equipment</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                  <Package className="w-5 h-5" />
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('analytics')}
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 transition-all text-left flex items-center justify-between group shadow-xs cursor-pointer"
+              >
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Financials</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white">Deep Analytics</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+              </button>
+            </div>
+
+            {/* Platform User Role Distribution & System Health Summary */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-emerald-500" />
+                    <span>Platform User Demographics</span>
+                  </h3>
+                  <span className="text-xs font-bold text-slate-500">{users.length} Total Users</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <p className="text-[11px] font-bold text-slate-500">Customers</p>
+                    <p className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                      {users.filter((u) => u.role === 'CUSTOMER').length}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <p className="text-[11px] font-bold text-slate-500">Providers</p>
+                    <p className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                      {users.filter((u) => u.role === 'PROVIDER').length}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <p className="text-[11px] font-bold text-slate-500">Admins</p>
+                    <p className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                      {users.filter((u) => u.role === 'ADMIN').length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-emerald-500" />
+                    <span>Equipment Catalog & Availability</span>
+                  </h3>
+                  <span className="text-xs font-bold text-slate-500">{allGear.length} Listings</span>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-xs font-bold mb-1">
+                      <span className="text-slate-700 dark:text-slate-300">In-Stock & Available</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        {allGear.length > 0 ? Math.round((allGear.filter((g) => g.isAvailable && (g.stock ?? 0) > 0).length / allGear.length) * 100) : 0}%
+                      </span>
+                    </div>
+                    <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500 rounded-full"
+                        style={{ width: `${allGear.length > 0 ? (allGear.filter((g) => g.isAvailable && (g.stock ?? 0) > 0).length / allGear.length) * 100 : 0}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs font-bold mb-1">
+                      <span className="text-slate-700 dark:text-slate-300">Out of Stock / Rented</span>
+                      <span className="text-amber-600 dark:text-amber-400">
+                        {allGear.length > 0 ? Math.round((allGear.filter((g) => !g.isAvailable || (g.stock ?? 0) <= 0).length / allGear.length) * 100) : 0}%
+                      </span>
+                    </div>
+                    <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-amber-500 rounded-full"
+                        style={{ width: `${allGear.length > 0 ? (allGear.filter((g) => !g.isAvailable || (g.stock ?? 0) <= 0).length / allGear.length) * 100 : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Platform Activity & Rentals Table */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-6 shadow-xs">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                  Platform System Status & Overview
-                </h3>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                    Recent System Rental Activity
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Latest customer orders placed across all providers
+                  </p>
+                </div>
                 <button
-                  onClick={() => setActiveTab('users')}
-                  className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center space-x-1"
+                  type="button"
+                  onClick={() => setActiveTab('orders')}
+                  className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center space-x-1 cursor-pointer"
                 >
-                  <span>Manage All Users</span>
+                  <span>View All Orders ({allOrders.length})</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <p className="text-xs font-bold text-slate-500">Active Customers</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">
-                    {users.filter((u) => u.role === 'CUSTOMER').length}
-                  </p>
+              {isLoadingOrders ? (
+                <TableSkeleton rows={4} columns={5} />
+              ) : allOrders.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 font-bold uppercase tracking-wider border-y border-slate-200 dark:border-slate-700">
+                      <tr>
+                        <th className="px-4 py-3">Order ID</th>
+                        <th className="px-4 py-3">Equipment</th>
+                        <th className="px-4 py-3">Rental Duration</th>
+                        <th className="px-4 py-3">Amount</th>
+                        <th className="px-4 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {allOrders.slice(0, 5).map((ord) => (
+                        <tr key={ord.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="px-4 py-3.5 font-mono text-[11px] text-slate-500">{ord.id}</td>
+                          <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">{ord.gear?.title || 'Rental Item'}</td>
+                          <td className="px-4 py-3.5">{ord.startDate} → {ord.endDate}</td>
+                          <td className="px-4 py-3.5 font-bold text-emerald-600 dark:text-emerald-400">${ord.totalPrice}</td>
+                          <td className="px-4 py-3.5"><Badge variant={ord.orderStatus} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <p className="text-xs font-bold text-slate-500">Equipment Providers</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">
-                    {users.filter((u) => u.role === 'PROVIDER').length}
-                  </p>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <p className="text-xs font-bold text-slate-500">System Administrators</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">
-                    {users.filter((u) => u.role === 'ADMIN').length}
-                  </p>
-                </div>
-              </div>
+              ) : (
+                <p className="text-xs text-slate-500 text-center py-6">No recent rental transactions recorded.</p>
+              )}
             </div>
           </div>
         )}
@@ -803,11 +947,12 @@ export default function AdminDashboardPage() {
         )}
 
         {/* TAB 6: PLATFORM ANALYTICS */}
-        {(activeTab === 'analytics' || activeTab === 'overview') && (
+        {activeTab === 'analytics' && (
           <AnalyticsCharts
             orders={allOrders}
             totalRevenue={stats.totalRevenue}
             totalOrders={stats.totalOrders}
+            totalGear={allGear.length}
             totalUsers={users.length}
             role="ADMIN"
           />
