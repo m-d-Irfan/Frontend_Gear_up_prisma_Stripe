@@ -41,86 +41,6 @@ export default function CustomerDashboardPage() {
 
   const { user } = useAuthStore();
 
-  const DEFAULT_DEMO_ORDERS: RentalOrder[] = [
-    {
-      id: 'ord-101',
-      gearId: 'gear-1',
-      customerId: user?.id || 'google-usr',
-      startDate: '2026-08-01',
-      endDate: '2026-08-05',
-      totalDays: 4,
-      totalPrice: 150,
-      orderStatus: 'CONFIRMED',
-      paymentStatus: 'PAID',
-      createdAt: new Date().toISOString(),
-      gear: {
-        id: 'gear-1',
-        title: 'Professional Kayak Touring Kit',
-        image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&q=80',
-        pricePerDay: 30,
-        location: 'Dhaka',
-        district: 'Dhaka',
-      },
-    },
-    {
-      id: 'ord-102',
-      gearId: 'gear-2',
-      customerId: user?.id || 'google-usr',
-      startDate: '2026-08-10',
-      endDate: '2026-08-12',
-      totalDays: 2,
-      totalPrice: 90,
-      orderStatus: 'PENDING',
-      paymentStatus: 'UNPAID',
-      createdAt: new Date().toISOString(),
-      gear: {
-        id: 'gear-2',
-        title: 'Ultralight 2-Person Backpacking Tent',
-        image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=500&q=80',
-        pricePerDay: 45,
-        location: 'Sylhet',
-        district: 'Sylhet',
-      },
-    },
-    {
-      id: 'ord-103',
-      gearId: 'gear-3',
-      customerId: user?.id || 'google-usr',
-      startDate: '2026-07-15',
-      endDate: '2026-07-18',
-      totalDays: 3,
-      totalPrice: 180,
-      orderStatus: 'RETURNED',
-      paymentStatus: 'PAID',
-      createdAt: new Date().toISOString(),
-      gear: {
-        id: 'gear-3',
-        title: 'GoPro Hero 11 Black Action Camera',
-        image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80',
-        pricePerDay: 60,
-        location: 'Cox’s Bazar',
-        district: 'Cox’s Bazar',
-      },
-    },
-  ];
-
-  const DEFAULT_DEMO_PAYMENTS: Payment[] = [
-    {
-      id: 'pay-201',
-      amount: 150,
-      status: 'PAID',
-      transactionId: 'tx_sim_8938102',
-      createdAt: '2026-08-01T10:00:00.000Z',
-    },
-    {
-      id: 'pay-202',
-      amount: 180,
-      status: 'PAID',
-      transactionId: 'pi_3Mtw2eLkdIwHu4',
-      createdAt: '2026-07-15T14:30:00.000Z',
-    },
-  ];
-
   useEffect(() => {
     setIsLoadingOrders(true);
     const updatePaidStatus = (list: RentalOrder[]) => {
@@ -128,8 +48,7 @@ export default function CustomerDashboardPage() {
         const isPaid =
           typeof window !== 'undefined' &&
           (localStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
-            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
-            (ord.id === 'ord-102' && localStorage.getItem('order_paid_recent') === 'true'));
+            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID');
         if (isPaid) {
           return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
         }
@@ -140,42 +59,27 @@ export default function CustomerDashboardPage() {
     apiClient
       .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
       .then((res) => {
-        const isDemoUser = user?.email === 'customer@gearup.com';
-        const rawOrders =
-          res.data?.data && res.data.data.length > 0
-            ? res.data.data
-            : isDemoUser
-            ? DEFAULT_DEMO_ORDERS
-            : [];
+        const rawOrders = res.data?.data || [];
         setOrders(updatePaidStatus(rawOrders));
       })
       .catch(() => {
-        const isDemoUser = user?.email === 'customer@gearup.com';
-        setOrders(updatePaidStatus(isDemoUser ? DEFAULT_DEMO_ORDERS : []));
+        setOrders([]);
       })
       .finally(() => setIsLoadingOrders(false));
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     setIsLoadingPayments(true);
     apiClient
       .get<ApiResponse<Payment[]>>('/payments/history')
       .then((res) => {
-        const isDemoUser = user?.email === 'customer@gearup.com';
-        if (res.data?.data && res.data.data.length > 0) {
-          setPayments(res.data.data);
-        } else if (isDemoUser) {
-          setPayments(DEFAULT_DEMO_PAYMENTS);
-        } else {
-          setPayments([]);
-        }
+        setPayments(res.data?.data || []);
       })
       .catch(() => {
-        const isDemoUser = user?.email === 'customer@gearup.com';
-        setPayments(isDemoUser ? DEFAULT_DEMO_PAYMENTS : []);
+        setPayments([]);
       })
       .finally(() => setIsLoadingPayments(false));
-  }, [user]);
+  }, []);
 
   const totalSpent = orders
     .filter((o) => o.paymentStatus === 'PAID')

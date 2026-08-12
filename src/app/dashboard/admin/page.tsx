@@ -71,75 +71,18 @@ export default function AdminDashboardPage() {
 
   const { user } = useAuthStore();
 
-  const DEFAULT_DEMO_USERS: User[] = [
-    {
-      id: 'usr-admin-1',
-      name: 'System Admin',
-      email: 'admin@gearup.com',
-      role: 'ADMIN',
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'usr-provider-1',
-      name: 'GearUp Equipment Store',
-      email: 'provider@gearup.com',
-      role: 'PROVIDER',
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'usr-customer-1',
-      name: 'John Customer',
-      email: 'customer@gearup.com',
-      role: 'CUSTOMER',
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'usr-customer-2',
-      name: 'Sarah Outdoors',
-      email: 'sarah@example.com',
-      role: 'CUSTOMER',
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'usr-customer-3',
-      name: 'Mark Kayaker',
-      email: 'mark@example.com',
-      role: 'CUSTOMER',
-      status: 'SUSPENDED',
-      createdAt: new Date().toISOString(),
-    },
-  ];
-
   const fetchUsers = () => {
     setIsLoadingUsers(true);
     apiClient
       .get<ApiResponse<User[]>>('/users')
       .then((res) => {
-        const isDemoAdmin = user?.email === 'admin@gearup.com';
-        if (res.data?.data && res.data.data.length > 0) {
-          setUsers(res.data.data);
-          setStats((prev) => ({ ...prev, totalUsers: res.data.data.length }));
-        } else if (isDemoAdmin) {
-          setUsers(DEFAULT_DEMO_USERS);
-          setStats((prev) => ({ ...prev, totalUsers: DEFAULT_DEMO_USERS.length }));
-        } else {
-          setUsers([]);
-          setStats((prev) => ({ ...prev, totalUsers: 0 }));
-        }
+        const dbUsers = res.data?.data || [];
+        setUsers(dbUsers);
+        setStats((prev) => ({ ...prev, totalUsers: dbUsers.length }));
       })
       .catch(() => {
-        const isDemoAdmin = user?.email === 'admin@gearup.com';
-        if (isDemoAdmin) {
-          setUsers(DEFAULT_DEMO_USERS);
-          setStats((prev) => ({ ...prev, totalUsers: DEFAULT_DEMO_USERS.length }));
-        } else {
-          setUsers([]);
-          setStats((prev) => ({ ...prev, totalUsers: 0 }));
-        }
+        setUsers([]);
+        setStats((prev) => ({ ...prev, totalUsers: 0 }));
       })
       .finally(() => {
         setIsLoadingUsers(false);
