@@ -160,7 +160,7 @@ export default function RegisterPage() {
                 });
                 const profile = await res.json();
 
-                let finalUser: User = {
+                const googleUser: User = {
                   id: `google-${profile.sub}`,
                   name: profile.name || 'Google User',
                   email: profile.email,
@@ -168,37 +168,32 @@ export default function RegisterPage() {
                   status: 'ACTIVE',
                   avatarUrl: profile.picture || DEFAULT_CARTOON_AVATARS[0],
                 };
-                let finalToken = `${btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))}.${btoa(
-                  JSON.stringify({ id: finalUser.id, email: finalUser.email, role: selectedRole })
-                )}.${btoa('verified_google_auth')}`;
 
                 try {
-                  const googlePass = `GoogleAuth_${profile.sub}`;
-                  try {
-                    await apiClient.post('/auth/register', {
-                      name: finalUser.name,
-                      email: finalUser.email,
-                      password: googlePass,
-                      role: selectedRole,
-                    });
-                  } catch {
-                    // User might already exist in backend DB
-                  }
+                  const googleRes = await apiClient.post<
+                    ApiResponse<{ token?: string; accessToken?: string; user: User }>
+                  >('/auth/google', {
+                    email: profile.email,
+                    name: profile.name || 'Google User',
+                    avatarUrl: profile.picture || DEFAULT_CARTOON_AVATARS[0],
+                    role: selectedRole,
+                  });
 
-                  const loginRes = await apiClient.post<ApiResponse<{ accessToken?: string; token?: string; user: User }>>(
-                    '/auth/login',
-                    { email: finalUser.email, password: googlePass }
-                  );
-                  if (loginRes.data?.data?.user) {
-                    finalUser = loginRes.data.data.user;
-                    finalToken = loginRes.data.data.accessToken || loginRes.data.data.token || finalToken;
+                  if (googleRes.data?.data?.user) {
+                    const backendUser = googleRes.data.data.user;
+                    const backendToken =
+                      googleRes.data.data.token || googleRes.data.data.accessToken || '';
+                    setAuth(backendUser, backendToken);
+                    toast.success(`Registered as ${backendUser.name} (${backendUser.email})`);
+                  } else {
+                    setAuth(googleUser, 'verified_google_auth');
+                    toast.success(`Registered as ${profile.name} (${profile.email})`);
                   }
                 } catch {
-                  // Fallback
+                  setAuth(googleUser, 'verified_google_auth');
+                  toast.success(`Registered as ${profile.name} (${profile.email})`);
                 }
 
-                setAuth(finalUser, finalToken);
-                toast.success(`Registered as ${profile.name} (${profile.email})`);
                 const dest = selectedRole === 'PROVIDER' ? '/dashboard/provider' : '/dashboard/customer';
                 window.location.href = dest;
               } catch {
