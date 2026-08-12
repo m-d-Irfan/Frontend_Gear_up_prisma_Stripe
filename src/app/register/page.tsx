@@ -89,7 +89,7 @@ export default function RegisterPage() {
       password: '',
       confirmPassword: '',
       role: 'CUSTOMER',
-      gender: 'Male',
+      gender: '',
       companyName: '',
       officeAddress: '',
     },
@@ -296,7 +296,7 @@ export default function RegisterPage() {
             <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
             {/* Account Type Selector */}
             <div className="space-y-2">
               <label className={labelClass}>Select Your Account Type</label>
@@ -343,6 +343,7 @@ export default function RegisterPage() {
                   id="register-name"
                   type="text"
                   placeholder="John Doe"
+                  autoComplete="off"
                   className={inputClass}
                 />
               </div>
@@ -360,6 +361,7 @@ export default function RegisterPage() {
                   id="register-gender"
                   className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 cursor-pointer"
                 >
+                  <option value="" disabled>Select Gender *</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other / Prefer not to say</option>
@@ -422,6 +424,7 @@ export default function RegisterPage() {
                   id="register-email"
                   type="email"
                   placeholder="name@example.com"
+                  autoComplete="off"
                   className={inputClass}
                 />
               </div>
@@ -442,6 +445,7 @@ export default function RegisterPage() {
                   id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   className={inputClass}
                 />
                 <button
@@ -468,6 +472,7 @@ export default function RegisterPage() {
                   id="register-confirm-password"
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   className={inputClass}
                 />
                 <button
