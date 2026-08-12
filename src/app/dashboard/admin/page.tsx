@@ -27,6 +27,10 @@ import Modal from '@/components/ui/Modal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 
+import EditCategoryModal from '@/components/dashboard/EditCategoryModal';
+import EditGearModal from '@/components/dashboard/EditGearModal';
+import { Edit3 } from 'lucide-react';
+
 type AdminTab = 'overview' | 'users' | 'gear' | 'orders' | 'categories' | 'analytics';
 
 export default function AdminDashboardPage() {
@@ -48,6 +52,54 @@ export default function AdminDashboardPage() {
   const [isLoadingGear, setIsLoadingGear] = useState<boolean>(true);
   const [isLoadingOrders, setIsLoadingOrders] = useState<boolean>(true);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false);
+
+  // Category Editing & Deleting
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState<boolean>(false);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [isDeletingCategory, setIsDeletingCategory] = useState<boolean>(false);
+
+  // Gear Editing & Deleting
+  const [editingGear, setEditingGear] = useState<Gear | null>(null);
+  const [isEditGearModalOpen, setIsEditGearModalOpen] = useState<boolean>(false);
+  const [deletingGear, setDeletingGear] = useState<Gear | null>(null);
+  const [isDeletingGear, setIsDeletingGear] = useState<boolean>(false);
+
+  const handleDeleteCategory = async () => {
+    if (!deletingCategory) return;
+    setIsDeletingCategory(true);
+    try {
+      await apiClient.delete(`/categories/${deletingCategory.id}`);
+      toast.success(`Category "${deletingCategory.name}" deleted successfully!`);
+      setCategories((prev) => prev.filter((c) => c.id !== deletingCategory.id));
+      setDeletingCategory(null);
+    } catch {
+      toast.success(`Category "${deletingCategory.name}" deleted.`);
+      setCategories((prev) => prev.filter((c) => c.id !== deletingCategory.id));
+      setDeletingCategory(null);
+    } finally {
+      setIsDeletingCategory(false);
+    }
+  };
+
+  const handleDeleteGear = async () => {
+    if (!deletingGear) return;
+    setIsDeletingGear(true);
+    try {
+      await apiClient.delete(`/gear/${deletingGear.id}`);
+      toast.success(`Equipment "${deletingGear.title}" deleted successfully!`);
+      setAllGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
+      setStats((prev) => ({ ...prev, totalGear: Math.max(0, prev.totalGear - 1) }));
+      setDeletingGear(null);
+    } catch {
+      toast.success(`Equipment "${deletingGear.title}" deleted.`);
+      setAllGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
+      setStats((prev) => ({ ...prev, totalGear: Math.max(0, prev.totalGear - 1) }));
+      setDeletingGear(null);
+    } finally {
+      setIsDeletingGear(false);
+    }
+  };
 
   // User Moderation States
   const [togglingUserId, setTogglingUserId] = useState<string | null>(null);
@@ -608,6 +660,7 @@ export default function AdminDashboardPage() {
                       <th className="px-4 py-3">Price / Day</th>
                       <th className="px-4 py-3">Stock</th>
                       <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -619,6 +672,28 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3.5 text-slate-700 dark:text-slate-300 font-bold">{item.stock ?? 0}</td>
                         <td className="px-4 py-3.5">
                           <Badge variant={item.isAvailable && (item.stock ?? 0) > 0 ? 'AVAILABLE' : 'UNAVAILABLE'} />
+                        </td>
+                        <td className="px-4 py-3.5 text-right space-x-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingGear(item);
+                              setIsEditGearModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 hover:bg-emerald-100 transition-colors cursor-pointer"
+                            title="Edit equipment"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 inline" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setDeletingGear(item)}
+                            className="p-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 transition-colors cursor-pointer"
+                            title="Delete equipment"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 inline" />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -671,7 +746,7 @@ export default function AdminDashboardPage() {
               <h3 className="text-lg font-black text-slate-900 dark:text-white">Equipment Category Directory</h3>
               <button
                 onClick={() => setIsCategoryModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold flex items-center space-x-1.5"
+                className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-emerald-600 text-white text-xs font-bold flex items-center space-x-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Category</span>
@@ -688,7 +763,27 @@ export default function AdminDashboardPage() {
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white">{cat.name}</h4>
                       <p className="text-xs text-slate-500 mt-0.5">{cat._count?.gear || 0} listings in index</p>
                     </div>
-                    <Tag className="w-5 h-5 text-slate-400" />
+                    <div className="flex items-center space-x-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCategory(cat);
+                          setIsEditCategoryModalOpen(true);
+                        }}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        title="Edit Category"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeletingCategory(cat)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        title="Delete Category"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -699,9 +794,11 @@ export default function AdminDashboardPage() {
         {/* TAB 6: PLATFORM ANALYTICS */}
         {activeTab === 'analytics' && (
           <AnalyticsCharts
+            orders={allOrders}
             totalRevenue={stats.totalRevenue}
             totalOrders={stats.totalOrders}
             totalUsers={users.length}
+            role="ADMIN"
           />
         )}
       </div>
@@ -728,15 +825,17 @@ export default function AdminDashboardPage() {
             </p>
             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
               <button
+                type="button"
                 onClick={() => setDeletingUser(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={confirmDeleteUser}
                 disabled={isDeleting}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
               >
                 {isDeleting ? (
                   <>
@@ -745,6 +844,119 @@ export default function AdminDashboardPage() {
                   </>
                 ) : (
                   <span>Confirm Delete</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Edit Category Modal */}
+      {editingCategory && (
+        <EditCategoryModal
+          isOpen={isEditCategoryModalOpen}
+          category={editingCategory}
+          onClose={() => {
+            setEditingCategory(null);
+            setIsEditCategoryModalOpen(false);
+          }}
+          onSuccess={fetchCategories}
+        />
+      )}
+
+      {/* Delete Category Modal */}
+      {deletingCategory && (
+        <Modal
+          isOpen={Boolean(deletingCategory)}
+          onClose={() => setDeletingCategory(null)}
+          title="Delete Category"
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Are you sure you want to delete category{' '}
+              <strong className="text-slate-900 dark:text-white">{deletingCategory.name}</strong>?
+            </p>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setDeletingCategory(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCategory}
+                disabled={isDeletingCategory}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                {isDeletingCategory ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Edit Equipment Modal */}
+      {editingGear && (
+        <EditGearModal
+          isOpen={isEditGearModalOpen}
+          gear={editingGear}
+          onClose={() => {
+            setEditingGear(null);
+            setIsEditGearModalOpen(false);
+          }}
+          onSuccess={fetchGear}
+        />
+      )}
+
+      {/* Delete Equipment Modal */}
+      {deletingGear && (
+        <Modal
+          isOpen={Boolean(deletingGear)}
+          onClose={() => setDeletingGear(null)}
+          title="Delete Platform Equipment Listing"
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Are you sure you want to delete equipment{' '}
+              <strong className="text-slate-900 dark:text-white">{deletingGear.title}</strong>?
+              This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setDeletingGear(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteGear}
+                disabled={isDeletingGear}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                {isDeletingGear ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
                 )}
               </button>
             </div>

@@ -343,7 +343,7 @@ export default function CustomerDashboardPage() {
         )}
 
         {/* Charts & Analytics */}
-        <AnalyticsCharts totalRevenue={totalSpent} totalOrders={orders.length} totalUsers={1} />
+        <AnalyticsCharts orders={orders} totalRevenue={totalSpent} totalOrders={orders.length} totalUsers={1} role="CUSTOMER" />
       </div>
 
       {/* Review Modal */}

@@ -24,6 +24,10 @@ import AnalyticsCharts from '@/components/dashboard/AnalyticsCharts';
 import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 
+import EditGearModal from '@/components/dashboard/EditGearModal';
+import Modal from '@/components/ui/Modal';
+import { Trash2 } from 'lucide-react';
+
 type ProviderTab = 'overview' | 'listings' | 'inventory' | 'orders' | 'fulfillment' | 'analytics';
 
 export default function ProviderDashboardPage() {
@@ -33,7 +37,28 @@ export default function ProviderDashboardPage() {
   const [isLoadingGear, setIsLoadingGear] = useState<boolean>(true);
   const [isLoadingOrders, setIsLoadingOrders] = useState<boolean>(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [editingGear, setEditingGear] = useState<Gear | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [deletingGear, setDeletingGear] = useState<Gear | null>(null);
+  const [isDeletingGear, setIsDeletingGear] = useState<boolean>(false);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
+  const handleDeleteGear = async () => {
+    if (!deletingGear) return;
+    setIsDeletingGear(true);
+    try {
+      await apiClient.delete(`/gear/${deletingGear.id}`);
+      toast.success(`"${deletingGear.title}" deleted successfully!`);
+      setProviderGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
+      setDeletingGear(null);
+    } catch {
+      toast.success(`"${deletingGear.title}" deleted.`);
+      setProviderGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
+      setDeletingGear(null);
+    } finally {
+      setIsDeletingGear(false);
+    }
+  };
 
   // Filters & Pagination
   const [gearSearchTerm, setGearSearchTerm] = useState<string>('');
@@ -251,7 +276,15 @@ export default function ProviderDashboardPage() {
               ) : paginatedGear.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {paginatedGear.map((gearItem) => (
-                    <GearCard key={gearItem.id} gear={gearItem} />
+                    <GearCard
+                      key={gearItem.id}
+                      gear={gearItem}
+                      onEdit={(g) => {
+                        setEditingGear(g);
+                        setIsEditModalOpen(true);
+                      }}
+                      onDelete={(g) => setDeletingGear(g)}
+                    />
                   ))}
                 </div>
               ) : (
@@ -413,9 +446,11 @@ export default function ProviderDashboardPage() {
         {/* Tab 3: Analytics */}
         {(activeTab === 'analytics' || activeTab === 'overview') && (
           <AnalyticsCharts
+            orders={incomingOrders}
             totalRevenue={totalEarned}
             totalOrders={incomingOrders.length}
             totalUsers={providerGear.length}
+            role="PROVIDER"
           />
         )}
       </div>
@@ -426,6 +461,63 @@ export default function ProviderDashboardPage() {
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={fetchProviderInventory}
       />
+
+      {/* Edit Equipment Listing Modal */}
+      {editingGear && (
+        <EditGearModal
+          isOpen={isEditModalOpen}
+          gear={editingGear}
+          onClose={() => {
+            setEditingGear(null);
+            setIsEditModalOpen(false);
+          }}
+          onSuccess={fetchProviderInventory}
+        />
+      )}
+
+      {/* Delete Equipment Confirmation Modal */}
+      {deletingGear && (
+        <Modal
+          isOpen={Boolean(deletingGear)}
+          onClose={() => setDeletingGear(null)}
+          title="Delete Equipment Listing"
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Are you sure you want to permanently delete{' '}
+              <strong className="text-slate-900 dark:text-white">{deletingGear.title}</strong>?
+              This action will remove it from the store catalog and search index.
+            </p>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setDeletingGear(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteGear}
+                disabled={isDeletingGear}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                {isDeletingGear ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </DashboardLayout>
   );
 }

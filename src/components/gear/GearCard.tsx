@@ -1,15 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Tag, ArrowRight, Star } from 'lucide-react';
+import { MapPin, Tag, ArrowRight, Star, Edit3, Trash2 } from 'lucide-react';
 import { Gear } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 
 interface GearCardProps {
   gear: Gear;
+  onEdit?: (gear: Gear) => void;
+  onDelete?: (gear: Gear) => void;
 }
 
-export default function GearCard({ gear }: GearCardProps) {
+export default function GearCard({ gear, onEdit, onDelete }: GearCardProps) {
   const fallbackImage =
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&auto=format&fit=crop';
   const displayImage = gear.image || gear.imageUrl || fallbackImage;
@@ -53,6 +55,40 @@ export default function GearCard({ gear }: GearCardProps) {
             {isAvailable ? `${stock} Available` : 'Out of Stock'}
           </Badge>
         </div>
+
+        {/* Action Buttons (Edit & Delete) */}
+        {(onEdit || onDelete) && (
+          <div className="absolute bottom-3 right-3 z-10 flex items-center space-x-1.5 bg-slate-900/90 dark:bg-slate-950/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/60 shadow-lg">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onEdit(gear);
+                }}
+                className="p-1.5 text-slate-200 hover:text-emerald-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                title="Edit Equipment"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete(gear);
+                }}
+                className="p-1.5 text-slate-200 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                title="Delete Listing"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Price Tag Overlay */}
         <div className="absolute bottom-3 left-3 bg-slate-900 dark:bg-emerald-600 text-white px-3 py-1.5 rounded-xl flex items-baseline space-x-1 shadow-md">
