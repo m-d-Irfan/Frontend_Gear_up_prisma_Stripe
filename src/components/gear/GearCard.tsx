@@ -147,22 +147,36 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
             <span>4.9 (Verified)</span>
           </div>
 
-          <Link
-            href={`/gear/${gear.slug || gear.id}`}
-            className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-900 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group/btn"
-          >
-            {isProvider ? (
-              <>
+          {user?.role === 'PROVIDER' ? (
+            gear.providerId === user?.id ||
+            gear.providerId === user?.email ||
+            (gear.provider?.email && gear.provider.email.toLowerCase() === user?.email?.toLowerCase()) ||
+            isProviderProp ? (
+              <Link
+                href={`/gear/${gear.slug || gear.id}`}
+                className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-900 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group/btn"
+              >
                 <Edit3 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Edit Item</span>
-              </>
+              </Link>
             ) : (
-              <>
-                <span>Rent Now</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            )}
-          </Link>
+              <button
+                disabled
+                className="inline-flex items-center space-x-1 text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded-lg cursor-not-allowed border border-slate-200 dark:border-slate-700"
+                title="Provider accounts cannot rent equipment"
+              >
+                <span>Rent (Providers N/A)</span>
+              </button>
+            )
+          ) : (
+            <Link
+              href={`/gear/${gear.slug || gear.id}`}
+              className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-900 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group/btn"
+            >
+              <span>Rent Now</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+            </Link>
+          )}
         </div>
       </div>
     </div>

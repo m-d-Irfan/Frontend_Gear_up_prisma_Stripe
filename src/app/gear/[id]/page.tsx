@@ -158,40 +158,59 @@ export default function GearDetailsPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Provider Custom Management Controls Banner */}
       {user?.role === 'PROVIDER' && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-          <div className="space-y-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center space-x-1.5">
-              <Store className="w-4 h-4" />
-              <span>Provider Store Management Controls</span>
-            </span>
-            <h3 className="text-base font-black text-slate-900 dark:text-white">
-              Manage Listing: {gear.title}
-            </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              Update photos, price per day, full description, location, or stock unit quantity for this item.
-            </p>
-          </div>
+        gear.providerId === user.id ||
+        gear.providerId === user.email ||
+        (gear.provider?.email && gear.provider.email.toLowerCase() === user.email?.toLowerCase()) ? (
+          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center space-x-1.5">
+                <Store className="w-4 h-4" />
+                <span>Your Store Management Controls</span>
+              </span>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">
+                Manage Listing: {gear.title}
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Update photos, price per day, full description, location, or stock unit quantity for this item.
+              </p>
+            </div>
 
-          <div className="flex items-center space-x-3">
-            <button
-              type="button"
-              onClick={() => setIsEditModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 flex items-center space-x-2 shadow-xs cursor-pointer transition-all"
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>Edit Equipment Listing</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(true)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 flex items-center space-x-2 shadow-xs cursor-pointer transition-all"
+              >
+                <Edit3 className="w-4 h-4" />
+                <span>Edit Equipment Listing</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setIsDeleteModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 dark:hover:bg-rose-900/60 flex items-center space-x-1.5 cursor-pointer transition-all"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete Listing</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 dark:hover:bg-rose-900/60 flex items-center space-x-1.5 cursor-pointer transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete Listing</span>
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-xs">
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center space-x-1.5">
+                <Store className="w-4 h-4" />
+                <span>Provider Catalog View</span>
+              </span>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">
+                Equipment Listing by External Provider
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                You are viewing gear listed by another vendor. Provider accounts cannot edit external listings or place rental orders.
+              </p>
+            </div>
+          </div>
+        )
       )}
 
       {/* Back Link Header */}

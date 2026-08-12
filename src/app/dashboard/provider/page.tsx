@@ -100,7 +100,7 @@ export default function ProviderDashboardPage() {
           }
         });
 
-        setProviderGear(combined.length > 0 ? combined : (allListings.length > 0 ? allListings : []));
+        setProviderGear(combined);
       })
       .catch(() => {
         let localGear: Gear[] = [];
