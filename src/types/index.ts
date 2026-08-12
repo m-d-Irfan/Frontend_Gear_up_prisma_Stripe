@@ -20,6 +20,9 @@ export interface Category {
   description?: string;
   createdAt?: string;
   updatedAt?: string;
+  _count?: {
+    gear?: number;
+  };
 }
 
 export interface Gear {
@@ -64,8 +67,8 @@ export interface RentalOrder {
 
 export interface Payment {
   id: string;
-  orderId: string;
-  userId: string;
+  orderId?: string;
+  userId?: string;
   amount: number;
   transactionId?: string;
   status: PaymentStatus;

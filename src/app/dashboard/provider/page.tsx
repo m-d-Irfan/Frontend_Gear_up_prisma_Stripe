@@ -424,7 +424,7 @@ export default function ProviderDashboardPage() {
       <AddGearModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onGearAdded={fetchProviderInventory}
+        onSuccess={fetchProviderInventory}
       />
     </DashboardLayout>
   );

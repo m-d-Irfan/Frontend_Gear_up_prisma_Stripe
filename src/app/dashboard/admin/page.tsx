@@ -757,7 +757,7 @@ export default function AdminDashboardPage() {
       <AddCategoryModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
-        onCategoryAdded={fetchCategories}
+        onSuccess={fetchCategories}
       />
 
       {/* Delete User Modal */}

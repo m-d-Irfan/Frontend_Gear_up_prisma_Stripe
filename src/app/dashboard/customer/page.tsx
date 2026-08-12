@@ -108,14 +108,14 @@ export default function CustomerDashboardPage() {
     {
       id: 'pay-201',
       amount: 150,
-      paymentStatus: 'PAID',
+      status: 'PAID',
       transactionId: 'tx_sim_8938102',
       createdAt: '2026-08-01T10:00:00.000Z',
     },
     {
       id: 'pay-202',
       amount: 180,
-      paymentStatus: 'PAID',
+      status: 'PAID',
       transactionId: 'pi_3Mtw2eLkdIwHu4',
       createdAt: '2026-07-15T14:30:00.000Z',
     },
@@ -412,8 +412,8 @@ export default function CustomerDashboardPage() {
                       <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-white">{p.transactionId || p.id}</td>
                         <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">${p.amount}</td>
-                        <td className="px-6 py-4"><Badge variant={p.paymentStatus} /></td>
-                        <td className="px-6 py-4 text-right text-slate-500">{new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td className="px-6 py-4"><Badge variant={p.status || 'PAID'} /></td>
+                        <td className="px-6 py-4 text-right text-slate-500">{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -435,7 +435,7 @@ export default function CustomerDashboardPage() {
           isOpen={isReviewModalOpen}
           onClose={() => { setReviewOrder(null); setIsReviewModalOpen(false); }}
           order={reviewOrder}
-          onReviewSubmitted={() => { setReviewOrder(null); setIsReviewModalOpen(false); }}
+          onSuccess={() => { setReviewOrder(null); setIsReviewModalOpen(false); }}
         />
       )}
     </DashboardLayout>
