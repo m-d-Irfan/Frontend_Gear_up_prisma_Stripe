@@ -286,19 +286,6 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-md space-y-6">
-      {/* Header Branding */}
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-md">
-          <Dumbbell className="w-6 h-6 transform -rotate-45" />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          Welcome Back to GearUp
-        </h1>
-        <p className="text-xs text-slate-600 dark:text-slate-400">
-          Enter your credentials to access your gear rentals or dashboard.
-        </p>
-      </div>
-
       {/* Login Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
         
@@ -453,7 +440,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
+    <div className="w-full flex items-start justify-center px-4 pt-4 sm:pt-6 pb-12">
       <Suspense
         fallback={
           <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-300">
