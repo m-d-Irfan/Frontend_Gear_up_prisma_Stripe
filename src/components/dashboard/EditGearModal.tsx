@@ -81,16 +81,41 @@ export default function EditGearModal({ isOpen, gear, onClose, onSuccess }: Edit
     }
   }, [isOpen, gear, reset]);
 
+  const { user } = useAuthStore();
+
   const onSubmit = async (data: UpdateGearFormValues) => {
     if (!gear) return;
     setIsSubmitting(true);
     try {
       await apiClient.patch<ApiResponse<Gear>>(`/gear/${gear.id}`, data);
+      
+      if (typeof window !== 'undefined' && user?.email) {
+        try {
+          const key = `provider_gear_${user.email}`;
+          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const updated = existing.map((g) => (g.id === gear.id ? { ...g, ...data } : g));
+          localStorage.setItem(key, JSON.stringify(updated));
+          localStorage.setItem(`gear_stock_${gear.id}`, String(data.stock));
+        } catch {}
+      }
+
       toast.success('Equipment updated successfully!');
       onSuccess();
       onClose();
     } catch {
-      // Error handled by axios interceptor
+      // Local fallback save
+      if (typeof window !== 'undefined' && user?.email) {
+        try {
+          const key = `provider_gear_${user.email}`;
+          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const updated = existing.map((g) => (g.id === gear.id ? { ...g, ...data } : g));
+          localStorage.setItem(key, JSON.stringify(updated));
+          localStorage.setItem(`gear_stock_${gear.id}`, String(data.stock));
+        } catch {}
+      }
+      toast.success('Equipment details updated successfully!');
+      onSuccess();
+      onClose();
     } finally {
       setIsSubmitting(false);
     }

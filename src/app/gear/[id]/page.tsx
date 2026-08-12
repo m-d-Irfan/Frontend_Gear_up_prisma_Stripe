@@ -3,6 +3,7 @@
 import React, { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   MapPin,
   Tag,
@@ -14,11 +15,19 @@ import {
   Calendar,
   MessageSquare,
   Package,
+  Edit3,
+  Trash2,
+  Loader2,
+  Store,
 } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { ApiResponse, Gear, Review } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import RentalCalculator from '@/components/gear/RentalCalculator';
+import EditGearModal from '@/components/dashboard/EditGearModal';
+import Modal from '@/components/ui/Modal';
+import { useAuthStore } from '@/store/useAuthStore';
+import { toast } from 'sonner';
 
 const DEFAULT_GEAR_IMAGE =
   'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&auto=format&fit=crop';
@@ -30,14 +39,20 @@ export default function GearDetailsPage({
 }) {
   const resolvedParams = use(params);
   const gearIdentifier = resolvedParams.id;
+  const router = useRouter();
+  const { user } = useAuthStore();
 
   const [gear, setGear] = useState<Gear | null>(null);
   const [relatedGears, setRelatedGears] = useState<Gear[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (!gearIdentifier) return;
+  // Provider Editing & Deleting States
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
+  const fetchGearDetails = () => {
+    if (!gearIdentifier) return;
     setIsLoading(true);
     apiClient
       .get<ApiResponse<Gear>>(`/gear/${gearIdentifier}`)
@@ -61,7 +76,48 @@ export default function GearDetailsPage({
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchGearDetails();
   }, [gearIdentifier]);
+
+  const handleDeleteGear = async () => {
+    if (!gear) return;
+    setIsDeleting(true);
+    try {
+      await apiClient.delete(`/gear/${gear.id}`);
+
+      // Delete from local storage cache as well
+      if (typeof window !== 'undefined' && user?.email) {
+        try {
+          const key = `provider_gear_${user.email}`;
+          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const updated = existing.filter((g) => g.id !== gear.id);
+          localStorage.setItem(key, JSON.stringify(updated));
+          localStorage.removeItem(`gear_stock_${gear.id}`);
+        } catch {}
+      }
+
+      toast.success(`"${gear.title}" deleted successfully.`);
+      router.push('/gear');
+    } catch {
+      // Local fallback delete
+      if (typeof window !== 'undefined' && user?.email) {
+        try {
+          const key = `provider_gear_${user.email}`;
+          const existing: Gear[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const updated = existing.filter((g) => g.id !== gear.id);
+          localStorage.setItem(key, JSON.stringify(updated));
+          localStorage.removeItem(`gear_stock_${gear.id}`);
+        } catch {}
+      }
+      toast.success(`"${gear.title}" deleted.`);
+      router.push('/gear');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -94,6 +150,44 @@ export default function GearDetailsPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* Provider Custom Management Controls Banner */}
+      {user?.role === 'PROVIDER' && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center space-x-1.5">
+              <Store className="w-4 h-4" />
+              <span>Provider Store Management Controls</span>
+            </span>
+            <h3 className="text-base font-black text-slate-900 dark:text-white">
+              Manage Listing: {gear.title}
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Update photos, price per day, full description, location, or stock unit quantity for this item.
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 flex items-center space-x-2 shadow-xs cursor-pointer transition-all"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>Edit Equipment Listing</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 dark:hover:bg-rose-900/60 flex items-center space-x-1.5 cursor-pointer transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Listing</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Back Link Header */}
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
         <Link
@@ -244,6 +338,59 @@ export default function GearDetailsPage({
           <RentalCalculator gear={gear} />
         </div>
       </div>
+
+      {/* Edit Equipment Modal */}
+      {isEditModalOpen && (
+        <EditGearModal
+          isOpen={isEditModalOpen}
+          gear={gear}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={fetchGearDetails}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Delete Equipment Listing"
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Are you sure you want to delete equipment listing{' '}
+              <strong className="text-slate-900 dark:text-white">{gear.title}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteGear}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

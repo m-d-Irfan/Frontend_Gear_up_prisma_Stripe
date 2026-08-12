@@ -10,6 +10,7 @@ import { ApiResponse, Category, Gear } from '@/types';
 import Modal from '@/components/ui/Modal';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const createGearSchema = z.object({
   title: z.string().min(2, 'Equipment title must be at least 2 characters'),

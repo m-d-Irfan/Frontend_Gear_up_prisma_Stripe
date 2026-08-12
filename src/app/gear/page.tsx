@@ -35,9 +35,14 @@ const BANGLADESH_DISTRICTS = [
   'Comilla',
 ];
 
+import { useAuthStore } from '@/store/useAuthStore';
+
 function GearCatalogContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useAuthStore();
+
+  const [providerViewMode, setProviderViewMode] = useState<'my_items' | 'all'>('my_items');
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -116,6 +121,29 @@ function GearCatalogContent() {
         items = items.filter((item) => item.isAvailable && (item.stock ?? 0) > 0);
       }
 
+      // Provider Store Items Filter (Default for Provider accounts)
+      if (user?.role === 'PROVIDER' && providerViewMode === 'my_items') {
+        let localGear: Gear[] = [];
+        if (typeof window !== 'undefined' && user?.email) {
+          try {
+            const cached = localStorage.getItem(`provider_gear_${user.email}`);
+            if (cached) localGear = JSON.parse(cached);
+          } catch {}
+        }
+        let myItems = items.filter(
+          (g) =>
+            g.providerId === user?.id ||
+            (g.provider?.email && g.provider.email.toLowerCase() === user?.email?.toLowerCase()) ||
+            g.providerId === user?.email
+        );
+        localGear.forEach((lg) => {
+          if (!myItems.some((i) => i.id === lg.id || i.title === lg.title)) {
+            myItems.push(lg);
+          }
+        });
+        items = myItems;
+      }
+
       setGearList(items);
       const calculatedTotal = meta?.total || items.length;
       setTotalCount(calculatedTotal);
@@ -125,7 +153,7 @@ function GearCatalogContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [searchTerm, selectedCategory, selectedLocation, minPrice, maxPrice, onlyAvailable, sortOption, page, limit]);
+  }, [searchTerm, selectedCategory, selectedLocation, minPrice, maxPrice, onlyAvailable, sortOption, page, limit, user, providerViewMode]);
 
   useEffect(() => {
     fetchGear();
@@ -159,6 +187,52 @@ function GearCatalogContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* Provider Custom Store Inventory Banner */}
+      {user?.role === 'PROVIDER' && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+              Provider Mode Active
+            </span>
+            <h3 className="text-base font-black text-slate-900 dark:text-white">
+              {providerViewMode === 'my_items'
+                ? 'Your Store Equipment Directory'
+                : 'All Platform Equipment Directory'}
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              {providerViewMode === 'my_items'
+                ? 'Displaying strictly equipment items listed by your store account. Click any item card to edit photos, pricing, stock quantity, or details.'
+                : 'Browsing all platform equipment catalog.'}
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setProviderViewMode('my_items')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                providerViewMode === 'my_items'
+                  ? 'bg-slate-900 dark:bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+              }`}
+            >
+              My Store Items ({gearList.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setProviderViewMode('all')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                providerViewMode === 'all'
+                  ? 'bg-slate-900 dark:bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+              }`}
+            >
+              All Catalog Items
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Catalog Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>

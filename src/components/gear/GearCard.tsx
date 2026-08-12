@@ -4,14 +4,18 @@ import Image from 'next/image';
 import { MapPin, Tag, ArrowRight, Star, Edit3, Trash2 } from 'lucide-react';
 import { Gear } from '@/types';
 import { Badge } from '@/components/ui/Badge';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface GearCardProps {
   gear: Gear;
   onEdit?: (gear: Gear) => void;
   onDelete?: (gear: Gear) => void;
+  isProvider?: boolean;
 }
 
-export default function GearCard({ gear, onEdit, onDelete }: GearCardProps) {
+export default function GearCard({ gear, onEdit, onDelete, isProvider: isProviderProp }: GearCardProps) {
+  const { user } = useAuthStore();
+  const isProvider = isProviderProp ?? (user?.role === 'PROVIDER' || Boolean(onEdit));
   const fallbackImage =
     'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800&auto=format&fit=crop';
   const displayImage = gear.image || gear.imageUrl || fallbackImage;
@@ -143,8 +147,17 @@ export default function GearCard({ gear, onEdit, onDelete }: GearCardProps) {
             href={`/gear/${gear.slug || gear.id}`}
             className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-900 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group/btn"
           >
-            <span>Rent Now</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+            {isProvider ? (
+              <>
+                <Edit3 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Edit Item</span>
+              </>
+            ) : (
+              <>
+                <span>Rent Now</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+              </>
+            )}
           </Link>
         </div>
       </div>
