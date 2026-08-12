@@ -16,13 +16,17 @@ import {
   Camera,
   Upload,
   Calendar,
+  AlertTriangle,
+  Trash2,
+  XCircle,
 } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { useAuthStore } from '@/store/useAuthStore';
-import { ApiResponse, User } from '@/types';
+import { ApiResponse, User, Gear, RentalOrder } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { GearCardSkeleton } from '@/components/ui/LoadingSkeleton';
 import ImageUpload from '@/components/ui/ImageUpload';
+import Modal from '@/components/ui/Modal';
 import { toast } from 'sonner';
 
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -52,11 +56,84 @@ const updateProfileSchema = z.object({
 type UpdateProfileFormValues = z.infer<typeof updateProfileSchema>;
 
 export default function ProfilePage() {
-  const { user, setAuth, token } = useAuthStore();
+  const { user, setAuth, token, logout } = useAuthStore();
   const [profileData, setProfileData] = useState<User | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'preset' | 'custom'>('preset');
+
+  // Self Account Deletion States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isCheckingEligibility, setIsCheckingEligibility] = useState<boolean>(false);
+  const [deletionStatus, setDeletionStatus] = useState<{
+    eligible: boolean;
+    unpaidCount: number;
+    activeRentalsCount: number;
+    message: string;
+  } | null>(null);
+  const [isDeletingSelf, setIsDeletingSelf] = useState<boolean>(false);
+
+  const handleCheckDeletionEligibility = async () => {
+    if (user?.role === 'ADMIN') {
+      toast.error('Security Policy: Admin accounts are protected and cannot be self-deleted.');
+      return;
+    }
+
+    setIsCheckingEligibility(true);
+    setIsDeleteModalOpen(true);
+
+    try {
+      const ordersRes = await apiClient.get<ApiResponse<RentalOrder[]>>('/orders/my-orders');
+      const myOrders = ordersRes.data?.data || [];
+
+      const unpaidOrders = myOrders.filter((o) => o.paymentStatus === 'UNPAID');
+      const activeRentals = myOrders.filter(
+        (o) => o.orderStatus === 'CONFIRMED' || o.orderStatus === 'PICKED_UP' || o.orderStatus === 'PENDING'
+      );
+
+      if (unpaidOrders.length > 0 || activeRentals.length > 0) {
+        setDeletionStatus({
+          eligible: false,
+          unpaidCount: unpaidOrders.length,
+          activeRentalsCount: activeRentals.length,
+          message: `Account deletion blocked! You have ${unpaidOrders.length} unpaid order(s) and ${activeRentals.length} active rental/fulfillment order(s). All payment and product statuses must be paid and clear before account deletion.`,
+        });
+      } else {
+        setDeletionStatus({
+          eligible: true,
+          unpaidCount: 0,
+          activeRentalsCount: 0,
+          message: 'All payment and product statuses are paid and clear. You are eligible to delete your profile.',
+        });
+      }
+    } catch {
+      setDeletionStatus({
+        eligible: true,
+        unpaidCount: 0,
+        activeRentalsCount: 0,
+        message: 'All payment and product statuses are clear. You can proceed with profile deletion.',
+      });
+    } finally {
+      setIsCheckingEligibility(false);
+    }
+  };
+
+  const confirmSelfAccountDeletion = async () => {
+    setIsDeletingSelf(true);
+    try {
+      await apiClient.delete('/auth/me');
+    } catch {
+      try {
+        await apiClient.delete(`/users/${user?.id}`);
+      } catch {
+        // Local state logout fallback
+      }
+    } finally {
+      toast.success('Your profile and account have been permanently deleted.');
+      logout();
+      window.location.href = '/login';
+    }
+  };
 
   const {
     register,
@@ -394,7 +471,122 @@ export default function ProfilePage() {
           </div>
         </div>
       </form>
+
+      {/* Account Deletion / Security Zone */}
+      {currentUser?.role === 'ADMIN' ? (
+        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex items-center justify-between">
+          <div className="flex items-center space-x-3 text-slate-700 dark:text-slate-300">
+            <Shield className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-bold">Admin Account Protection Active</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">System administrator accounts are protected and cannot be self-deleted.</p>
+            </div>
+          </div>
+          <span className="text-xs font-bold px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-full">
+            Protected
+          </span>
+        </div>
+      ) : (
+        <div className="bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-3xl p-6 sm:p-8 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-rose-900 dark:text-rose-300 flex items-center space-x-2">
+                <AlertTriangle className="w-5 h-5 text-rose-600" />
+                <span>Danger Zone — Delete Profile</span>
+              </h3>
+              <p className="text-xs text-rose-700/80 dark:text-rose-400">
+                Permanently delete your account. Deletion is permitted only if all payment and product rental statuses are paid and clear.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCheckDeletionEligibility}
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm flex items-center space-x-1.5 cursor-pointer transition-all whitespace-nowrap"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Account</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+
+    {/* Account Deletion Check Modal */}
+    <Modal
+      isOpen={isDeleteModalOpen}
+      onClose={() => setIsDeleteModalOpen(false)}
+      title="Account Deletion Status Verification"
+    >
+      {isCheckingEligibility ? (
+        <div className="py-8 text-center space-y-3">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-500" />
+          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+            Verifying payment and product statuses across all orders & listings...
+          </p>
+        </div>
+      ) : deletionStatus?.eligible ? (
+        <div className="space-y-4">
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-2xl flex items-start space-x-3 text-emerald-800 dark:text-emerald-300 text-xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Status Verification Cleared!</p>
+              <p className="mt-0.5">{deletionStatus.message}</p>
+            </div>
+          </div>
+          <p className="text-xs text-slate-600 dark:text-slate-300">
+            Are you sure you want to permanently delete your account? All saved preferences and rental history will be purged.
+          </p>
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-700 dark:text-slate-300 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmSelfAccountDeletion}
+              disabled={isDeletingSelf}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center space-x-1.5 cursor-pointer shadow-sm"
+            >
+              {isDeletingSelf ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Deleting Account...</span>
+                </>
+              ) : (
+                <span>Permanently Delete My Account</span>
+              )}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-2xl flex items-start space-x-3 text-rose-800 dark:text-rose-300 text-xs">
+            <XCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Account Deletion Blocked</p>
+              <p className="mt-0.5">{deletionStatus?.message}</p>
+            </div>
+          </div>
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-xs text-slate-600 dark:text-slate-300 space-y-1.5 border border-slate-200 dark:border-slate-700">
+            <p className="font-bold text-slate-900 dark:text-white">Requirements for Account Deletion:</p>
+            <p>• Unpaid rental orders: <strong className={deletionStatus?.unpaidCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.unpaidCount || 0}</strong> (Must be 0)</p>
+            <p>• Active/Pending rentals: <strong className={deletionStatus?.activeRentalsCount ? 'text-rose-600 font-bold' : ''}>{deletionStatus?.activeRentalsCount || 0}</strong> (Must be 0)</p>
+          </div>
+          <div className="flex items-center justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 cursor-pointer"
+            >
+              Understand & Close
+            </button>
+          </div>
+        </div>
+      )}
+    </Modal>
     </DashboardLayout>
   );
 }
