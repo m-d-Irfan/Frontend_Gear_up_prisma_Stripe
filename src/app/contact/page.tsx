@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, MessageSquare, PhoneCall, ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
+import apiClient from '@/lib/axios';
 
 const contactSchema = z.object({
   email: z.string().optional(),
@@ -39,36 +40,48 @@ export default function ContactPage() {
     }
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setIsSubmitting(false);
 
     if (contactMode === 'whatsapp') {
       const whatsappText = `Hi GearUp Support! 👋\n\n*WhatsApp Number:* ${data.phone}\n\n*Message:*\n${data.message}`;
       const whatsappUrl = `https://wa.me/8801611836864?text=${encodeURIComponent(whatsappText)}`;
       window.open(whatsappUrl, '_blank');
       toast.success('Redirecting to WhatsApp...');
+      setIsSubmitting(false);
+      reset();
     } else {
-      // Browser Gmail Compose Link
-      const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=grabgear4100@gmail.com&su=${encodeURIComponent(
-        'Inquiry from GrabGear Website'
-      )}&body=${encodeURIComponent(`Sender Email: ${data.email}\n\nMessage:\n${data.message}`)}`;
-      
-      const mailtoUrl = `mailto:grabgear4100@gmail.com?subject=${encodeURIComponent(
-        'Inquiry from GrabGear Website'
-      )}&body=${encodeURIComponent(`Sender Email: ${data.email}\n\nMessage:\n${data.message}`)}`;
-
+      // Real Backend Gmail SMTP Dispatch
       try {
-        const opened = window.open(gmailComposeUrl, '_blank');
-        if (!opened) {
+        await apiClient.post('/contact', {
+          email: data.email,
+          phone: data.phone || '',
+          message: data.message,
+        });
+        toast.success('Inquiry submitted! Confirmation email sent via SMTP from grabgear4100@gmail.com');
+        reset();
+      } catch {
+        // Fallback: Browser Gmail Compose Link
+        const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=grabgear4100@gmail.com&su=${encodeURIComponent(
+          'Inquiry from GrabGear Website'
+        )}&body=${encodeURIComponent(`Sender Email: ${data.email}\n\nMessage:\n${data.message}`)}`;
+        
+        const mailtoUrl = `mailto:grabgear4100@gmail.com?subject=${encodeURIComponent(
+          'Inquiry from GrabGear Website'
+        )}&body=${encodeURIComponent(`Sender Email: ${data.email}\n\nMessage:\n${data.message}`)}`;
+
+        try {
+          const opened = window.open(gmailComposeUrl, '_blank');
+          if (!opened) {
+            window.location.href = mailtoUrl;
+          }
+        } catch {
           window.location.href = mailtoUrl;
         }
-      } catch {
-        window.location.href = mailtoUrl;
+        toast.success('Opening Gmail compose in browser...');
+        reset();
+      } finally {
+        setIsSubmitting(false);
       }
-      toast.success('Opening Gmail compose in browser...');
     }
-
-    reset();
   };
 
   return (
