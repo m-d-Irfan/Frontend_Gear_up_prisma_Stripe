@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  ChevronDown
+  ChevronDown,
+  ArrowRight,
+  Zap
 } from 'lucide-react';
 
 interface HeroSlide {
@@ -143,28 +146,47 @@ export default function HeroSection() {
         <ChevronRight className="w-6 h-6 stroke-[3] group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* Hero Text — fixed position, no buttons, clean layout */}
+      {/* Hero Text & CTA Buttons Container */}
       <div className="absolute inset-0 z-10 flex flex-col justify-end">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-20 sm:pb-24">
-          {/* Headline — smaller, fixed position */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-16 sm:pb-20 md:pb-24">
+          {/* Headline — responsive: smaller on mobile */}
           <h1
-            className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] uppercase max-w-2xl"
+            className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.15] sm:leading-[1.1] uppercase max-w-2xl"
             style={{ textShadow: '2px 3px 12px rgba(0,0,0,0.9), 0 0 60px rgba(0,0,0,0.4)' }}
           >
             {currentSlide.title}
           </h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — responsive: compact and clean on mobile */}
           <p
-            className="mt-3 text-xs sm:text-sm text-slate-200 max-w-lg font-medium leading-relaxed"
+            className="mt-2.5 sm:mt-3 text-[11px] sm:text-xs md:text-sm text-slate-200 max-w-lg font-medium leading-relaxed"
             style={{ textShadow: '1px 1px 8px rgba(0,0,0,0.8)' }}
           >
             {currentSlide.subtitle}
           </p>
+
+          {/* CTA Buttons — Identical on all slides, hidden on mobile screens */}
+          <div className="hidden sm:flex items-center gap-3.5 mt-5 sm:mt-6">
+            <Link
+              href="/gear"
+              className="px-6 py-3 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-xl flex items-center space-x-2 group cursor-pointer border border-emerald-400/40 uppercase tracking-wider"
+            >
+              <span>Explore Gear Catalog</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <Link
+              href="/gear"
+              className="px-6 py-3 rounded-xl text-xs font-bold text-white bg-slate-950/70 hover:bg-slate-900 border border-white/25 backdrop-blur-md transition-all shadow-lg flex items-center space-x-2 cursor-pointer uppercase tracking-wider"
+            >
+              <Zap className="w-4 h-4 text-emerald-400" />
+              <span>Browse All Items</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Bottom bar — dots + scroll indicator */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-6 flex items-center justify-between">
+        {/* Bottom bar — dots */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-5 sm:pb-6 flex items-center justify-between relative z-10">
           {/* Slide Indicator Dots */}
           <div className="flex items-center space-x-2.5">
             {HERO_SLIDES.map((s, idx) => (
@@ -176,24 +198,26 @@ export default function HeroSection() {
                 }}
                 className={`h-2 rounded-full transition-all cursor-pointer ${
                   idx === currentSlideIndex
-                    ? 'w-8 bg-emerald-400 shadow-lg shadow-emerald-400/30'
+                    ? 'w-8 bg-emerald-400 shadow-lg shadow-emerald-400/40'
                     : 'w-2 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>
-
-          {/* Scroll indicator */}
-          <button
-            onClick={scrollToNextSection}
-            className="hidden sm:flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium hover:bg-white/20 transition-all cursor-pointer group"
-            title="Scroll to explore categories"
-          >
-            <span>Scroll to Explore</span>
-            <ChevronDown className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
-          </button>
         </div>
+      </div>
+
+      {/* Highlighted Animated Scroll to Explore Button — Centered & Fully Responsive */}
+      <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+        <button
+          onClick={scrollToNextSection}
+          className="flex items-center space-x-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-slate-950/90 hover:bg-emerald-600 border border-emerald-400/60 hover:border-emerald-300 text-emerald-300 hover:text-white shadow-2xl shadow-emerald-950/80 hover:shadow-emerald-500/30 backdrop-blur-md transition-all cursor-pointer group animate-bounce"
+          title="Scroll to explore categories"
+        >
+          <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider">Scroll to Explore</span>
+          <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 group-hover:text-white group-hover:translate-y-0.5 transition-all" />
+        </button>
       </div>
 
       {/* Subtle Bottom Transition Line */}
