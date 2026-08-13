@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
-import GearCard from '@/components/gear/GearCard';
+import CategoryShowcase from '@/components/home/CategoryShowcase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -104,85 +104,7 @@ export default async function HomePage() {
       </section>
 
       {/* Categories Showcase */}
-      <section className="py-16 bg-white border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-            <div>
-              <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
-                Categorized Directory
-              </span>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-1">
-                Browse Equipment by Category
-              </h2>
-            </div>
-            <Link
-              href="/gear"
-              className="mt-4 md:mt-0 text-xs font-bold text-slate-900 hover:text-emerald-700 flex items-center space-x-1 group"
-            >
-              <span>View All Categories</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.length > 0 ? (
-              categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/gear?category=${encodeURIComponent(cat.name)}`}
-                  className="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-                >
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                      {categoryIcons[cat.name] || '🎒'}
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                        {cat.name}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                        {cat.description || 'Explore available rental gear in this category.'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-6 flex items-center justify-between text-xs text-slate-900 font-bold pt-4 border-t border-slate-200">
-                    <span>Browse Listings</span>
-                    <ArrowRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-              ))
-            ) : (
-              ['Cycling & Biking', 'Camping & Hiking', 'Water Sports', 'Winter Sports'].map(
-                (name, idx) => (
-                  <Link
-                    key={idx}
-                    href={`/gear?category=${encodeURIComponent(name)}`}
-                    className="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-                  >
-                    <div className="space-y-4">
-                      <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-2xl shadow-xs">
-                        {categoryIcons[name] || '🏕️'}
-                      </div>
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                          {name}
-                        </h3>
-                        <p className="text-xs text-slate-500 mt-1">
-                          High quality rental inventory available now.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-6 flex items-center justify-between text-xs text-slate-900 font-bold pt-4 border-t border-slate-200">
-                      <span>Explore Category</span>
-                      <ArrowRight className="w-4 h-4 text-emerald-600" />
-                    </div>
-                  </Link>
-                )
-              )
-            )}
-          </div>
-        </div>
-      </section>
+      <CategoryShowcase categories={categories} />
 
       {/* Featured Gear Showcase */}
       <section className="py-20">
