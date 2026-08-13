@@ -41,6 +41,7 @@ export interface Gear {
   description?: string;
   pricePerDay: number; // First Day Price
   additionalDayPrice?: number; // Additional Days Price
+  deposit?: number; // Security deposit amount
   location?: string;
   district?: string;
   brand?: string;
