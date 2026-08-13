@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Award, Users } from 'lucide-react';
-import apiClient from '@/lib/axios';
-import { ApiResponse, LocationItem } from '@/types';
+import { useAppData } from '@/context/AppDataContext';
 
 // Count-up animation hook (same pattern as About page)
 function useCountUp(endValue: number, duration: number = 1800) {
@@ -33,41 +32,9 @@ function useCountUp(endValue: number, duration: number = 1800) {
 }
 
 export default function AboutStatsSection() {
-  const [districtsCount, setDistrictsCount] = useState<number>(8);
-
-  useEffect(() => {
-    // Fetch locations from API — same as About page
-    apiClient
-      .get<ApiResponse<LocationItem[]>>('/locations')
-      .then((res) => {
-        if (res.data?.data && res.data.data.length > 0) {
-          setDistrictsCount(res.data.data.length);
-        } else {
-          loadStoredDistricts();
-        }
-      })
-      .catch(() => {
-        loadStoredDistricts();
-      });
-
-    function loadStoredDistricts() {
-      if (typeof window !== 'undefined') {
-        try {
-          const stored = localStorage.getItem('platform_locations');
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setDistrictsCount(parsed.length);
-              return;
-            }
-          }
-        } catch {}
-      }
-      setDistrictsCount(8); // Default fallback
-    }
-  }, []);
-
-  const districtsTarget = Math.max(1, districtsCount);
+  const { stats } = useAppData();
+  
+  const districtsTarget = Math.max(1, stats.districtsCount);
   const animatedDistricts = useCountUp(districtsTarget);
 
   return (

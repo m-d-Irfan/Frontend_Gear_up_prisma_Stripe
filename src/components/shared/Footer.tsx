@@ -1,25 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Dumbbell, ShieldCheck, CreditCard, MapPin, Phone, Mail, FileText, Scale, RotateCcw } from 'lucide-react';
-import apiClient from '@/lib/axios';
-import { ApiResponse, Category } from '@/types';
+import { useAppData } from '@/context/AppDataContext';
 
 export default function Footer() {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    apiClient
-      .get<ApiResponse<Category[]>>('/categories')
-      .then((res) => {
-        const apiCats = res.data?.data || [];
-        setCategories(apiCats);
-      })
-      .catch(() => {
-        setCategories([]);
-      });
-  }, []);
+  const { categories } = useAppData();
 
   // Emoji map for common category names
   const categoryEmoji = (name: string): string => {

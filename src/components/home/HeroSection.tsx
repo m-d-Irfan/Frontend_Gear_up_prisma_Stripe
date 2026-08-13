@@ -17,6 +17,7 @@ interface HeroSlide {
   subtitle: string;
   image: string;
   fallbackImage: string;
+  video?: string;
   ctaText: string;
   categoryQuery: string;
 }
@@ -27,15 +28,17 @@ const HERO_SLIDES: HeroSlide[] = [
     title: 'RENT PREMIUM OUTDOOR GEAR',
     subtitle: 'Skip buying expensive equipment. Explore kayaks, bikes, tents, and climbing gear from verified local owners across Bangladesh.',
     image: '/hero-banner-1.jpg',
+    video: '/hero-banner-1.mp4',
     fallbackImage: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1920&q=80',
     ctaText: 'EXPLORE CATALOG',
     categoryQuery: 'Camping & Hiking',
   },
   {
     id: 'slide-2',
-    title: 'CONQUER TRAILS WITH PRO BIKES',
+    title: 'CONQUER TRAILS WITH PRO BIKE GEARS',
     subtitle: 'Find top-tier mountain bikes, road bikes, and e-bikes near you with flexible daily rates and verified safety insurance.',
     image: '/hero-banner-2.jpg',
+    video: '/hero-banner-2.mp4',
     fallbackImage: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1920&q=80',
     ctaText: 'RENT MOUNTAIN BIKES',
     categoryQuery: 'Cycling & Biking',
@@ -45,6 +48,7 @@ const HERO_SLIDES: HeroSlide[] = [
     title: 'EXPLORE RIVERS WITH PRO KAYAKS',
     subtitle: 'Rent inflatable kayaks, paddleboards, and scuba diving gear with complete safety equipment delivered directly to your spot.',
     image: '/hero-banner-3.jpg',
+    video: '/hero-banner-3.mp4',
     fallbackImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80',
     ctaText: 'RENT KAYAKS & BOATS',
     categoryQuery: 'Water Sports',
@@ -54,6 +58,7 @@ const HERO_SLIDES: HeroSlide[] = [
     title: 'MASTER SUMMIT TREKS THIS SEASON',
     subtitle: 'Get premium climbing boots, snow shoes, backpacks, and thermal winter gear thoroughly inspected and prepped for adventure.',
     image: '/hero-banner-4.jpg',
+    video: '/hero-banner-4.mp4',
     fallbackImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=1920&q=80',
     ctaText: 'EXPLORE ALPINE GEAR',
     categoryQuery: 'Winter Sports',
@@ -96,9 +101,9 @@ export default function HeroSection() {
   const currentSlide = HERO_SLIDES[currentSlideIndex];
 
   return (
-    <section className="relative h-[80vh] min-h-[620px] max-h-[820px] w-full overflow-hidden select-none bg-slate-950 text-white">
+    <section className="relative h-[88vh] sm:h-[80vh] min-h-[580px] sm:min-h-[640px] max-h-[860px] w-full overflow-hidden select-none bg-slate-950 text-white">
       
-      {/* Background Image Carousel (Ultra Vibrant Full-Screen Display) */}
+      {/* Background Media Carousel (Supports Video, Local Image & Unsplash Fallback) */}
       <div className="absolute inset-0 z-0">
         {HERO_SLIDES.map((slide, index) => (
           <div
@@ -107,7 +112,7 @@ export default function HeroSection() {
               index === currentSlideIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
-            {/* Full Width Vivid High-Brightness Image */}
+            {/* Instant Background Image Poster (Guarantees zero black screen while video buffers) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={slide.image}
@@ -118,8 +123,24 @@ export default function HeroSection() {
                   target.src = slide.fallbackImage;
                 }
               }}
-              className="w-full h-full object-cover object-center brightness-110 contrast-105 transform scale-100 hover:scale-105 transition-transform duration-7000"
+              className="absolute inset-0 w-full h-full object-cover object-center brightness-110 contrast-105 transform scale-100 hover:scale-105 transition-transform duration-7000"
             />
+
+            {/* Video Layer on top — loads smoothly without any black flash */}
+            {slide.video && (
+              <video
+                key={`${slide.id}-${slide.video}`}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                poster={slide.fallbackImage}
+                className="absolute inset-0 w-full h-full object-cover object-center brightness-110 contrast-105 transition-opacity duration-1000"
+              >
+                <source src={slide.video} type="video/mp4" />
+              </video>
+            )}
 
             {/* Vignette Overlay — stronger left side for text readability */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
@@ -128,27 +149,27 @@ export default function HeroSection() {
         ))}
       </div>
 
-      {/* Floating Left Arrow Button */}
+      {/* Floating Left Arrow Button — Translucent Frosted Glass with High Contrast in any color */}
       <button
         onClick={handlePrevSlide}
-        className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white text-slate-900 hover:bg-slate-100 hover:scale-110 transition-all shadow-2xl flex items-center justify-center cursor-pointer group"
+        className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 text-white backdrop-blur-md border border-white/30 hover:border-white/70 hover:scale-110 transition-all shadow-2xl flex items-center justify-center cursor-pointer group"
         aria-label="Previous Slide"
       >
-        <ChevronLeft className="w-6 h-6 stroke-[3] group-hover:-translate-x-0.5 transition-transform" />
+        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3] text-white drop-shadow-md group-hover:-translate-x-0.5 transition-transform" />
       </button>
 
-      {/* Floating Right Arrow Button */}
+      {/* Floating Right Arrow Button — Translucent Frosted Glass with High Contrast in any color */}
       <button
         onClick={handleNextSlide}
-        className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white text-slate-900 hover:bg-slate-100 hover:scale-110 transition-all shadow-2xl flex items-center justify-center cursor-pointer group"
+        className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 text-white backdrop-blur-md border border-white/30 hover:border-white/70 hover:scale-110 transition-all shadow-2xl flex items-center justify-center cursor-pointer group"
         aria-label="Next Slide"
       >
-        <ChevronRight className="w-6 h-6 stroke-[3] group-hover:translate-x-0.5 transition-transform" />
+        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3] text-white drop-shadow-md group-hover:translate-x-0.5 transition-transform" />
       </button>
 
       {/* Hero Text & CTA Buttons Container */}
       <div className="absolute inset-0 z-10 flex flex-col justify-end">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-16 sm:pb-20 md:pb-24">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-20 sm:pb-24">
           {/* Headline — responsive: smaller on mobile */}
           <h1
             className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.15] sm:leading-[1.1] uppercase max-w-2xl"
@@ -186,9 +207,9 @@ export default function HeroSection() {
         </div>
 
         {/* Bottom bar — dots */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-5 sm:pb-6 flex items-center justify-between relative z-10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-4 sm:pb-6 flex items-center justify-between relative z-10">
           {/* Slide Indicator Dots */}
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-2 sm:space-x-2.5">
             {HERO_SLIDES.map((s, idx) => (
               <button
                 key={s.id}
@@ -198,7 +219,7 @@ export default function HeroSection() {
                 }}
                 className={`h-2 rounded-full transition-all cursor-pointer ${
                   idx === currentSlideIndex
-                    ? 'w-8 bg-emerald-400 shadow-lg shadow-emerald-400/40'
+                    ? 'w-7 sm:w-8 bg-emerald-400 shadow-lg shadow-emerald-400/40'
                     : 'w-2 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
@@ -209,14 +230,14 @@ export default function HeroSection() {
       </div>
 
       {/* Highlighted Animated Scroll to Explore Button — Centered & Fully Responsive */}
-      <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+      <div className="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
         <button
           onClick={scrollToNextSection}
-          className="flex items-center space-x-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-slate-950/90 hover:bg-emerald-600 border border-emerald-400/60 hover:border-emerald-300 text-emerald-300 hover:text-white shadow-2xl shadow-emerald-950/80 hover:shadow-emerald-500/30 backdrop-blur-md transition-all cursor-pointer group animate-bounce"
+          className="flex items-center space-x-1.5 sm:space-x-2 px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-full bg-slate-900/80 dark:bg-slate-900/85 hover:bg-emerald-600 dark:hover:bg-emerald-600 border border-white/20 dark:border-emerald-400/50 hover:border-emerald-300 text-white dark:text-emerald-300 hover:text-white shadow-2xl backdrop-blur-md transition-all cursor-pointer group animate-bounce"
           title="Scroll to explore categories"
         >
           <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider">Scroll to Explore</span>
-          <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 group-hover:text-white group-hover:translate-y-0.5 transition-all" />
+          <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400 group-hover:text-white group-hover:translate-y-0.5 transition-all" />
         </button>
       </div>
 

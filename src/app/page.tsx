@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { 
@@ -16,50 +18,11 @@ import {
   PlusCircle,
   Users
 } from 'lucide-react';
-import apiClient from '@/lib/axios';
-import { ApiResponse, Category, Gear } from '@/types';
 import CategoryShowcase from '@/components/home/CategoryShowcase';
 import GearCard from '@/components/gear/GearCard';
 import HeroSection from '@/components/home/HeroSection';
 import AboutStatsSection from '@/components/home/AboutStatsSection';
-import { SEEDED_GEAR_CATALOG } from '@/data/gearCatalog';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-async function getCategories(): Promise<Category[]> {
-  try {
-    const res = await apiClient.get<ApiResponse<Category[]>>('/categories');
-    return res.data?.data || [];
-  } catch (error) {
-    return [];
-  }
-}
-
-async function getGearData(): Promise<{ featured: Gear[]; totalCount: number }> {
-  try {
-    const res = await apiClient.get<ApiResponse<Gear[]>>('/gear');
-    const apiItems = res.data?.data || [];
-    
-    // Combine API items with seeded catalog
-    const combined = [...apiItems];
-    SEEDED_GEAR_CATALOG.forEach((seeded) => {
-      if (!combined.some((item) => item.id === seeded.id || item.title === seeded.title)) {
-        combined.push(seeded);
-      }
-    });
-
-    return {
-      featured: combined.slice(0, 6),
-      totalCount: combined.length
-    };
-  } catch (error) {
-    return {
-      featured: SEEDED_GEAR_CATALOG.slice(0, 6),
-      totalCount: SEEDED_GEAR_CATALOG.length
-    };
-  }
-}
+import { useAppData } from '@/context/AppDataContext';
 
 const TOP_BANGLADESH_BRANDS = [
   { name: 'Decathlon Bangladesh', logo: '⚽', tag: 'Global Outdoor Partner' },
@@ -69,9 +32,8 @@ const TOP_BANGLADESH_BRANDS = [
   { name: 'Petzl Climbing', logo: '🧗‍♂️', tag: 'Safety & Alpine Rigging' },
 ];
 
-export default async function HomePage() {
-  const categories = await getCategories();
-  const { featured: featuredGear, totalCount: gearCount } = await getGearData();
+export default function HomePage() {
+  const { categories, featuredGear, totalGearCount: gearCount } = useAppData();
 
   // Dynamic catalog label: 30+ if >= 30, 40+ if >= 40, etc.
   const catalogCountLabel = gearCount >= 10 
