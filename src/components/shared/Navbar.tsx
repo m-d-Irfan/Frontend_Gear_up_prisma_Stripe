@@ -288,9 +288,7 @@ export default function Navbar() {
             <span>Contact Us</span>
           </Link>
 
-          <div className="pt-2 pb-1">
-            <ThemeToggle showLabel />
-          </div>
+
 
           {isAuthenticated && user ? (
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">

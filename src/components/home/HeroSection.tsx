@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  ChevronDown,
-  ArrowRight,
-  Zap
+  ChevronDown
 } from 'lucide-react';
 
 interface HeroSlide {
@@ -146,53 +143,29 @@ export default function HeroSection() {
         <ChevronRight className="w-6 h-6 stroke-[3] group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* Hero Text & Primary Action Button Container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full h-full flex flex-col justify-between py-12 sm:py-16">
-        <div className="my-auto max-w-2xl space-y-6">
-          
-          {/* Frosted Glass Text Backdrop */}
-          <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/10">
-            {/* Main Headline */}
-            <h1
-              className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] uppercase"
-              style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)' }}
-            >
-              {currentSlide.title}
-            </h1>
+      {/* Hero Text — fixed position, no buttons, clean layout */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-end">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-20 sm:pb-24">
+          {/* Headline — smaller, fixed position */}
+          <h1
+            className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] uppercase max-w-2xl"
+            style={{ textShadow: '2px 3px 12px rgba(0,0,0,0.9), 0 0 60px rgba(0,0,0,0.4)' }}
+          >
+            {currentSlide.title}
+          </h1>
 
-            {/* Subtitle */}
-            <p
-              className="mt-5 text-sm sm:text-lg text-slate-100 max-w-xl font-semibold leading-relaxed"
-              style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.7)' }}
-            >
-              {currentSlide.subtitle}
-            </p>
-
-            {/* Primary Action Buttons — fixed dimensions for consistency across slides */}
-            <div className="mt-6 flex flex-wrap items-center gap-4">
-              <Link
-                href={`/gear?category=${encodeURIComponent(currentSlide.categoryQuery)}`}
-                className="min-w-[240px] w-[240px] py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-2xl flex items-center justify-center space-x-2.5 group cursor-pointer border border-emerald-400/40 uppercase tracking-wider"
-              >
-                <span className="truncate">{currentSlide.ctaText}</span>
-                <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              <Link
-                href="/gear"
-                className="min-w-[220px] w-[220px] py-4 rounded-2xl text-sm font-bold text-white bg-slate-950/60 hover:bg-slate-900 border border-white/30 backdrop-blur-md transition-all shadow-xl flex items-center justify-center space-x-2 cursor-pointer uppercase tracking-wider"
-              >
-                <Zap className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Browse All Items</span>
-              </Link>
-            </div>
-          </div>
+          {/* Subtitle */}
+          <p
+            className="mt-3 text-xs sm:text-sm text-slate-200 max-w-lg font-medium leading-relaxed"
+            style={{ textShadow: '1px 1px 8px rgba(0,0,0,0.8)' }}
+          >
+            {currentSlide.subtitle}
+          </p>
         </div>
 
-        {/* Bottom Navigation & Scroll Down Visual Indicator Bar */}
-        <div className="w-full flex items-center justify-between pt-4">
-          
-          {/* Slide Indicator Dots at Bottom Left */}
+        {/* Bottom bar — dots + scroll indicator */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full pb-6 flex items-center justify-between">
+          {/* Slide Indicator Dots */}
           <div className="flex items-center space-x-2.5">
             {HERO_SLIDES.map((s, idx) => (
               <button
@@ -201,28 +174,25 @@ export default function HeroSection() {
                   setIsAutoPlaying(false);
                   setCurrentSlideIndex(idx);
                 }}
-                className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                className={`h-2 rounded-full transition-all cursor-pointer ${
                   idx === currentSlideIndex
-                    ? 'w-9 bg-white shadow-lg'
-                    : 'w-2.5 bg-white/40 hover:bg-white/70'
+                    ? 'w-8 bg-emerald-400 shadow-lg shadow-emerald-400/30'
+                    : 'w-2 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>
 
-          {/* Pulsing Visual Flow Scroll Button at Bottom Center */}
+          {/* Scroll indicator */}
           <button
             onClick={scrollToNextSection}
-            className="hidden sm:flex items-center space-x-2 px-5 py-2 rounded-full bg-slate-950/80 border border-slate-700 text-white text-xs font-bold hover:border-emerald-400 hover:text-emerald-400 transition-all cursor-pointer shadow-xl group animate-bounce"
+            className="hidden sm:flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium hover:bg-white/20 transition-all cursor-pointer group"
             title="Scroll to explore categories"
           >
             <span>Scroll to Explore</span>
-            <ChevronDown className="w-4 h-4 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
+            <ChevronDown className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
           </button>
-
-          {/* Empty spacer to keep layout balanced now that Stripe pill is removed */}
-          <div className="hidden lg:block w-1" />
         </div>
       </div>
 
