@@ -215,8 +215,8 @@ export default function Navbar() {
                 Log In
               </Link>
               <Link
-                href="/register"
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 shadow-sm transition-all"
+                href="/register?type=customer"
+                className="px-6 py-2.5 rounded-full text-xs font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] uppercase tracking-wider border border-emerald-400/50"
               >
                 Register
               </Link>
@@ -328,7 +328,7 @@ export default function Navbar() {
                 Log In
               </Link>
               <Link
-                href="/register"
+                href="/register?type=customer"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600"
               >

@@ -95,6 +95,18 @@ export default function RegisterPage() {
     },
   });
 
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const type = searchParams.get('type');
+      if (type === 'provider') {
+        setValue('role', 'PROVIDER');
+      } else if (type === 'customer') {
+        setValue('role', 'CUSTOMER');
+      }
+    }
+  }, [setValue]);
+
   const selectedRole = watch('role');
   const passwordValue = watch('password') || '';
   const confirmPasswordValue = watch('confirmPassword') || '';
