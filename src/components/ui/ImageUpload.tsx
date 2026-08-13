@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { UploadCloud, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { compressImage } from '@/lib/imageCompressor';
 
 interface ImageUploadProps {
   value?: string;
@@ -18,14 +19,14 @@ export default function ImageUpload({
   onRemove,
   label = 'Equipment Image File Upload',
   error,
-  maxSizeMB = 5,
+  maxSizeMB = 10,
 }: ImageUploadProps) {
   const [isReading, setIsReading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     setUploadError(null);
 
     if (!file.type.startsWith('image/')) {
@@ -39,20 +40,15 @@ export default function ImageUpload({
     }
 
     setIsReading(true);
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      onChange(result);
+    try {
+      // Compress image to ~100-250KB preserving high fidelity
+      const compressedBase64 = await compressImage(file, 1200, 1200, 0.82);
+      onChange(compressedBase64);
+    } catch {
+      setUploadError('Failed to process image file. Please try again.');
+    } finally {
       setIsReading(false);
-    };
-
-    reader.onerror = () => {
-      setUploadError('Failed to read image file. Please try again.');
-      setIsReading(false);
-    };
-
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -11,6 +11,7 @@ import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import CategoryShowcase from '@/components/home/CategoryShowcase';
 import GearCard from '@/components/gear/GearCard';
+import HeroSection from '@/components/home/HeroSection';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -37,75 +38,15 @@ export default async function HomePage() {
   const categories = await getCategories();
   const featuredGear = await getFeaturedGear();
 
-  const categoryIcons: Record<string, string> = {
-    'Cycling & Biking': '🚴‍♂️',
-    'Camping & Hiking': '⛺',
-    'Water Sports': '🚣‍♂️',
-    'Winter Sports': '⛷️',
-  };
-
   return (
     <div className="flex flex-col min-h-screen ambient-bg">
-      {/* Hero Section */}
-      <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          {/* Badge pill */}
-          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-900 text-xs font-bold mb-8 shadow-xs">
-            <span>Next-Gen Peer-To-Peer Gear Rentals</span>
-          </div>
+      {/* Interactive 65vh Hero Section with Image Slider & PC Upload Support */}
+      <HeroSection />
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.12]">
-            Rent Premium Outdoor Gear <span className="text-emerald-600">Instantly.</span>
-          </h1>
-
-          <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
-            Skip buying expensive equipment. Explore kayaks, bikes, tents, and skis from verified local owners with dynamic date pricing and instant Stripe checkout.
-          </p>
-
-          {/* CTAs */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/gear"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md flex items-center justify-center space-x-2 group transition-all"
-            >
-              <Compass className="w-5 h-5 text-emerald-400 group-hover:rotate-45 transition-transform" />
-              <span>Explore Gear Catalog</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              href="/register"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-bold text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-xs flex items-center justify-center space-x-2"
-            >
-              <Zap className="w-5 h-5 text-emerald-600" />
-              <span>List Equipment as Provider</span>
-            </Link>
-          </div>
-
-          {/* Quick Stats Grid */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <p className="text-2xl font-black text-slate-900">100%</p>
-              <p className="text-xs text-slate-500 font-medium mt-1">Stripe Payment Security</p>
-            </div>
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <p className="text-2xl font-black text-slate-900">500+</p>
-              <p className="text-xs text-slate-500 font-medium mt-1">Verified Gear Items</p>
-            </div>
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <p className="text-2xl font-black text-emerald-600">4.9 ★</p>
-              <p className="text-xs text-slate-500 font-medium mt-1">Customer Rating</p>
-            </div>
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <p className="text-2xl font-black text-slate-900">24/7</p>
-              <p className="text-xs text-slate-500 font-medium mt-1">Provider Fulfillment</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Showcase */}
-      <CategoryShowcase categories={categories} />
+      {/* Categories Showcase Section with Smooth Scroll Anchor */}
+      <div id="categories-section" className="scroll-mt-6">
+        <CategoryShowcase categories={categories} />
+      </div>
 
       {/* Featured Gear Showcase */}
       <section className="py-20">
