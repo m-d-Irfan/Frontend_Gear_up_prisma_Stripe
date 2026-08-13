@@ -10,6 +10,7 @@ import {
 import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import CategoryShowcase from '@/components/home/CategoryShowcase';
+import GearCard from '@/components/gear/GearCard';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

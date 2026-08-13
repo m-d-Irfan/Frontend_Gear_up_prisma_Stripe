@@ -121,6 +121,20 @@ function GearCatalogContent() {
         items = items.filter((item) => item.isAvailable && (item.stock ?? 0) > 0);
       }
 
+      // Selected Category Filter (Backend + Client Fallback)
+      if (selectedCategory) {
+        items = items.filter((item) => {
+          const catName = item.category?.name || '';
+          const catId = item.categoryId || '';
+          return (
+            catName.toLowerCase() === selectedCategory.toLowerCase() ||
+            catId.toLowerCase() === selectedCategory.toLowerCase() ||
+            item.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+            (item.description && item.description.toLowerCase().includes(selectedCategory.toLowerCase()))
+          );
+        });
+      }
+
       // Provider Store Items Filter (Default for Provider accounts)
       if (user?.role === 'PROVIDER' && providerViewMode === 'my_items') {
         let localGear: Gear[] = [];
@@ -158,6 +172,14 @@ function GearCatalogContent() {
   useEffect(() => {
     fetchGear();
   }, [fetchGear]);
+
+  // Sync Category from URL query parameter
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam !== null && categoryParam !== selectedCategory) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
 
   // Sync URL Params
   const updateQueryParams = (key: string, value: string) => {
@@ -358,6 +380,9 @@ function GearCatalogContent() {
               className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 cursor-pointer"
             >
               <option value="">All Categories</option>
+              {selectedCategory && !categories.some((c) => c.name.toLowerCase() === selectedCategory.toLowerCase()) && (
+                <option value={selectedCategory}>{selectedCategory}</option>
+              )}
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.name}>
                   {cat.name}
