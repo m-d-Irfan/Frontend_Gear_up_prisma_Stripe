@@ -10,9 +10,7 @@ import {
   ArrowRight,
   Compass,
   Zap,
-  ShieldCheck,
-  Star,
-  MapPin
+  ShieldCheck
 } from 'lucide-react';
 
 interface HeroSlide {
@@ -93,16 +91,16 @@ export default function HeroSection() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     } else {
-      window.scrollTo({ top: window.innerHeight * 0.7, behavior: 'smooth' });
+      window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' });
     }
   };
 
   const currentSlide = HERO_SLIDES[currentSlideIndex];
 
   return (
-    <section className="relative h-[70vh] min-h-[550px] max-h-[750px] w-full overflow-hidden select-none bg-slate-950 text-white">
+    <section className="relative h-[80vh] min-h-[620px] max-h-[820px] w-full overflow-hidden select-none bg-slate-950 text-white">
       
-      {/* Background Image Carousel (Full-Screen Colorful Highlighting) */}
+      {/* Background Image Carousel (Ultra Vibrant Full-Screen Display) */}
       <div className="absolute inset-0 z-0">
         {HERO_SLIDES.map((slide, index) => (
           <div
@@ -111,7 +109,7 @@ export default function HeroSection() {
               index === currentSlideIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
-            {/* Full Width Bright Vibrant Background Image */}
+            {/* Full Width Vivid High-Brightness Image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={slide.image}
@@ -122,12 +120,12 @@ export default function HeroSection() {
                   target.src = slide.fallbackImage;
                 }
               }}
-              className="w-full h-full object-cover object-center brightness-105 contrast-105 transform scale-100 hover:scale-105 transition-transform duration-7000"
+              className="w-full h-full object-cover object-center brightness-110 contrast-105 transform scale-100 hover:scale-105 transition-transform duration-7000"
             />
 
-            {/* Left Vignette Overlay to ensure text readability while preserving colorful background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/45 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/70" />
+            {/* Minimal Subdued Vignette Overlay for Text Legibility while preserving colorful picture */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/50 via-slate-950/15 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950/50" />
           </div>
         ))}
       </div>
@@ -151,7 +149,7 @@ export default function HeroSection() {
       </button>
 
       {/* Hero Text & Primary Action Button Container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full h-full flex flex-col justify-between py-10 sm:py-14">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full h-full flex flex-col justify-between py-12 sm:py-16">
         <div className="my-auto max-w-2xl space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
           
           {/* Main Headline */}
@@ -160,7 +158,7 @@ export default function HeroSection() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-lg text-slate-100 max-w-xl font-medium leading-relaxed drop-shadow-md">
+          <p className="text-sm sm:text-lg text-slate-100 max-w-xl font-semibold leading-relaxed drop-shadow-md">
             {currentSlide.subtitle}
           </p>
 
@@ -224,8 +222,8 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Seamless Bottom Gradient Fade Flow into Categories */}
-      <div className="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-t from-slate-50 dark:from-slate-900 to-transparent pointer-events-none z-10" />
+      {/* Subtle Bottom Transition Line */}
+      <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-slate-50 dark:from-slate-900 to-transparent pointer-events-none z-10" />
     </section>
   );
 }
