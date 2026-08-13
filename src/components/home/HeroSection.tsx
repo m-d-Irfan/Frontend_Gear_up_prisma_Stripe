@@ -8,9 +8,7 @@ import {
   ChevronRight, 
   ChevronDown,
   ArrowRight,
-  Compass,
-  Zap,
-  ShieldCheck
+  Zap
 } from 'lucide-react';
 
 interface HeroSlide {
@@ -123,9 +121,9 @@ export default function HeroSection() {
               className="w-full h-full object-cover object-center brightness-110 contrast-105 transform scale-100 hover:scale-105 transition-transform duration-7000"
             />
 
-            {/* Minimal Subdued Vignette Overlay for Text Legibility while preserving colorful picture */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/50 via-slate-950/15 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950/50" />
+            {/* Vignette Overlay — stronger left side for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/60" />
           </div>
         ))}
       </div>
@@ -150,35 +148,44 @@ export default function HeroSection() {
 
       {/* Hero Text & Primary Action Button Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 w-full h-full flex flex-col justify-between py-12 sm:py-16">
-        <div className="my-auto max-w-2xl space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
+        <div className="my-auto max-w-2xl space-y-6">
           
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] drop-shadow-2xl uppercase">
-            {currentSlide.title}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-sm sm:text-lg text-slate-100 max-w-xl font-semibold leading-relaxed drop-shadow-md">
-            {currentSlide.subtitle}
-          </p>
-
-          {/* Primary Action Buttons */}
-          <div className="pt-3 flex flex-wrap items-center gap-4">
-            <Link
-              href={`/gear?category=${encodeURIComponent(currentSlide.categoryQuery)}`}
-              className="px-8 py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-2xl flex items-center space-x-2.5 group cursor-pointer border border-emerald-400/40 uppercase tracking-wider"
+          {/* Frosted Glass Text Backdrop */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-3xl p-6 sm:p-8 border border-white/10">
+            {/* Main Headline */}
+            <h1
+              className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] uppercase"
+              style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)' }}
             >
-              <span>{currentSlide.ctaText}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+              {currentSlide.title}
+            </h1>
 
-            <Link
-              href="/gear"
-              className="px-8 py-4 rounded-2xl text-sm font-bold text-white bg-slate-950/60 hover:bg-slate-900 border border-white/30 backdrop-blur-md transition-all shadow-xl flex items-center space-x-2 cursor-pointer uppercase tracking-wider"
+            {/* Subtitle */}
+            <p
+              className="mt-5 text-sm sm:text-lg text-slate-100 max-w-xl font-semibold leading-relaxed"
+              style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.7)' }}
             >
-              <Zap className="w-4 h-4 text-emerald-400" />
-              <span>Browse All 31+ Items</span>
-            </Link>
+              {currentSlide.subtitle}
+            </p>
+
+            {/* Primary Action Buttons — fixed dimensions for consistency across slides */}
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Link
+                href={`/gear?category=${encodeURIComponent(currentSlide.categoryQuery)}`}
+                className="min-w-[240px] w-[240px] py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-2xl flex items-center justify-center space-x-2.5 group cursor-pointer border border-emerald-400/40 uppercase tracking-wider"
+              >
+                <span className="truncate">{currentSlide.ctaText}</span>
+                <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              <Link
+                href="/gear"
+                className="min-w-[220px] w-[220px] py-4 rounded-2xl text-sm font-bold text-white bg-slate-950/60 hover:bg-slate-900 border border-white/30 backdrop-blur-md transition-all shadow-xl flex items-center justify-center space-x-2 cursor-pointer uppercase tracking-wider"
+              >
+                <Zap className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>Browse All Items</span>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -214,11 +221,8 @@ export default function HeroSection() {
             <ChevronDown className="w-4 h-4 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
           </button>
 
-          {/* District & Escrow Quick Pill */}
-          <div className="hidden lg:flex items-center space-x-2 text-xs font-bold text-slate-200 bg-slate-950/80 px-4 py-2 rounded-full border border-slate-800 shadow-md">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>100% Stripe Escrow Payment</span>
-          </div>
+          {/* Empty spacer to keep layout balanced now that Stripe pill is removed */}
+          <div className="hidden lg:block w-1" />
         </div>
       </div>
 

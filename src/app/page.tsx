@@ -6,21 +6,18 @@ import {
   Sparkles, 
   ArrowRight, 
   Dumbbell,
-  ShieldCheck,
   Search,
   Calendar,
   CreditCard,
   CheckCircle2,
-  Award,
-  Users,
-  MapPin,
-  TrendingUp
+  MapPin
 } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import CategoryShowcase from '@/components/home/CategoryShowcase';
 import GearCard from '@/components/gear/GearCard';
 import HeroSection from '@/components/home/HeroSection';
+import AboutStatsSection from '@/components/home/AboutStatsSection';
 import { SEEDED_GEAR_CATALOG } from '@/data/gearCatalog';
 
 export const dynamic = 'force-dynamic';
@@ -193,65 +190,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* NEW SECTION 2: About GrabGear Rental & Safety Guarantee */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-xl relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-7 space-y-6 relative z-10">
-              <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Bangladesh Verified Rental Escrow Protection</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-                About GrabGear Rental Network
-              </h2>
-
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                GrabGear connects outdoor enthusiasts across Dhaka, Chittagong, Cox&apos;s Bazar, and Sylhet with verified equipment owners. Avoid paying full retail prices for gear you only use a few times a year.
-              </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <div className="text-2xl font-black text-emerald-400">100%</div>
-                  <div className="text-[11px] text-slate-300 font-medium mt-0.5">Stripe Escrow Guarantee</div>
-                </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <div className="text-2xl font-black text-white">64</div>
-                  <div className="text-[11px] text-slate-300 font-medium mt-0.5">Bangladesh Districts</div>
-                </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 col-span-2 sm:col-span-1">
-                  <div className="text-2xl font-black text-emerald-400">95.5%</div>
-                  <div className="text-[11px] text-slate-300 font-medium mt-0.5">Customer Satisfaction</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 space-y-4 relative z-10">
-              <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/15 space-y-3">
-                <div className="flex items-center space-x-3 text-emerald-400">
-                  <Award className="w-6 h-6" />
-                  <h3 className="text-base font-bold text-white">Gear Inspection Standard</h3>
-                </div>
-                <p className="text-xs text-slate-200 leading-relaxed">
-                  Every listed helmet, kayak, boot pair, and life jacket undergoes mandatory provider maintenance checks before release.
-                </p>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/15 space-y-3">
-                <div className="flex items-center space-x-3 text-emerald-400">
-                  <Users className="w-6 h-6" />
-                  <h3 className="text-base font-bold text-white">24/7 Hotline Support</h3>
-                </div>
-                <p className="text-xs text-slate-200 leading-relaxed">
-                  Have questions during your rental? Reach our dedicated support team via WhatsApp & Hotline at <span className="text-emerald-400 font-bold">+880 1611-836864</span>.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* About GrabGear Rental & Safety Guarantee — Client Component with live data */}
+      <AboutStatsSection />
 
       {/* NEW SECTION 3: Top 5 Gear Brands in Bangladesh */}
       <section className="py-16 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
