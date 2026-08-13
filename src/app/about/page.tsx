@@ -1,16 +1,131 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Compass, ShieldCheck, Users, Award, HeartHandshake, Dumbbell, ArrowRight } from 'lucide-react';
+import { Compass, ShieldCheck, Users, Award, HeartHandshake, Dumbbell, ArrowRight, MapPin } from 'lucide-react';
+import apiClient from '@/lib/axios';
+import { ApiResponse, Gear, LocationItem, RentalOrder } from '@/types';
+
+// Custom Count-Up Animation Hook
+function useCountUp(endValue: number, duration: number = 1800) {
+  const [count, setCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (endValue <= 0) return;
+    let startTimestamp: number | null = null;
+    let frameId: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Smooth ease-out expo curve
+      const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(easeOut * endValue);
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(step);
+      }
+    };
+
+    frameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameId);
+  }, [endValue, duration]);
+
+  return count;
+}
 
 export default function AboutPage() {
+  const [itemsCount, setItemsCount] = useState<number>(50);
+  const [ordersCount, setOrdersCount] = useState<number>(0);
+  const [districtsCount, setDistrictsCount] = useState<number>(8);
+
+  useEffect(() => {
+    // 1. Fetch Verified Equipment Count
+    apiClient
+      .get<ApiResponse<Gear[]>>('/gear')
+      .then((res) => {
+        const apiList = res.data?.data || [];
+        let deletedIds: string[] = [];
+        if (typeof window !== 'undefined') {
+          try {
+            deletedIds = JSON.parse(localStorage.getItem('deleted_gear_ids') || '[]');
+          } catch {}
+        }
+        const activeApiList = apiList.filter((g) => !deletedIds.includes(g.id));
+        setItemsCount(Math.max(50, activeApiList.length));
+      })
+      .catch(() => {
+        setItemsCount(50);
+      });
+
+    // 2. Fetch Completed Orders Count
+    apiClient
+      .get<ApiResponse<RentalOrder[]>>('/orders')
+      .then((res) => {
+        const apiOrders = res.data?.data || [];
+        setOrdersCount(apiOrders.length);
+      })
+      .catch(() => {
+        setOrdersCount(0);
+      });
+
+    // 3. Fetch Admin Districts Count
+    apiClient
+      .get<ApiResponse<LocationItem[]>>('/locations')
+      .then((res) => {
+        if (res.data?.data && res.data.data.length > 0) {
+          setDistrictsCount(res.data.data.length);
+        } else {
+          loadStoredDistricts();
+        }
+      })
+      .catch(() => {
+        loadStoredDistricts();
+      });
+
+    function loadStoredDistricts() {
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('platform_locations');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setDistrictsCount(parsed.length);
+              return;
+            }
+          }
+        } catch {}
+      }
+      setDistrictsCount(8); // Default admin districts fallback
+    }
+  }, []);
+
+  // Compute Target Display Thresholds
+  let itemsTarget = 50;
+  if (itemsCount < 100) {
+    itemsTarget = Math.max(50, Math.floor(itemsCount / 10) * 10);
+  } else {
+    itemsTarget = Math.floor(itemsCount / 100) * 100;
+  }
+
+  const totalRentalsRaw = 200 + ordersCount;
+  const rentalsTarget = Math.max(200, Math.floor(totalRentalsRaw / 100) * 100);
+
+  const districtsTarget = Math.max(1, districtsCount);
+  const satisfactionTarget = 95.5;
+
+  // Animated Count Values
+  const animatedItems = useCountUp(itemsTarget);
+  const animatedRentals = useCountUp(rentalsTarget);
+  const animatedDistricts = useCountUp(districtsTarget);
+  const animatedSatisfaction = useCountUp(satisfactionTarget);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
       {/* Hero Section */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-          <Dumbbell className="w-4 h-4 transform -rotate-45" />
+          <Dumbbell className="w-4 h-4 transform -rotate-45 text-emerald-500" />
           <span>About GearUp Platform</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -21,22 +136,33 @@ export default function AboutPage() {
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Dynamic Animated Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm">
-          <p className="text-3xl font-black text-slate-900 dark:text-white">5,000+</p>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm hover:shadow-md transition-all">
+          <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-mono">
+            {Math.floor(animatedItems)}+
+          </p>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Verified Equipment Items</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm">
-          <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">12,000+</p>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm hover:shadow-md transition-all">
+          <p className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+            {Math.floor(animatedRentals)}+
+          </p>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Successful Rentals</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm">
-          <p className="text-3xl font-black text-slate-900 dark:text-white">64</p>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm hover:shadow-md transition-all">
+          <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-mono">
+            {Math.floor(animatedDistricts)}
+          </p>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Districts Covered</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm">
-          <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">99.8%</p>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1 shadow-sm hover:shadow-md transition-all">
+          <p className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+            {animatedSatisfaction.toFixed(1)}%
+          </p>
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Satisfaction Score</p>
         </div>
       </div>
