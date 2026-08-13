@@ -1,33 +1,38 @@
 import React from 'react';
 import Link from 'next/link';
-import { Compass, ArrowLeft } from 'lucide-react';
+import { Compass, ArrowLeft, AlertCircle } from 'lucide-react';
 
-export default function NotFoundPage() {
+export default function NotFound() {
   return (
-    <div className="min-h-[75vh] flex flex-col items-center justify-center px-4 py-16 text-center space-y-6">
-      <div className="w-20 h-20 rounded-3xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shadow-xs">
-        <Compass className="w-10 h-10 text-emerald-600 animate-spin" style={{ animationDuration: '20s' }} />
+    <div className="min-h-[75vh] flex flex-col items-center justify-center text-center px-4 space-y-6 ambient-bg">
+      <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-md">
+        <AlertCircle className="w-8 h-8" />
       </div>
 
       <div className="space-y-2 max-w-md">
-        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-          404 Page Not Found
-        </span>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-          Out of <span className="text-emerald-700">Bounds</span>
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          Page Not Found
         </h1>
-        <p className="text-sm text-slate-500">
-          The requested route or equipment page does not exist or was moved.
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+          The outdoor gear listing or page you are searching for does not exist or has been moved.
         </p>
       </div>
 
-      <div className="pt-2">
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <Link
+          href="/"
+          className="px-6 py-3 rounded-2xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-all shadow-md flex items-center space-x-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Home</span>
+        </Link>
+
         <Link
           href="/gear"
-          className="px-6 py-3 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 flex items-center space-x-2 shadow-md transition-all"
+          className="px-6 py-3 rounded-2xl text-xs font-bold text-white bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 border border-slate-700 transition-all shadow-xs flex items-center space-x-2"
         >
-          <ArrowLeft className="w-4 h-4 text-emerald-400" />
-          <span>Explore Equipment Catalog</span>
+          <Compass className="w-4 h-4 text-emerald-400" />
+          <span>Browse Gear Catalog</span>
         </Link>
       </div>
     </div>
