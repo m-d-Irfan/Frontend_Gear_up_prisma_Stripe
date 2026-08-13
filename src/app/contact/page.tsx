@@ -56,7 +56,7 @@ export default function ContactPage() {
           phone: data.phone || '',
           message: data.message,
         });
-        toast.success('Inquiry submitted! Confirmation email sent via SMTP from grabgear4100@gmail.com');
+        toast.success('Thank you! Your inquiry has been sent to GrabGear support.');
         reset();
       } catch {
         // Fallback: Browser Gmail Compose Link
