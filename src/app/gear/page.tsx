@@ -115,6 +115,7 @@ function GearCatalogContent() {
 
       const response = await apiClient.get<ApiResponse<Gear[]>>(`/gear?${params.toString()}`);
       let apiItems = response.data?.data || [];
+      const meta = response.data?.meta;
 
       // Combine API items with 31 seeded GrabGear items
       let items = [...apiItems];
