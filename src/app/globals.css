@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --background: #f8fafc;
@@ -37,130 +39,115 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 }
 
-/* Ambient Subtle Background with 3-Color Glows */
-.ambient-bg {
-  background-color: #f8fafc;
+/* Bulletproof Explicit Theme Rules for Light and Dark Modes */
+
+/* LIGHT MODE */
+html.light, 
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light header {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light header nav a:not(.bg-slate-900) {
+  color: #334155 !important;
+}
+
+html.light header nav a:hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+html.light .ambient-bg {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
   background-image: 
     radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
     radial-gradient(at 90% 20%, rgba(13, 148, 136, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 90%, rgba(15, 23, 42, 0.03) 0px, transparent 50%);
+    radial-gradient(at 50% 90%, rgba(15, 23, 42, 0.03) 0px, transparent 50%) !important;
 }
 
-.dark .ambient-bg {
-  background-color: #0f172a;
+html.light section.bg-white,
+html.light div.bg-white,
+html.light article.bg-white {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .glass-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* DARK MODE */
+html.dark, 
+html.dark body {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html.dark header {
+  background-color: rgba(15, 23, 42, 0.96) !important;
+  border-color: #334155 !important;
+}
+
+html.dark header nav a:not(.bg-emerald-600) {
+  color: #cbd5e1 !important;
+}
+
+html.dark header nav a:hover {
+  color: #ffffff !important;
+  background-color: #1e293b !important;
+}
+
+html.dark .ambient-bg {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
   background-image: 
     radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
     radial-gradient(at 90% 20%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
-    radial-gradient(at 50% 90%, rgba(30, 41, 59, 0.5) 0px, transparent 50%);
+    radial-gradient(at 50% 90%, rgba(30, 41, 59, 0.5) 0px, transparent 50%) !important;
 }
 
-/* Glass Card Surfaces (Light off-white vs Soft dark slate) */
-.glass-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+html.dark section.bg-white,
+html.dark div.bg-white,
+html.dark article.bg-white {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
 }
 
-.dark .glass-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+html.dark .glass-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
-.glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* Typography & Accent Overrides */
+html.light .gradient-text {
+  color: #0f172a !important;
 }
 
-.glass-card-hover:hover {
-  transform: translateY(-3px);
-  border-color: #059669;
-  box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.12);
+html.dark .gradient-text {
+  color: #f8fafc !important;
 }
 
-.dark .glass-card-hover:hover {
-  border-color: #10b981;
-  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.2);
+html.light .highlight-text {
+  color: #059669 !important;
 }
 
-/* Navigation Bar Glass Effect */
-.glass-nav {
-  background: rgba(248, 250, 252, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.dark .glass-nav {
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid #334155;
-}
-
-/* Highlights */
-.gradient-text {
-  color: #0f172a;
-}
-
-.dark .gradient-text {
-  color: #f8fafc;
-}
-
-.highlight-text {
-  color: #059669;
-}
-
-.dark .highlight-text {
-  color: #10b981;
-}
-
-/* Buttons */
-.gradient-btn {
-  background: #059669;
-  color: #ffffff;
-  transition: all 0.2s ease-in-out;
-}
-
-.gradient-btn:hover {
-  background: #047857;
-  box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.3);
-}
-
-.dark .gradient-btn {
-  background: #10b981;
-  color: #0f172a;
-}
-
-.dark .gradient-btn:hover {
-  background: #34d399;
-  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.4);
-}
-
-.gradient-btn-secondary {
-  background: #f1f5f9;
-  color: #0f172a;
-  border: 1px solid #cbd5e1;
-  transition: all 0.2s ease;
-}
-
-.gradient-btn-secondary:hover {
-  background: #e2e8f0;
-  color: #059669;
-}
-
-.dark .gradient-btn-secondary {
-  background: #1e293b;
-  color: #f8fafc;
-  border: 1px solid #334155;
-}
-
-.dark .gradient-btn-secondary:hover {
-  background: #334155;
-  color: #10b981;
+html.dark .highlight-text {
+  color: #10b981 !important;
 }
 
 /* Custom Scrollbar */
@@ -168,18 +155,19 @@
   width: 8px;
   height: 8px;
 }
-::-webkit-scrollbar-track {
+html.light ::-webkit-scrollbar-track {
   background: #f8fafc;
 }
-.dark ::-webkit-scrollbar-track {
+html.dark ::-webkit-scrollbar-track {
   background: #0f172a;
 }
-::-webkit-scrollbar-thumb {
+html.light ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
-.dark ::-webkit-scrollbar-thumb {
+html.dark ::-webkit-scrollbar-thumb {
   background: #334155;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #059669;

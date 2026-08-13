@@ -19,6 +19,7 @@ import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import GearCard from '@/components/gear/GearCard';
 import { GearGridSkeleton } from '@/components/ui/LoadingSkeleton';
+import { SEEDED_GEAR_CATALOG } from '@/data/gearCatalog';
 
 const BANGLADESH_DISTRICTS = [
   'Dhaka',
@@ -113,8 +114,34 @@ function GearCatalogContent() {
       }
 
       const response = await apiClient.get<ApiResponse<Gear[]>>(`/gear?${params.toString()}`);
-      let items = response.data?.data || [];
-      const meta = response.data?.meta;
+      let apiItems = response.data?.data || [];
+
+      // Combine API items with 31 seeded GrabGear items
+      let items = [...apiItems];
+      SEEDED_GEAR_CATALOG.forEach((seededItem) => {
+        if (!items.some((i) => i.id === seededItem.id || i.title === seededItem.title)) {
+          items.push(seededItem);
+        }
+      });
+
+      // Filter by search term
+      if (searchTerm.trim()) {
+        const term = searchTerm.toLowerCase();
+        items = items.filter(
+          (i) =>
+            i.title.toLowerCase().includes(term) ||
+            (i.brand && i.brand.toLowerCase().includes(term)) ||
+            (i.description && i.description.toLowerCase().includes(term))
+        );
+      }
+
+      // Filter by location
+      if (selectedLocation) {
+        items = items.filter((i) => i.location?.toLowerCase() === selectedLocation.toLowerCase());
+      }
+
+      // Filter by price range
+      items = items.filter((i) => Number(i.pricePerDay) >= minPrice && Number(i.pricePerDay) <= maxPrice);
 
       // Available Stock Filter
       if (onlyAvailable) {

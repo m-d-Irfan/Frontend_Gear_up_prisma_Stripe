@@ -18,12 +18,23 @@ import { toast } from 'sonner';
 
 import { compressImage } from '@/lib/imageCompressor';
 
-const defaultSlides = [
+interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  fallbackImage?: string;
+  badge: string;
+  categoryQuery: string;
+}
+
+const defaultSlides: HeroSlide[] = [
   {
     id: 'slide-1',
     title: 'Rent Premium Outdoor Gear Instantly.',
     subtitle: 'Skip buying expensive equipment. Explore bikes, kayaks, camping tents, and skis from verified local owners with instant checkout.',
-    image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1920&q=80',
+    image: '/hero-banner-1.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1920&q=80',
     badge: '🏕️ Camping & Wilderness Gear',
     categoryQuery: 'Camping & Hiking',
   },
@@ -31,7 +42,8 @@ const defaultSlides = [
     id: 'slide-2',
     title: 'Conquer Any Trail With High-End Bikes.',
     subtitle: 'Find top-tier mountain bikes, road bikes, and e-bikes near you with flexible daily rates and verified safety insurance.',
-    image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1920&q=80',
+    image: '/hero-banner-2.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1920&q=80',
     badge: '🚴‍♂️ Mountain Biking & Cycling',
     categoryQuery: 'Cycling & Biking',
   },
@@ -39,7 +51,8 @@ const defaultSlides = [
     id: 'slide-3',
     title: 'Explore Rivers & Lakes With Pro Kayaks.',
     subtitle: 'Rent inflatable kayaks, paddleboards, and scuba diving gear with complete safety equipment delivered to your location.',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80',
+    image: '/hero-banner-3.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80',
     badge: '🚣‍♂️ Kayaking & Water Sports',
     categoryQuery: 'Water Sports',
   },
@@ -47,14 +60,15 @@ const defaultSlides = [
     id: 'slide-4',
     title: 'Master The Slopes This Winter.',
     subtitle: 'Get premium skis, snowboards, and thermal winter gear delivered directly to resort pickup spots.',
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=1920&q=80',
+    image: '/hero-banner-4.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=1920&q=80',
     badge: '⛷️ Alpine Skiing & Snowboarding',
     categoryQuery: 'Winter Sports',
   },
 ];
 
 export default function HeroSection() {
-  const [slides, setSlides] = useState(defaultSlides);
+  const [slides, setSlides] = useState<HeroSlide[]>(defaultSlides);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [customImageModalOpen, setCustomImageModalOpen] = useState(false);
@@ -72,6 +86,7 @@ export default function HeroSection() {
               title: 'Your Custom Hero Adventure Gear.',
               subtitle: 'Custom uploaded hero background showcasing your personalized equipment rental showcase.',
               image: savedCustomImg,
+              fallbackImage: savedCustomImg,
               badge: '✨ Custom PC Uploaded Image',
               categoryQuery: 'Camping & Hiking',
             },
@@ -120,6 +135,7 @@ export default function HeroSection() {
             title: 'Your PC Uploaded Hero Banner.',
             subtitle: 'Custom hero image uploaded directly from your local computer files!',
             image: compressedResult,
+            fallbackImage: compressedResult,
             badge: '📷 Custom Uploaded Banner',
             categoryQuery: 'Camping & Hiking',
           },
@@ -146,6 +162,7 @@ export default function HeroSection() {
         title: 'Your Custom Hero Image.',
         subtitle: 'Custom background image loaded from URL!',
         image: customImageUrl.trim(),
+        fallbackImage: customImageUrl.trim(),
         badge: '✨ Custom Hero Banner',
         categoryQuery: 'Camping & Hiking',
       },
@@ -184,6 +201,12 @@ export default function HeroSection() {
             <img
               src={slide.image}
               alt={slide.title}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (slide.fallbackImage && target.src !== slide.fallbackImage) {
+                  target.src = slide.fallbackImage;
+                }
+              }}
               className="w-full h-full object-cover object-center"
             />
             {/* Dark & Vibrant Contrast Gradient Overlays */}

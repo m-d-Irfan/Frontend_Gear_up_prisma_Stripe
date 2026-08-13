@@ -11,30 +11,29 @@ export default function ThemeToggle({ showLabel = false }: ThemeToggleProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
+  const applyTheme = (t: 'light' | 'dark') => {
+    setTheme(t);
+    localStorage.setItem('gearup_theme', t);
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(t);
+    document.documentElement.setAttribute('data-theme', t);
+  };
+
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem('gearup_theme') as 'light' | 'dark' | null;
     if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add(savedTheme);
+      applyTheme(savedTheme);
     } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add('dark');
+      applyTheme('dark');
     } else {
-      setTheme('light');
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add('light');
+      applyTheme('light');
     }
   }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    localStorage.setItem('gearup_theme', nextTheme);
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(nextTheme);
+    applyTheme(nextTheme);
   };
 
   if (!mounted) {
