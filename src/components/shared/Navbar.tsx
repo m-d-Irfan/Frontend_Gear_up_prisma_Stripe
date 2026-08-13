@@ -20,6 +20,7 @@ import {
 import { useAuthStore } from '@/store/useAuthStore';
 import { Badge } from '@/components/ui/Badge';
 import { toast } from 'sonner';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -134,6 +135,7 @@ export default function Navbar() {
 
         {/* Desktop Auth Controls & Profile Dropdown */}
         <div className="hidden lg:flex items-center space-x-3">
+          <ThemeToggle />
           {isAuthenticated && user ? (
             <div className="relative">
               <button
@@ -224,7 +226,8 @@ export default function Navbar() {
         </div>
 
         {/* Burger Menu Button for Mobile Screens */}
-        <div className="lg:hidden flex items-center">
+        <div className="lg:hidden flex items-center space-x-2">
+          <ThemeToggle />
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
@@ -285,6 +288,10 @@ export default function Navbar() {
             <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Contact Us</span>
           </Link>
+
+          <div className="pt-2 pb-1">
+            <ThemeToggle showLabel />
+          </div>
 
           {isAuthenticated && user ? (
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">

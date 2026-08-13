@@ -31,9 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light">
+    <html lang="en" className="light" suppressHydrationWarning>
       <body
-        className={`${inter.variable} font-sans bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-700`}
+        className={`${inter.variable} font-sans bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-700 transition-colors duration-300`}
       >
         <AuthProvider>
           <Navbar />

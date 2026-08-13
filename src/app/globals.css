@@ -2,41 +2,73 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --accent: 160 84% 39%;
-    --border: 214.3 31.8% 91.4%;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --primary: #059669;
+    --primary-foreground: #ffffff;
+    --secondary: #0d9488;
+    --secondary-foreground: #ffffff;
+    --border: #e2e8f0;
+  }
+
+  .dark {
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --card: #1e293b;
+    --card-foreground: #f8fafc;
+    --primary: #10b981;
+    --primary-foreground: #0f172a;
+    --secondary: #14b8a6;
+    --secondary-foreground: #0f172a;
+    --border: #334155;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Ambient Subtle Background */
+/* Ambient Subtle Background with 3-Color Glows */
 .ambient-bg {
   background-color: #f8fafc;
   background-image: 
-    radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
-    radial-gradient(at 90% 20%, rgba(14, 165, 233, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 90%, rgba(99, 102, 241, 0.04) 0px, transparent 50%);
+    radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
+    radial-gradient(at 90% 20%, rgba(13, 148, 136, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(15, 23, 42, 0.03) 0px, transparent 50%);
 }
 
-/* White & Light Black Cards */
+.dark .ambient-bg {
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 20%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(30, 41, 59, 0.5) 0px, transparent 50%);
+}
+
+/* Glass Card Surfaces (Light off-white vs Soft dark slate) */
 .glass-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+}
+
+.dark .glass-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
 }
 
 .glass-card-hover {
@@ -45,37 +77,67 @@
 
 .glass-card-hover:hover {
   transform: translateY(-3px);
-  background: #ffffff;
-  border-color: #cbd5e1;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  border-color: #059669;
+  box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.12);
 }
 
+.dark .glass-card-hover:hover {
+  border-color: #10b981;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.2);
+}
+
+/* Navigation Bar Glass Effect */
 .glass-nav {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(248, 250, 252, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* Typography & Headings */
+.dark .glass-nav {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid #334155;
+}
+
+/* Highlights */
 .gradient-text {
   color: #0f172a;
+}
+
+.dark .gradient-text {
+  color: #f8fafc;
 }
 
 .highlight-text {
   color: #059669;
 }
 
+.dark .highlight-text {
+  color: #10b981;
+}
+
 /* Buttons */
 .gradient-btn {
-  background: #0f172a;
+  background: #059669;
   color: #ffffff;
   transition: all 0.2s ease-in-out;
 }
 
 .gradient-btn:hover {
-  background: #1e293b;
-  box-shadow: 0 4px 14px 0 rgba(15, 23, 42, 0.2);
+  background: #047857;
+  box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.3);
+}
+
+.dark .gradient-btn {
+  background: #10b981;
+  color: #0f172a;
+}
+
+.dark .gradient-btn:hover {
+  background: #34d399;
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.4);
 }
 
 .gradient-btn-secondary {
@@ -90,6 +152,17 @@
   color: #059669;
 }
 
+.dark .gradient-btn-secondary {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #334155;
+}
+
+.dark .gradient-btn-secondary:hover {
+  background: #334155;
+  color: #10b981;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -98,10 +171,16 @@
 ::-webkit-scrollbar-track {
   background: #f8fafc;
 }
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #059669;
 }
