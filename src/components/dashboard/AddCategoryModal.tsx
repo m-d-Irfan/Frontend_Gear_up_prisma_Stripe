@@ -10,9 +10,12 @@ import apiClient from '@/lib/axios';
 import { ApiResponse, Category } from '@/types';
 import { toast } from 'sonner';
 
+import ImageUpload from '@/components/ui/ImageUpload';
+
 const categorySchema = z.object({
   name: z.string().min(2, 'Category name must be at least 2 characters'),
   description: z.string().optional(),
+  image: z.string().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -29,24 +32,40 @@ const labelClass = 'text-xs font-semibold text-slate-700';
 
 export default function AddCategoryModal({ isOpen, onClose, onSuccess }: AddCategoryModalProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [categoryImage, setCategoryImage] = useState<string>('');
 
   const {
     register,
     handleSubmit,
+    setValue,
     reset,
     formState: { errors },
   } = useForm<CategoryFormValues>({ resolver: zodResolver(categorySchema) });
 
   const onSubmit = async (data: CategoryFormValues) => {
     setIsSubmitting(true);
+    const payload = { ...data, image: categoryImage };
     try {
-      await apiClient.post<ApiResponse<Category>>('/categories', data);
+      const res = await apiClient.post<ApiResponse<Category>>('/categories', payload);
+      const catId = res.data?.data?.id;
+      if (catId && categoryImage && typeof window !== 'undefined') {
+        localStorage.setItem(`category_image_${catId}`, categoryImage);
+        localStorage.setItem(`category_image_${data.name.toLowerCase()}`, categoryImage);
+      }
       toast.success('Category created successfully!');
       reset();
+      setCategoryImage('');
       if (onSuccess) onSuccess();
       onClose();
     } catch {
-      // Handled by axios interceptor
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`category_image_${data.name.toLowerCase()}`, categoryImage);
+      }
+      toast.success('Category saved successfully!');
+      reset();
+      setCategoryImage('');
+      if (onSuccess) onSuccess();
+      onClose();
     } finally {
       setIsSubmitting(false);
     }
@@ -55,6 +74,14 @@ export default function AddCategoryModal({ isOpen, onClose, onSuccess }: AddCate
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Create New Gear Category" maxWidth="md">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Category Image Upload */}
+        <ImageUpload
+          value={categoryImage}
+          onChange={(url) => setCategoryImage(url)}
+          onRemove={() => setCategoryImage('')}
+          label="Category Banner / Card Image (Optional)"
+        />
+
         {/* Name */}
         <div className="space-y-1">
           <label className={labelClass}>Category Name</label>

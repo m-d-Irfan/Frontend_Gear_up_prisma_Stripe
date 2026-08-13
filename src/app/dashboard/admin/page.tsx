@@ -788,82 +788,117 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {paginatedUsers.map((u) => (
-                      <tr
-                        key={u.id}
-                        className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
-                      >
-                        <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white flex items-center space-x-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-200">
-                            {u.avatarUrl ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img
-                                src={u.avatarUrl}
-                                alt={u.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              u.name.charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <span>{u.name}</span>
-                        </td>
-                        <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400">{u.email}</td>
-                        <td className="px-4 py-3.5">
-                          <select
-                            value={u.role}
-                            disabled={updatingRoleId === u.id}
-                            onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
-                            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-lg px-2 py-1 cursor-pointer focus:outline-none"
-                          >
-                            <option value="CUSTOMER">CUSTOMER</option>
-                            <option value="PROVIDER">PROVIDER</option>
-                            <option value="ADMIN">ADMIN</option>
-                          </select>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <Badge variant={u.status} />
-                        </td>
-                        <td className="px-4 py-3.5 text-right space-x-2">
-                          <button
-                            onClick={() => handleToggleStatus(u)}
-                            disabled={togglingUserId === u.id}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border cursor-pointer transition-colors ${
-                              u.status === 'ACTIVE'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900'
-                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900'
-                            }`}
-                          >
-                            {togglingUserId === u.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin inline" />
-                            ) : u.status === 'ACTIVE' ? (
-                              'Suspend'
-                            ) : (
-                              'Activate'
-                            )}
-                          </button>
+                    {paginatedUsers.map((u) => {
+                      const isCurrentSuperAdmin = user?.email?.toLowerCase() === 'admin@gearup.com';
+                      const isTargetSuperAdmin = u.email.toLowerCase() === 'admin@gearup.com';
+                      const isTargetSelf = u.id === user?.id || (u.email && u.email.toLowerCase() === user?.email?.toLowerCase());
 
-                          <button
-                            onClick={() => {
-                              if (u.id === user?.id || u.email === user?.email) {
-                                toast.error('Admins cannot delete their own profile.');
-                                return;
-                              }
-                              setDeletingUser(u);
-                            }}
-                            disabled={u.id === user?.id || u.email === user?.email}
-                            className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${
-                              u.id === user?.id || u.email === user?.email
-                                ? 'opacity-40 cursor-not-allowed text-slate-400 bg-slate-100 dark:bg-slate-800'
-                                : 'text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 cursor-pointer'
-                            }`}
-                            title={u.id === user?.id || u.email === user?.email ? 'Admin cannot delete own profile' : 'Delete user'}
-                          >
-                            <Trash2 className="w-3.5 h-3.5 inline" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                      // 1. Role Change Permission: Only SuperAdmin can change roles, and cannot change own role
+                      const canChangeRole = isCurrentSuperAdmin && !isTargetSuperAdmin;
+
+                      // 2. Suspend Permission: Nobody can suspend self or SuperAdmin
+                      const canSuspend = !isTargetSelf && !isTargetSuperAdmin;
+
+                      // 3. Delete Permission: SuperAdmin can delete anyone except self (protected). Assistant Admin can only delete self.
+                      const canDelete = isCurrentSuperAdmin ? !isTargetSelf : isTargetSelf;
+
+                      return (
+                        <tr
+                          key={u.id}
+                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                        >
+                          <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white flex items-center space-x-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-200">
+                              {u.avatarUrl ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                  src={u.avatarUrl}
+                                  alt={u.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                u.name.charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <span className="flex items-center gap-1.5">
+                              {u.name}
+                              {isTargetSuperAdmin && (
+                                <span className="text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                  SuperAdmin
+                                </span>
+                              )}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400">{u.email}</td>
+                          <td className="px-4 py-3.5">
+                            <select
+                              value={u.role}
+                              disabled={!canChangeRole || updatingRoleId === u.id}
+                              onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                              className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-lg px-2 py-1 focus:outline-none ${
+                                !canChangeRole ? 'opacity-60 cursor-not-allowed text-slate-500' : 'cursor-pointer'
+                              }`}
+                              title={!canChangeRole ? (isTargetSelf ? 'SuperAdmin role is protected' : 'Only SuperAdmin can modify user roles') : 'Select role'}
+                            >
+                              <option value="CUSTOMER">CUSTOMER</option>
+                              <option value="PROVIDER">PROVIDER</option>
+                              <option value="ADMIN">ADMIN</option>
+                            </select>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Badge variant={u.status} />
+                          </td>
+                          <td className="px-4 py-3.5 text-right space-x-2">
+                            <button
+                              onClick={() => {
+                                if (!canSuspend) return;
+                                handleToggleStatus(u);
+                              }}
+                              disabled={!canSuspend || togglingUserId === u.id}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors ${
+                                !canSuspend
+                                  ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'
+                                  : u.status === 'ACTIVE'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900 cursor-pointer'
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900 cursor-pointer'
+                              }`}
+                              title={!canSuspend ? (isTargetSuperAdmin ? 'SuperAdmin cannot be suspended' : 'Cannot suspend own account') : 'Toggle status'}
+                            >
+                              {togglingUserId === u.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin inline" />
+                              ) : u.status === 'ACTIVE' ? (
+                                'Suspend'
+                              ) : (
+                                'Activate'
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                if (!canDelete) {
+                                  if (isCurrentSuperAdmin && isTargetSelf) {
+                                    toast.error('SuperAdmin profile is protected and cannot be deleted.');
+                                  } else {
+                                    toast.error('Assistant admins cannot delete other user accounts.');
+                                  }
+                                  return;
+                                }
+                                setDeletingUser(u);
+                              }}
+                              disabled={!canDelete}
+                              className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                !canDelete
+                                  ? 'opacity-40 cursor-not-allowed text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700'
+                                  : 'text-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 cursor-pointer'
+                              }`}
+                              title={!canDelete ? (isTargetSuperAdmin ? 'SuperAdmin profile protected' : 'Only SuperAdmin can delete other users') : 'Delete user'}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 inline" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1026,35 +1061,57 @@ export default function AdminDashboardPage() {
               <TableSkeleton rows={4} columns={3} />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {categories.map((cat) => (
-                  <div key={cat.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{cat.name}</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">{cat._count?.gear || 0} listings in index</p>
+                {categories.map((cat) => {
+                  let catImg = cat.image || cat.imageUrl || '';
+                  if (!catImg && typeof window !== 'undefined') {
+                    catImg =
+                      localStorage.getItem(`category_image_${cat.id}`) ||
+                      localStorage.getItem(`category_image_${cat.name.toLowerCase()}`) ||
+                      '';
+                  }
+
+                  return (
+                    <div
+                      key={cat.id}
+                      className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-3"
+                    >
+                      {catImg && (
+                        <div className="h-28 w-full overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={catImg} alt={cat.name} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">{cat.name}</h4>
+                          <p className="text-xs text-slate-500 mt-0.5">{cat._count?.gear || 0} listings in index</p>
+                        </div>
+                        <div className="flex items-center space-x-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCategory(cat);
+                              setIsEditCategoryModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                            title="Edit Category & Image"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeletingCategory(cat)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                            title="Delete Category"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingCategory(cat);
-                          setIsEditCategoryModalOpen(true);
-                        }}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                        title="Edit Category"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeletingCategory(cat)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                        title="Delete Category"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

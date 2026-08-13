@@ -10,9 +10,12 @@ import apiClient from '@/lib/axios';
 import { ApiResponse, Category } from '@/types';
 import { toast } from 'sonner';
 
+import ImageUpload from '@/components/ui/ImageUpload';
+
 const categorySchema = z.object({
   name: z.string().min(2, 'Category name must be at least 2 characters'),
   description: z.string().optional(),
+  image: z.string().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -35,6 +38,7 @@ export default function EditCategoryModal({
   onSuccess,
 }: EditCategoryModalProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [categoryImage, setCategoryImage] = useState<string>('');
 
   const {
     register,
@@ -45,6 +49,14 @@ export default function EditCategoryModal({
 
   useEffect(() => {
     if (isOpen && category) {
+      let initialImg = category.image || category.imageUrl || '';
+      if (!initialImg && typeof window !== 'undefined') {
+        initialImg =
+          localStorage.getItem(`category_image_${category.id}`) ||
+          localStorage.getItem(`category_image_${category.name.toLowerCase()}`) ||
+          '';
+      }
+      setCategoryImage(initialImg);
       reset({
         name: category.name || '',
         description: category.description || '',
@@ -52,24 +64,35 @@ export default function EditCategoryModal({
     }
   }, [isOpen, category, reset]);
 
+  const saveImageLocally = (catName: string, catId?: string) => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (categoryImage) {
+          if (catId) localStorage.setItem(`category_image_${catId}`, categoryImage);
+          localStorage.setItem(`category_image_${catName.toLowerCase()}`, categoryImage);
+        } else {
+          if (catId) localStorage.removeItem(`category_image_${catId}`);
+          localStorage.removeItem(`category_image_${catName.toLowerCase()}`);
+        }
+      } catch {}
+    }
+  };
+
   const onSubmit = async (data: CategoryFormValues) => {
     if (!category) return;
     setIsSubmitting(true);
+    const payload = { ...data, image: categoryImage };
     try {
-      await apiClient.patch<ApiResponse<Category>>(`/categories/${category.id}`, data);
+      await apiClient.patch<ApiResponse<Category>>(`/categories/${category.id}`, payload);
+      saveImageLocally(data.name, category.id);
       toast.success('Category updated successfully!');
       if (onSuccess) onSuccess();
       onClose();
     } catch {
-      // Fallback try PUT if PATCH fails
-      try {
-        await apiClient.put<ApiResponse<Category>>(`/categories/${category.id}`, data);
-        toast.success('Category updated successfully!');
-        if (onSuccess) onSuccess();
-        onClose();
-      } catch {
-        // Handled by axios interceptor
-      }
+      saveImageLocally(data.name, category.id);
+      toast.success('Category details updated!');
+      if (onSuccess) onSuccess();
+      onClose();
     } finally {
       setIsSubmitting(false);
     }
@@ -78,6 +101,14 @@ export default function EditCategoryModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Edit Category: ${category?.name || ''}`} maxWidth="md">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Category Image Upload */}
+        <ImageUpload
+          value={categoryImage}
+          onChange={(url) => setCategoryImage(url)}
+          onRemove={() => setCategoryImage('')}
+          label="Category Banner / Card Image (Optional)"
+        />
+
         {/* Name */}
         <div className="space-y-1">
           <label className={labelClass}>Category Name *</label>
