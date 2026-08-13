@@ -233,7 +233,7 @@ export default function ContactPage() {
               {contactMode === 'whatsapp' && (
                 <div className="space-y-1.5">
                   <label htmlFor="contact-phone" className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                    WhatsApp / Phone Number *
+                    WhatsApp *
                   </label>
                   <input
                     {...register('phone')}
