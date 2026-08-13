@@ -186,10 +186,14 @@ function GearCatalogContent() {
         items = myItems;
       }
 
-      setGearList(items);
-      const calculatedTotal = meta?.total || items.length;
-      setTotalCount(calculatedTotal);
-      setTotalPages(meta?.totalPage || Math.ceil(calculatedTotal / limit) || 1);
+      const totalItemsCount = items.length;
+      const calculatedPages = Math.max(1, Math.ceil(totalItemsCount / limit));
+      const startIdx = (page - 1) * limit;
+      const paginatedItems = items.slice(startIdx, startIdx + limit);
+
+      setGearList(paginatedItems);
+      setTotalCount(totalItemsCount);
+      setTotalPages(calculatedPages);
     } catch {
       setGearList([]);
     } finally {
@@ -512,42 +516,61 @@ function GearCatalogContent() {
 
               {/* Pagination Controls & Items Info */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  Showing <span className="font-bold text-slate-900 dark:text-white">{gearList.length}</span> of{' '}
-                  <span className="font-bold text-slate-900 dark:text-white">{totalCount}</span> items ({limit} per page)
-                </p>
-
-                {totalPages > 1 && (
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => {
-                        const prevPage = Math.max(1, page - 1);
-                        setPage(prevPage);
-                        updateQueryParams('page', prevPage.toString());
+                <div className="flex items-center space-x-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  <p>
+                    Showing <span className="font-bold text-slate-900 dark:text-white">{gearList.length}</span> of{' '}
+                    <span className="font-bold text-slate-900 dark:text-white">{totalCount}</span> items
+                  </p>
+                  <span className="text-slate-300 dark:text-slate-700">|</span>
+                  <div className="flex items-center space-x-1.5">
+                    <span>Per Page:</span>
+                    <select
+                      value={limit}
+                      onChange={(e) => {
+                        const newLimit = Number(e.target.value);
+                        setLimit(newLimit);
+                        setPage(1);
+                        updateQueryParams('limit', newLimit.toString());
                       }}
-                      disabled={page === 1}
-                      className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                     >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-
-                    <span className="text-xs font-bold px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-900 dark:text-white">
-                      Page {page} of {totalPages}
-                    </span>
-
-                    <button
-                      onClick={() => {
-                        const nextPage = Math.min(totalPages, page + 1);
-                        setPage(nextPage);
-                        updateQueryParams('page', nextPage.toString());
-                      }}
-                      disabled={page === totalPages}
-                      className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
+                      <option value={6}>6 items</option>
+                      <option value={10}>10 items</option>
+                      <option value={20}>20 items</option>
+                      <option value={30}>30 items</option>
+                    </select>
                   </div>
-                )}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      const prevPage = Math.max(1, page - 1);
+                      setPage(prevPage);
+                      updateQueryParams('page', prevPage.toString());
+                    }}
+                    disabled={page === 1}
+                    className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  <span className="text-xs font-bold px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-900 dark:text-white">
+                    Page {page} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => {
+                      const nextPage = Math.min(totalPages, page + 1);
+                      setPage(nextPage);
+                      updateQueryParams('page', nextPage.toString());
+                    }}
+                    disabled={page === totalPages}
+                    className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </>
           ) : (
