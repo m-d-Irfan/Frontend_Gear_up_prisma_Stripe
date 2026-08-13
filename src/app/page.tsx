@@ -26,11 +26,11 @@ import ScrollReveal from '@/components/ui/ScrollReveal';
 import { useAppData } from '@/context/AppDataContext';
 
 const TOP_BANGLADESH_BRANDS = [
-  { name: 'Decathlon Bangladesh', logo: '⚽', tag: 'Global Outdoor Partner' },
-  { name: 'The North Face', logo: '🏔️', tag: 'Wilderness Exploration' },
-  { name: 'Columbia Sportswear', logo: '🧥', tag: 'All-Weather Apparel' },
-  { name: 'Osprey Packs', logo: '🎒', tag: 'Expedition Backpacking' },
-  { name: 'Petzl Climbing', logo: '🧗‍♂️', tag: 'Safety & Alpine Rigging' },
+  { name: 'Decathlon Bangladesh', logo: '⚽', image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=400', tag: 'Global Outdoor Partner' },
+  { name: 'The North Face', logo: '🏔️', image: 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&q=80&w=400', tag: 'Wilderness Exploration' },
+  { name: 'Columbia Sportswear', logo: '🧥', image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&q=80&w=400', tag: 'All-Weather Apparel' },
+  { name: 'Osprey Packs', logo: '🎒', image: 'https://images.unsplash.com/photo-1622260614153-03223fb72052?auto=format&fit=crop&q=80&w=400', tag: 'Expedition Backpacking' },
+  { name: 'Petzl Climbing', logo: '🧗‍♂️', image: 'https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80&w=400', tag: 'Safety & Alpine Rigging' },
 ];
 
 export default function HomePage() {
@@ -120,7 +120,10 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all overflow-hidden flex flex-col">
+                <div className="h-32 w-full rounded-2xl overflow-hidden shadow-sm shrink-0">
+                  <img src="https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?auto=format&fit=crop&q=80&w=400" alt="Browse" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg">
                   01
                 </div>
@@ -133,7 +136,10 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all overflow-hidden flex flex-col">
+                <div className="h-32 w-full rounded-2xl overflow-hidden shadow-sm shrink-0">
+                  <img src="https://images.unsplash.com/photo-1506784951209-6854d5964441?auto=format&fit=crop&q=80&w=400" alt="Plan" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg">
                   02
                 </div>
@@ -146,7 +152,10 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all overflow-hidden flex flex-col">
+                <div className="h-32 w-full rounded-2xl overflow-hidden shadow-sm shrink-0">
+                  <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=400" alt="Payment" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg">
                   03
                 </div>
@@ -159,7 +168,10 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 space-y-4 relative group hover:-translate-y-1 transition-all overflow-hidden flex flex-col">
+                <div className="h-32 w-full rounded-2xl overflow-hidden shadow-sm shrink-0">
+                  <img src="https://images.unsplash.com/photo-1504280390227-351a2d05f0ea?auto=format&fit=crop&q=80&w=400" alt="Enjoy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg">
                   04
                 </div>
@@ -203,13 +215,16 @@ export default function HomePage() {
               {TOP_BANGLADESH_BRANDS.map((brand, idx) => (
                 <div
                   key={idx}
-                  className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 text-center space-y-3 hover:border-emerald-500 hover:-translate-y-1 transition-all group shadow-xs"
+                  className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-700/80 text-center space-y-4 hover:border-emerald-500 hover:-translate-y-1 transition-all group shadow-xs overflow-hidden flex flex-col"
                 >
-                  <div className="text-4xl group-hover:scale-110 transition-transform">{brand.logo}</div>
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  <div className="h-28 w-full rounded-2xl overflow-hidden mb-2 shadow-sm shrink-0">
+                    <img src={brand.image} alt={brand.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  </div>
+                  <div className="text-3xl group-hover:scale-110 transition-transform">{brand.logo}</div>
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-tight">
                     {brand.name}
                   </h3>
-                  <div className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide uppercase">
+                  <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
                     {brand.tag}
                   </div>
                 </div>
