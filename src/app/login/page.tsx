@@ -82,13 +82,13 @@ function LoginForm() {
       // Auto-register attempt if account does not exist in backend DB yet
       try {
         let role: UserRole = 'CUSTOMER';
-        let name = 'GearUp Customer';
+        let name = 'GrabGear Customer';
         if (data.email === 'admin@gearup.com') {
           role = 'ADMIN';
           name = 'System Admin';
         } else if (data.email === 'provider@gearup.com') {
           role = 'PROVIDER';
-          name = 'GearUp Equipment Store';
+          name = 'GrabGear Equipment Store';
         } else if (data.email === 'customer@gearup.com') {
           role = 'CUSTOMER';
           name = 'John Customer';
@@ -102,24 +102,19 @@ function LoginForm() {
             role,
           });
         } catch {
-          // Account might already exist
+          // Ignore registration error
         }
 
-        const retryRes = await apiClient.post<
-          ApiResponse<{ accessToken?: string; token?: string; user: User }>
-        >('/auth/login', data);
+        const retryRes = await apiClient.post<ApiResponse<{ token: string; user: User }>>('/auth/login', {
+          email: data.email,
+          password: data.password,
+        });
 
-        const resData = retryRes.data?.data;
-        const token = resData?.accessToken || resData?.token;
-        const user = resData?.user;
-
-        if (token && user) {
-          setAuth(user, token);
-          toast.success(`Welcome back, ${user.name}!`);
-          const targetRole = user.role;
-          if (targetRole === 'ADMIN') router.push('/dashboard/admin');
-          else if (targetRole === 'PROVIDER') router.push('/dashboard/provider');
-          else router.push('/dashboard/customer');
+        if (retryRes.data?.data) {
+          const { token, user: loggedUser } = retryRes.data.data;
+          setAuth(loggedUser, token);
+          toast.success(`Welcome to GrabGear, ${loggedUser.name}!`);
+          router.push('/gear');
           return;
         }
       } catch {

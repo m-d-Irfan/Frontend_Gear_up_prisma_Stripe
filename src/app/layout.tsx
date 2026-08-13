@@ -13,16 +13,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'GearUp | Rent Sports & Outdoor Equipment Instantly',
+  title: 'GrabGear | Rent Sports & Outdoor Equipment Instantly in Bangladesh',
   description:
-    'GearUp is a premier peer-to-peer equipment rental marketplace. Rent bikes, camping gear, skis, and outdoor gear securely with instant Stripe payment.',
+    'GrabGear is Bangladesh’s premier peer-to-peer sports & outdoor equipment rental marketplace. Rent kayaks, mountain bikes, camping gear, and climbing equipment securely with instant Stripe payment.',
   keywords: [
-    'sports rental',
-    'outdoor gear',
-    'camping equipment',
-    'bike rental',
-    'GearUp',
+    'GrabGear',
+    'sports rental Bangladesh',
+    'outdoor gear rental',
+    'camping equipment Dhaka',
+    'bike rental Sylhet',
+    'kayak rental Coxs Bazar',
   ],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" suppressHydrationWarning>
       <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -147,7 +147,7 @@ export default function GearCard({ gear, onEdit, onDelete, isProvider: isProvide
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span className="font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
               <Tag className="w-3.5 h-3.5" />
-              {displayGear.brand || 'GearUp Verified'}
+              {displayGear.brand || 'GrabGear Verified'}
             </span>
             {displayGear.location && (
               <span className="flex items-center space-x-1 text-slate-500 dark:text-slate-400">

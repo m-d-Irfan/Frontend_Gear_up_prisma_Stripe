@@ -59,8 +59,7 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-1">
-              Gear<span className="text-emerald-600 dark:text-emerald-400">Up</span>
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 inline" />
+              Grab<span className="text-emerald-600 dark:text-emerald-400">Gear</span>
             </span>
             <span className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold -mt-1">
               Outdoor Rentals

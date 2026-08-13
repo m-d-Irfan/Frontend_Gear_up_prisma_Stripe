@@ -126,13 +126,13 @@ export default function AboutPage() {
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
           <Dumbbell className="w-4 h-4 transform -rotate-45 text-emerald-500" />
-          <span>About GearUp Platform</span>
+          <span>About GrabGear Platform</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
           Empowering Outdoor Adventure Through Shared Gear
         </h1>
         <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-          GearUp connects outdoor enthusiasts with verified equipment providers across Bangladesh. Rent top-tier mountain bikes, camping tents, kayaking gear, and sports equipment without high ownership costs.
+          GrabGear connects outdoor enthusiasts with verified equipment providers across Bangladesh. Rent top-tier mountain bikes, camping tents, kayaking gear, and sports equipment without high ownership costs.
         </p>
       </div>
 
@@ -171,7 +171,7 @@ export default function AboutPage() {
       <div className="space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white">Our Mission & Core Values</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Why thousands choose GearUp for outdoor equipment</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Why thousands choose GrabGear for outdoor equipment</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -181,7 +181,7 @@ export default function AboutPage() {
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Verified Equipment Only</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Every item listed on GearUp undergoes provider verification and safety inspection before being offered for rental.
+              Every item listed on GrabGear undergoes provider verification and safety inspection before being offered for rental.
             </p>
           </div>
 

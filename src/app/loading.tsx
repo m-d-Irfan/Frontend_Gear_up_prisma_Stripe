@@ -9,7 +9,7 @@ export default function GlobalLoading() {
       </div>
       <div className="flex items-center space-x-2 text-slate-500 text-sm font-semibold">
         <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
-        <span>Loading GearUp Application...</span>
+        <span>Loading GrabGear Application...</span>
       </div>
     </div>
   );

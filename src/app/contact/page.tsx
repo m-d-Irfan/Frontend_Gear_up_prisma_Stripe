@@ -42,7 +42,7 @@ export default function ContactPage() {
     setIsSubmitting(true);
 
     if (contactMode === 'whatsapp') {
-      const whatsappText = `Hi GearUp Support! 👋\n\n*WhatsApp Number:* ${data.phone}\n\n*Message:*\n${data.message}`;
+      const whatsappText = `Hi GrabGear Support! 👋\n\n*WhatsApp Number:* ${data.phone}\n\n*Message:*\n${data.message}`;
       const whatsappUrl = `https://wa.me/8801611836864?text=${encodeURIComponent(whatsappText)}`;
       window.open(whatsappUrl, '_blank');
       toast.success('Redirecting to WhatsApp...');
@@ -89,7 +89,7 @@ export default function ContactPage() {
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-          Get in Touch With <span className="text-emerald-600 dark:text-emerald-400">GearUp</span>
+          Get in Touch With <span className="text-emerald-600 dark:text-emerald-400">GrabGear</span>
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           Have questions about renting gear, becoming a provider, or customer support? Send us a message!
