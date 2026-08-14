@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter} from 'next/navigation';
+import { useAppData } from '@/context/AppDataContext';
 import {
   Search,
   SlidersHorizontal,
@@ -19,7 +20,6 @@ import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear } from '@/types';
 import GearCard from '@/components/gear/GearCard';
 import { GearGridSkeleton } from '@/components/ui/LoadingSkeleton';
-import { SEEDED_GEAR_CATALOG } from '@/data/gearCatalog';
 
 const BANGLADESH_DISTRICTS = [
   'Dhaka',
@@ -42,6 +42,7 @@ function GearCatalogContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useAuthStore();
+  const { allGear, categories: contextCategories } = useAppData();
 
   const [providerViewMode, setProviderViewMode] = useState<'my_items' | 'all'>('my_items');
 
@@ -78,52 +79,35 @@ function GearCatalogContent() {
       .catch(() => {});
   }, []);
 
-  // Fetch Gear Directory
   const fetchGear = useCallback(async () => {
     setIsLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (searchTerm) params.append('searchTerm', searchTerm);
-      if (selectedCategory) params.append('category', selectedCategory);
-      if (selectedLocation) params.append('location', selectedLocation);
-      if (minPrice > 0) params.append('minPrice', minPrice.toString());
-      if (maxPrice < 500) params.append('maxPrice', maxPrice.toString());
-      if (onlyAvailable) params.append('isAvailable', 'true');
-      params.append('page', page.toString());
-      params.append('limit', limit.toString());
+      // Use pre-fetched gear from the global context instead of an independent API request
+      let items = [...allGear];
 
-      // Sorting parameter translation
-      if (sortOption === 'title_asc') {
-        params.append('sortBy', 'title');
-        params.append('sortOrder', 'asc');
-      } else if (sortOption === 'title_desc') {
-        params.append('sortBy', 'title');
-        params.append('sortOrder', 'desc');
-      } else if (sortOption === 'price_asc') {
-        params.append('sortBy', 'pricePerDay');
-        params.append('sortOrder', 'asc');
-      } else if (sortOption === 'price_desc') {
-        params.append('sortBy', 'pricePerDay');
-        params.append('sortOrder', 'desc');
-      } else if (sortOption === 'location_asc') {
-        params.append('sortBy', 'location');
-        params.append('sortOrder', 'asc');
-      } else {
-        params.append('sortBy', 'createdAt');
-        params.append('sortOrder', 'desc');
-      }
-
-      const response = await apiClient.get<ApiResponse<Gear[]>>(`/gear?${params.toString()}`);
-      let apiItems = response.data?.data || [];
-      const meta = response.data?.meta;
-
-      // Combine API items with 31 seeded GrabGear items
-      let items = [...apiItems];
-      SEEDED_GEAR_CATALOG.forEach((seededItem) => {
-        if (!items.some((i) => i.id === seededItem.id || i.title === seededItem.title)) {
-          items.push(seededItem);
+      // Load all locally created gear across all providers so it's visible in the catalog
+      if (typeof window !== 'undefined') {
+        const allLocalGear: Gear[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('provider_gear_')) {
+            try {
+              const cached = localStorage.getItem(key);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed)) allLocalGear.push(...parsed);
+              }
+            } catch {}
+          }
         }
-      });
+        
+        // Append local gear if it doesn't already exist
+        allLocalGear.forEach((lg) => {
+          if (!items.some((item) => item.id === lg.id)) {
+            items.push(lg);
+          }
+        });
+      }
 
       // Filter by search term
       if (searchTerm.trim()) {
@@ -165,26 +149,24 @@ function GearCatalogContent() {
 
       // Provider Store Items Filter (Default for Provider accounts)
       if (user?.role === 'PROVIDER' && providerViewMode === 'my_items') {
-        let localGear: Gear[] = [];
-        if (typeof window !== 'undefined' && user?.email) {
-          try {
-            const cached = localStorage.getItem(`provider_gear_${user.email}`);
-            if (cached) localGear = JSON.parse(cached);
-          } catch {}
-        }
-        let myItems = items.filter(
+        items = items.filter(
           (g) =>
             g.providerId === user?.id ||
             (g.provider?.email && g.provider.email.toLowerCase() === user?.email?.toLowerCase()) ||
             g.providerId === user?.email
         );
-        localGear.forEach((lg) => {
-          if (!myItems.some((i) => i.id === lg.id || i.title === lg.title)) {
-            myItems.push(lg);
-          }
-        });
-        items = myItems;
       }
+
+      // Client-side sorting since we are using context data
+      items.sort((a, b) => {
+        if (sortOption === 'title_asc') return a.title.localeCompare(b.title);
+        if (sortOption === 'title_desc') return b.title.localeCompare(a.title);
+        if (sortOption === 'price_asc') return a.pricePerDay - b.pricePerDay;
+        if (sortOption === 'price_desc') return b.pricePerDay - a.pricePerDay;
+        if (sortOption === 'location_asc') return (a.location || '').localeCompare(b.location || '');
+        // default newest
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      });
 
       const totalItemsCount = items.length;
       const calculatedPages = Math.max(1, Math.ceil(totalItemsCount / limit));

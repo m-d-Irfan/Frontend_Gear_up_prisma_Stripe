@@ -5,9 +5,9 @@ import AuthProvider from '@/components/providers/AuthProvider';
 import { AppDataProvider } from '@/context/AppDataContext';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
-import apiClient from '@/lib/axios';
 import { ApiResponse, Category, Gear, LocationItem } from '@/types';
 import { SEEDED_GEAR_CATALOG } from '@/data/gearCatalog';
+import { fetchGlobalAppData } from '@/lib/appDataFetcher';
 import './globals.css';
 
 const inter = Inter({
@@ -38,66 +38,14 @@ export const metadata: Metadata = {
 // Next.js config to ensure the layout is dynamic so it fetches real-time data
 export const dynamic = 'force-dynamic';
 
-async function fetchInitialAppData() {
-  try {
-    const [categoriesRes, gearRes, locationsRes] = await Promise.allSettled([
-      apiClient.get<ApiResponse<Category[]>>('/categories'),
-      apiClient.get<ApiResponse<Gear[]>>('/gear'),
-      apiClient.get<ApiResponse<LocationItem[]>>('/locations')
-    ]);
-
-    let categories: Category[] = [];
-    if (categoriesRes.status === 'fulfilled' && categoriesRes.value.data?.data) {
-      categories = categoriesRes.value.data.data;
-    }
-
-    let featuredGear: Gear[] = [];
-    let totalGearCount = SEEDED_GEAR_CATALOG.length;
-    if (gearRes.status === 'fulfilled' && gearRes.value.data?.data) {
-      const fetchedGear = gearRes.value.data.data;
-      const combined = [...fetchedGear];
-      SEEDED_GEAR_CATALOG.forEach((seeded) => {
-        if (!combined.some((item) => item.id === seeded.id || item.title === seeded.title)) {
-          combined.push(seeded);
-        }
-      });
-      featuredGear = combined.slice(0, 6);
-      totalGearCount = combined.length;
-    } else {
-      featuredGear = SEEDED_GEAR_CATALOG.slice(0, 6);
-    }
-
-    let locations: LocationItem[] = [];
-    if (locationsRes.status === 'fulfilled' && locationsRes.value.data?.data) {
-      locations = locationsRes.value.data.data;
-    }
-
-    const stats = {
-      usersCount: 50 + (totalGearCount * 2),
-      locationsCount: locations.length,
-      categoriesCount: categories.length,
-      districtsCount: 8
-    };
-
-    return { categories, featuredGear, totalGearCount, locations, stats };
-  } catch (error) {
-    // Return empty fallback on severe failure
-    return {
-      categories: [],
-      featuredGear: SEEDED_GEAR_CATALOG.slice(0, 6),
-      totalGearCount: SEEDED_GEAR_CATALOG.length,
-      locations: [],
-      stats: { usersCount: 50, locationsCount: 0, categoriesCount: 0, districtsCount: 8 }
-    };
-  }
-}
+// Using shared fetchGlobalAppData instead of duplicated code
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialData = await fetchInitialAppData();
+  const initialData = await fetchGlobalAppData();
 
   return (
     <html lang="en" className="light" suppressHydrationWarning>

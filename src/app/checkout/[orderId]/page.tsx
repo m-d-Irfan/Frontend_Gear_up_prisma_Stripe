@@ -36,29 +36,45 @@ export default function CheckoutPage({ params }: { params: Promise<{ orderId: st
     apiClient.get<ApiResponse<RentalOrder>>(`/orders/${orderId}`)
       .then((res) => { if (res.data?.data) setOrder(res.data.data); })
       .catch(() => {
-        setOrder({
-          id: orderId,
-          customerId: user?.id || 'cust-1',
-          gearId: 'gear-1',
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
-          totalDays: 3,
-          totalPrice: 150,
-          orderStatus: 'PENDING',
-          paymentStatus: 'UNPAID',
-          gear: {
-            id: 'gear-1',
-            title: 'Professional Mountain Bike & Helmet Set',
-            description: 'Top tier mountain bike equipped for rugged trails.',
-            pricePerDay: 50,
-            location: 'San Francisco, CA',
-            stock: 2,
-            isAvailable: true,
-            categoryId: 'cat-2',
-            providerId: 'prov-1',
-            imageUrl: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?q=80&w=800&auto=format&fit=crop',
-          },
-        });
+        // Fallback: search local storage for the order
+        let localOrder: RentalOrder | undefined;
+        if (typeof window !== 'undefined' && user?.email) {
+          try {
+            const cached = localStorage.getItem(`customer_orders_${user.email}`);
+            if (cached) {
+              const orders: RentalOrder[] = JSON.parse(cached);
+              localOrder = orders.find(o => o.id === orderId);
+            }
+          } catch {}
+        }
+
+        if (localOrder) {
+          setOrder(localOrder);
+        } else {
+          setOrder({
+            id: orderId,
+            customerId: user?.id || 'cust-1',
+            gearId: 'gear-1',
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+            totalDays: 3,
+            totalPrice: 150,
+            orderStatus: 'PENDING',
+            paymentStatus: 'UNPAID',
+            gear: {
+              id: 'gear-1',
+              title: 'Professional Mountain Bike & Helmet Set',
+              description: 'Top tier mountain bike equipped for rugged trails.',
+              pricePerDay: 50,
+              location: 'San Francisco, CA',
+              stock: 2,
+              isAvailable: true,
+              categoryId: 'cat-2',
+              providerId: 'prov-1',
+              imageUrl: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?q=80&w=800&auto=format&fit=crop',
+            },
+          });
+        }
       })
       .finally(() => setIsLoading(false));
   }, [orderId, user]);
