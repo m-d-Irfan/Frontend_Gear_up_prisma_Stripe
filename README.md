@@ -18,7 +18,7 @@
 
 ## 🔑 Seed Test Credentials (For Grading & Testing)
 
-You can use the following pre-seeded test accounts to explore the role-specific dashboards and protected features:
+You can use the following pre-seeded test accounts to explore the role-specific dashboards and exciting features:
 
 | Role | Email Address | Password | Key Capabilities |
 | :--- | :--- | :--- | :--- |
