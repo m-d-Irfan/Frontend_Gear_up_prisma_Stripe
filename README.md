@@ -54,7 +54,7 @@ You can use the following pre-seeded test accounts to explore the role-specific 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15 (App Router, Server & Client Components, Edge Middleware)
+- **Framework**: Next.js 15 (App Router, Server components & Client Components, Edge Middleware)
 - **Language**: TypeScript (Strict Mode)
 - **Styling**: Tailwind CSS v4, Glassmorphism design tokens, Lucide React Icons
 - **State Management**: Zustand
