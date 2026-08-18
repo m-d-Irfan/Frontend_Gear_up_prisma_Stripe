@@ -700,7 +700,7 @@ export default function AdminDashboardPage() {
                           <td className="px-4 py-3.5 font-mono text-[11px] text-slate-500">{ord.id}</td>
                           <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">{ord.gear?.title || 'Rental Item'}</td>
                           <td className="px-4 py-3.5">{ord.startDate} → {ord.endDate}</td>
-                          <td className="px-4 py-3.5 font-bold text-emerald-600 dark:text-emerald-400">${ord.totalPrice}</td>
+                          <td className="px-4 py-3.5 font-bold text-emerald-600 dark:text-emerald-400">৳{ord.totalPrice}</td>
                           <td className="px-4 py-3.5"><Badge variant={ord.orderStatus} /></td>
                         </tr>
                       ))}
@@ -971,8 +971,8 @@ export default function AdminDashboardPage() {
                     {paginatedGear.map((item) => (
                       <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">{item.title}</td>
-                        <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400">{item.brand || 'GearUp Verified'}</td>
-                        <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">${item.pricePerDay}</td>
+                        <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400">{item.brand || 'GrabGear Verified'}</td>
+                        <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">৳{item.pricePerDay}</td>
                         <td className="px-4 py-3.5 text-slate-700 dark:text-slate-300 font-bold">{item.stock ?? 0}</td>
                         <td className="px-4 py-3.5">
                           <Badge variant={item.isAvailable && (item.stock ?? 0) > 0 ? 'AVAILABLE' : 'UNAVAILABLE'} />
@@ -1032,7 +1032,7 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3.5 font-mono text-[11px] text-slate-500">{ord.id}</td>
                         <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">{ord.gear?.title || 'Rental Item'}</td>
                         <td className="px-4 py-3.5">{ord.startDate} → {ord.endDate}</td>
-                        <td className="px-4 py-3.5 font-bold text-emerald-600">${ord.totalPrice}</td>
+                        <td className="px-4 py-3.5 font-bold text-emerald-600 dark:text-emerald-400">৳{ord.totalPrice}</td>
                         <td className="px-4 py-3.5"><Badge variant={ord.orderStatus} /></td>
                       </tr>
                     ))}

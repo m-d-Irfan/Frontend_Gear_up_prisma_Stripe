@@ -22,6 +22,27 @@ import AnalyticsCharts from '@/components/dashboard/AnalyticsCharts';
 import WriteReviewModal from '@/components/dashboard/WriteReviewModal';
 import { useAuthStore } from '@/store/useAuthStore';
 
+function formatRentalDate(dateStr?: string) {
+  if (!dateStr) return 'N/A';
+  try {
+    const cleanStr = dateStr.split('T')[0];
+    const parts = cleanStr.split('-');
+    if (parts.length === 3) {
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    return cleanStr;
+  } catch {
+    return dateStr;
+  }
+}
+
 export default function CustomerDashboardPage() {
   const [activeTab, setActiveTab] = useState<'orders' | 'reviews' | 'payments' | 'analytics'>('orders');
   const [orders, setOrders] = useState<RentalOrder[]>([]);
@@ -44,14 +65,30 @@ export default function CustomerDashboardPage() {
   useEffect(() => {
     setIsLoadingOrders(true);
     const updatePaidStatus = (list: RentalOrder[]) => {
+      let paidRegistry: string[] = [];
+      if (typeof window !== 'undefined') {
+        try {
+          const regRaw = localStorage.getItem('paid_orders_registry');
+          if (regRaw) paidRegistry = JSON.parse(regRaw);
+        } catch {}
+      }
+
       return list.map((ord) => {
         const isPaid =
-          typeof window !== 'undefined' &&
-          (localStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
-            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
-            localStorage.getItem('order_paid_recent') === 'true');
+          ord.paymentStatus === 'PAID' ||
+          (typeof window !== 'undefined' &&
+            (localStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+              localStorage.getItem(`payment_status_${ord.id}`) === 'PAID' ||
+              sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+              paidRegistry.includes(ord.id) ||
+              localStorage.getItem('order_paid_recent') === 'true'));
+
         if (isPaid) {
-          return { ...ord, paymentStatus: 'PAID' as const, orderStatus: 'CONFIRMED' as const };
+          return {
+            ...ord,
+            paymentStatus: 'PAID' as const,
+            orderStatus: ord.orderStatus === 'PENDING' ? ('CONFIRMED' as const) : ord.orderStatus,
+          };
         }
         return ord;
       });
@@ -70,7 +107,10 @@ export default function CustomerDashboardPage() {
         }
         const combined = [...rawOrders];
         localOrders.forEach((lo) => {
-          if (!combined.some((item) => item.id === lo.id)) {
+          const existingIdx = combined.findIndex((item) => item.id === lo.id);
+          if (existingIdx !== -1) {
+            combined[existingIdx] = { ...combined[existingIdx], ...lo };
+          } else {
             combined.push(lo);
           }
         });
@@ -105,7 +145,7 @@ export default function CustomerDashboardPage() {
 
   const totalSpent = orders
     .filter((o) => o.paymentStatus === 'PAID')
-    .reduce((acc, curr) => acc + (curr.totalPrice || 0), 0);
+    .reduce((acc, curr) => acc + (Number(curr.totalPrice) || 0), 0);
 
   // Filtered Orders
   const filteredOrders = orders.filter((ord) => {
@@ -267,7 +307,7 @@ export default function CustomerDashboardPage() {
                       <tr key={ord.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{ord.gear?.title || `Gear ID: ${ord.gearId}`}</td>
                         <td className="px-6 py-4">
-                          <p className="text-slate-700 dark:text-slate-300">{ord.startDate} → {ord.endDate}</p>
+                          <p className="text-slate-700 dark:text-slate-300">{formatRentalDate(ord.startDate)} → {formatRentalDate(ord.endDate)}</p>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">({ord.totalDays} day{ord.totalDays > 1 ? 's' : ''})</p>
                         </td>
                         <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">৳{ord.totalPrice}</td>
@@ -350,7 +390,7 @@ export default function CustomerDashboardPage() {
                     {paginatedPayments.map((p) => (
                       <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-white">{p.transactionId || p.id}</td>
-                        <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">${p.amount}</td>
+                        <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">৳{p.amount}</td>
                         <td className="px-6 py-4"><Badge variant={p.status || 'PAID'} /></td>
                         <td className="px-6 py-4 text-right text-slate-500">{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'N/A'}</td>
                       </tr>

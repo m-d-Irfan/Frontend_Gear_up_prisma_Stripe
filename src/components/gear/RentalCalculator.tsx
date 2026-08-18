@@ -42,8 +42,8 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
       return;
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T00:00:00');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -62,11 +62,17 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
     }
 
     const diffTime = end.getTime() - start.getTime();
-    const rawDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const rawDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     const diffDays = rawDays === 0 ? 1 : rawDays;
 
     const firstDayRate = Number(gear.pricePerDay) || 0;
-    const additionalRate = Number(gear.additionalDayPrice) ?? Math.round(firstDayRate * 0.6);
+    const additionalRate =
+      gear.additionalDayPrice !== undefined &&
+      gear.additionalDayPrice !== null &&
+      !isNaN(Number(gear.additionalDayPrice))
+        ? Number(gear.additionalDayPrice)
+        : Math.round(firstDayRate * 0.6);
+
     const calculatedPrice = diffDays > 0 ? firstDayRate + Math.max(0, diffDays - 1) * additionalRate : 0;
 
     setDateError(null);
@@ -87,7 +93,7 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
             <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               ৳{Number(gear.pricePerDay)}
             </span>
-            <span className="text-xs text-slate-500 font-medium ml-1">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium ml-1">
               / 1st day (৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} add'l)
             </span>
           </div>
@@ -145,7 +151,7 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
               <span>Provider Store Notice</span>
             </p>
             <p className="text-[11px] leading-relaxed opacity-90">
-              You are currently logged in as an Equipment Provider. Rental booking calculators are reserved exclusively for Customer accounts.
+              You are viewing this gear listing from a Provider account. Switch to or register a Customer account to rent equipment.
             </p>
           </div>
         )}
@@ -271,24 +277,31 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
     return 'Proceed to Stripe Checkout';
   };
 
+  const additionalDayRateResolved =
+    gear.additionalDayPrice !== undefined &&
+    gear.additionalDayPrice !== null &&
+    !isNaN(Number(gear.additionalDayPrice))
+      ? Number(gear.additionalDayPrice)
+      : Math.round(Number(gear.pricePerDay || 0) * 0.6);
+
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-6">
-      <div className="border-b border-slate-100 pb-4 flex items-baseline justify-between">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
+      <div className="border-b border-slate-100 dark:border-slate-800 pb-4 flex items-baseline justify-between">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">From</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">From</span>
           <div className="flex items-baseline space-x-1">
             <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               ৳{Number(gear.pricePerDay)}
             </span>
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">first night</span>
           </div>
-          <p className="text-xs text-slate-500 font-semibold mt-0.5">
-            ৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)} / additional night
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+            ৳{additionalDayRateResolved} / additional night
           </p>
         </div>
         <div className="text-right">
-          <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Stripe Secured</span>
           </span>
         </div>
@@ -297,8 +310,8 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
       {/* Date Pickers */}
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-            <CalendarIcon className="w-4 h-4 text-emerald-600" />
+          <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+            <CalendarIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Rental Start Date</span>
           </label>
           <input
@@ -306,13 +319,13 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
             value={startDate}
             min={new Date().toISOString().split('T')[0]}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white"
+            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 transition-colors"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-            <CalendarIcon className="w-4 h-4 text-emerald-600" />
+          <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+            <CalendarIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Rental Return Date</span>
           </label>
           <input
@@ -320,12 +333,12 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
             value={endDate}
             min={startDate || new Date().toISOString().split('T')[0]}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-slate-900 focus:bg-white"
+            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-800 transition-colors"
           />
         </div>
 
         {dateError && (
-          <p className="text-xs text-rose-700 font-semibold bg-rose-50 p-3 rounded-xl border border-rose-200">
+          <p className="text-xs text-rose-700 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-200 dark:border-rose-800">
             {dateError}
           </p>
         )}
@@ -333,26 +346,26 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
 
       {/* Calculated Total Cost Summary */}
       {totalDays > 0 && !dateError && (
-        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-          <div className="flex items-center justify-between text-xs text-slate-600">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
             <span>First Day Pricing Rate</span>
-            <span className="text-slate-900 font-bold">৳{gear.pricePerDay}</span>
+            <span className="text-slate-900 dark:text-white font-bold">৳{gear.pricePerDay}</span>
           </div>
           {totalDays > 1 && (
-            <div className="flex items-center justify-between text-xs text-slate-600">
-              <span>Additional Days Rate ({totalDays - 1} day{totalDays > 2 ? 's' : ''} × ৳{gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6)})</span>
-              <span className="text-slate-900 font-bold">
-                ৳{(totalDays - 1) * (gear.additionalDayPrice ?? Math.round(gear.pricePerDay * 0.6))}
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+              <span>Additional Days Rate ({totalDays - 1} day{totalDays > 2 ? 's' : ''} × ৳{additionalDayRateResolved})</span>
+              <span className="text-slate-900 dark:text-white font-bold">
+                ৳{(totalDays - 1) * additionalDayRateResolved}
               </span>
             </div>
           )}
-          <div className="flex items-center justify-between text-xs text-slate-600">
+          <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
             <span>Total Duration</span>
-            <span className="text-slate-900 font-bold">{totalDays} day{totalDays > 1 ? 's' : ''}</span>
+            <span className="text-slate-900 dark:text-white font-bold">{totalDays} day{totalDays > 1 ? 's' : ''}</span>
           </div>
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200 text-base font-black text-slate-900">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700 text-base font-black text-slate-900 dark:text-white">
             <span>Total Rental Cost</span>
-            <span className="text-emerald-700 text-xl font-black">৳{totalPrice}</span>
+            <span className="text-emerald-600 dark:text-emerald-400 text-xl font-black">৳{totalPrice}</span>
           </div>
         </div>
       )}
@@ -361,7 +374,7 @@ export default function RentalCalculator({ gear }: RentalCalculatorProps) {
       <button
         onClick={handleRentNow}
         disabled={isSubmitting || !isFormValid}
-        className="w-full py-4 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 flex items-center justify-center space-x-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
+        className="w-full py-4 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 flex items-center justify-center space-x-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
       >
         {isSubmitting ? (
           <>

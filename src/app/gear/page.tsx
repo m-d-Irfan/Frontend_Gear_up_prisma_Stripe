@@ -432,8 +432,8 @@ function GearCatalogContent() {
           {/* Price Range Inputs & Slider */}
           <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-bold text-slate-800 dark:text-slate-200">Daily Price Range ($)</label>
-              <span className="font-extrabold text-emerald-600 dark:text-emerald-400">${minPrice} - ${maxPrice}</span>
+              <label className="font-bold text-slate-800 dark:text-slate-200">Daily Price Range (৳)</label>
+              <span className="font-extrabold text-emerald-600 dark:text-emerald-400">৳{minPrice} - ৳{maxPrice}</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <input

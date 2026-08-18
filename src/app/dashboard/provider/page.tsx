@@ -28,6 +28,27 @@ import EditGearModal from '@/components/dashboard/EditGearModal';
 import Modal from '@/components/ui/Modal';
 import { Trash2 } from 'lucide-react';
 
+function formatRentalDate(dateStr?: string) {
+  if (!dateStr) return 'N/A';
+  try {
+    const cleanStr = dateStr.split('T')[0];
+    const parts = cleanStr.split('-');
+    if (parts.length === 3) {
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    return cleanStr;
+  } catch {
+    return dateStr;
+  }
+}
+
 type ProviderTab = 'overview' | 'listings' | 'inventory' | 'orders' | 'fulfillment' | 'analytics';
 
 export default function ProviderDashboardPage() {
@@ -112,17 +133,104 @@ export default function ProviderDashboardPage() {
       });
   };
 
+  const enrichOrders = (list: RentalOrder[]) => {
+    let paidRegistry: string[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const regRaw = localStorage.getItem('paid_orders_registry');
+        if (regRaw) paidRegistry = JSON.parse(regRaw);
+      } catch {}
+    }
+
+    return list.map((ord) => {
+      const isPaid =
+        ord.paymentStatus === 'PAID' ||
+        (typeof window !== 'undefined' &&
+          (localStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+            localStorage.getItem(`payment_status_${ord.id}`) === 'PAID' ||
+            sessionStorage.getItem(`order_paid_${ord.id}`) === 'PAID' ||
+            paidRegistry.includes(ord.id) ||
+            localStorage.getItem('order_paid_recent') === 'true'));
+
+      if (isPaid) {
+        return {
+          ...ord,
+          paymentStatus: 'PAID' as const,
+          orderStatus: ord.orderStatus === 'PENDING' ? ('CONFIRMED' as const) : ord.orderStatus,
+        };
+      }
+      return ord;
+    });
+  };
+
   const fetchIncomingOrders = () => {
     setIsLoadingOrders(true);
     apiClient
       .get<ApiResponse<RentalOrder[]>>('/orders/my-orders')
       .then((res) => {
-        if (res.data?.data) {
-          setIncomingOrders(res.data.data);
+        const rawOrders = res.data?.data || [];
+        let matchingCustomerOrders: RentalOrder[] = [];
+
+        if (typeof window !== 'undefined') {
+          try {
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith('customer_orders_')) {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                  const orders: RentalOrder[] = JSON.parse(raw);
+                  orders.forEach((o) => {
+                    const isForMe =
+                      o.gear?.providerId === user?.id ||
+                      (o.gear?.provider?.email && o.gear.provider.email.toLowerCase() === user?.email?.toLowerCase()) ||
+                      o.gear?.providerId === user?.email;
+                    if (isForMe && !matchingCustomerOrders.some((item) => item.id === o.id)) {
+                      matchingCustomerOrders.push(o);
+                    }
+                  });
+                }
+              }
+            }
+          } catch {}
         }
+
+        const combined = [...rawOrders];
+        matchingCustomerOrders.forEach((mco) => {
+          const idx = combined.findIndex((item) => item.id === mco.id);
+          if (idx !== -1) {
+            combined[idx] = { ...combined[idx], ...mco };
+          } else {
+            combined.push(mco);
+          }
+        });
+
+        setIncomingOrders(enrichOrders(combined));
       })
       .catch(() => {
-        setIncomingOrders([]);
+        let matchingCustomerOrders: RentalOrder[] = [];
+        if (typeof window !== 'undefined') {
+          try {
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith('customer_orders_')) {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                  const orders: RentalOrder[] = JSON.parse(raw);
+                  orders.forEach((o) => {
+                    const isForMe =
+                      o.gear?.providerId === user?.id ||
+                      (o.gear?.provider?.email && o.gear.provider.email.toLowerCase() === user?.email?.toLowerCase()) ||
+                      o.gear?.providerId === user?.email;
+                    if (isForMe && !matchingCustomerOrders.some((item) => item.id === o.id)) {
+                      matchingCustomerOrders.push(o);
+                    }
+                  });
+                }
+              }
+            }
+          } catch {}
+        }
+        setIncomingOrders(enrichOrders(matchingCustomerOrders));
       })
       .finally(() => {
         setIsLoadingOrders(false);
@@ -437,15 +545,15 @@ export default function ProviderDashboardPage() {
                       <tr key={ord.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                         <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-white">{ord.id}</td>
                         <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">{ord.gear?.title || 'Rental Gear'}</td>
-                        <td className="px-6 py-4">{ord.startDate} → {ord.endDate}</td>
-                        <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">${ord.totalPrice}</td>
+                        <td className="px-6 py-4">{formatRentalDate(ord.startDate)} → {formatRentalDate(ord.endDate)}</td>
+                        <td className="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-400">৳{ord.totalPrice}</td>
                         <td className="px-6 py-4"><Badge variant={ord.orderStatus} /></td>
                         <td className="px-6 py-4 text-right">
                           <select
                             value={ord.orderStatus}
                             disabled={updatingOrderId === ord.id}
                             onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value as OrderStatus)}
-                            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-lg px-2 py-1 cursor-pointer focus:outline-none"
+                            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-lg px-2 py-1 cursor-pointer focus:outline-none text-slate-900 dark:text-white"
                           >
                             <option value="PENDING">PENDING</option>
                             <option value="CONFIRMED">CONFIRMED</option>
